@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menaxhimi i Studenteve - FTI Admin</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- CSS i Personalizuar -->
+    <link rel="stylesheet" href="/css/styleadm.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside id="sidebar-wrapper">
+
+            <div>
+                <!-- Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/std" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte -->
+                <div class="list-group list-group-flush py-3">
+                    <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
+                        Dashboard
+                    </a>
+                    <a href="/std" class="list-group-item list-group-item-action px-4 active">
+                        Studentet
+                    </a>
+                    <a href="/adm" class="list-group-item list-group-item-action px-4">
+                        Pedagoget
+                    </a>
+                    <a href="/lende" class="list-group-item list-group-item-action px-4">
+                        Lendet
+                    </a>
+                    <a href="/tc" class="list-group-item list-group-item-action px-4">
+                        Alokimi
+                    </a>
+                    <a href="/course_schedule" class="list-group-item list-group-item-action px-4">
+                        Orare
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-3 border-top">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <div id="page-content-wrapper">
+
+            <!-- Header -->
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"></h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark">Administrator</span>
+                        <span class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="page-wrapper">
+
+                <!-- Header & Butoni Shto -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">Menaxhimi i studenteve</h3>
+                        <p class="text-muted small mb-0">
+                        </p>
+                    </div>
+                    <button class="btn btn-primary fw-semibold" data-bs-toggle="modal"
+                        data-bs-target="#modalShtoStudent">
+                        <i class="bi bi-plus"></i> Shto student
+                    </button>
+                </div>
+
+                <!-- SEKSIONI I FILTRIMIT ME BUTON -->
+                <div class="ibox mb-4">
+                    <div class="ibox-content rounded">
+                        <form id="filterFormStudentet" onsubmit="return false;">
+                            <div class="row g-2">
+                                <!-- Filtri 1: Emri -->
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Studenti</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="filterEmri" class="form-control"
+                                            placeholder="Kerko emer / mbiemer">
+                                    </div>
+                                </div>
+
+                                <!-- Filtri 2: Niveli -->
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold text-muted">Niveli</label>
+                                    <select id="filterNiveli" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                    </select>
+                                </div>
+
+                                <!-- Filtri 3: Viti -->
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold text-muted">Viti</label>
+                                    <select id="filterViti" class="form-select form-select-sm">
+                                        <option value="">Te gjithe</option>
+                                        <option value="Viti 1">Viti 1</option>
+                                        <option value="Viti 2">Viti 2</option>
+                                        <option value="Viti 3">Viti 3</option>
+                                    </select>
+                                </div>
+
+                                <!-- Filtri 4: GRUPI -->
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold text-muted">Grupi</label>
+                                    <select id="filterGrupi" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                        <option value="Grupi A">Grupi A</option>
+                                        <option value="Grupi B">Grupi B</option>
+                                        <option value="Grupi C">Grupi C</option>
+                                        <option value="Grupi D">Grupi D</option>
+                                    </select>
+                                </div>
+
+                                <!-- Filtri 5: Dega -->
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Dega</label>
+                                    <select id="filterDega" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                    </select>
+                                </div>
+
+                                <!-- BUTONAT -->
+                                <div class="col-md-12 text-end mt-3">
+                                    <button type="button" id="btnReset" class="btn btn-outline-secondary btn-sm me-1">
+                                        Refresh
+                                    </button>
+                                    <button type="button" id="btnFilter"
+                                        class="btn btn-primary btn-sm px-4 fw-semibold">
+                                        Kerko
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABELA DATATABLE -->
+                <div class="ibox">
+                    <div class="ibox-content p-0">
+                        <div class="table-responsive p-2">
+                            <table id="tabelaStudenteve"
+                                class="table table-sm table-striped table-bordered table-hover align-middle w-100">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 35px;" class="text-center">Nr.</th>
+                                        <th>Studenti</th>
+                                        <th class="text-center">Nr. Matrikullimit</th>
+                                        <th>Email</th>
+                                        <th style="max-width: 140px;">Departamenti</th>
+                                        <th>Niveli</th>
+                                        <th style="max-width: 140px;">Dega</th>
+                                        <th>Viti</th>
+                                        <th>Grupi</th>
+                                        <th>Statusi</th>
+                                        <th class="text-center text-nowrap" style="width: 120px;">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /page-wrapper -->
+        </div><!-- /page-content-wrapper -->
+
+    </div><!-- /wrapper -->
+
+    <!-- MODAL: SHTO STUDENT -->
+    <div class="modal fade" id="modalShtoStudent" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom">
+                    <h6 class="modal-title fw-bold">Shto student</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formShtoStudent" onsubmit="handleShtoStudent(event)">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Emri</label>
+                                <input type="text" id="shtoEmri" class="form-control form-control-sm" placeholder="Emer"
+                                    required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Mbiemri</label>
+                                <input type="text" id="shtoMbiemri" class="form-control form-control-sm"
+                                    placeholder="Mbiemer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Email</label>
+                                <input type="text" id="shtoEmail" class="form-control form-control-sm"
+                                    placeholder="emri.mbiemri@fti.edu.al" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Nr. Matrikullimit</label>
+                                <input type="text" id="shtoMatrikulimi" class="form-control form-control-sm"
+                                    placeholder="202400000001" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Niveli</label>
+                                <select id="shtoProgram" class="form-select form-select-sm" required>
+                                    <option value="">Duke ngarkuar...</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold d-block">Diplome e Dyfishte (Double
+                                    Degree)?</label>
+                                <div class="pt-1">
+                                    <div class="form-check form-check-inline me-3">
+                                        <input class="form-check-input" type="radio" name="shtoDoubleDegree"
+                                            id="doubleDegreeNo" value="false" checked>
+                                        <label class="form-check-label small" for="doubleDegreeNo">Jo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="shtoDoubleDegree"
+                                            id="doubleDegreeYes" value="true">
+                                        <label class="form-check-label small" for="doubleDegreeYes">Po</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Dega</label>
+                                <select id="shtoDega" class="form-select form-select-sm" required>
+                                    <option value="">Zgjidhni nivelin fillimisht...</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Viti</label>
+                                <select id="shtoViti" class="form-select form-select-sm" required>
+                                    <option value="1">Viti 1</option>
+                                    <option value="2">Viti 2</option>
+                                    <option value="3">Viti 3</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Klasa</label>
+                                <select id="shtoGrupi" class="form-select form-select-sm" required>
+                                    <option value="Grupi A">Grupi A</option>
+                                    <option value="Grupi B">Grupi B</option>
+                                    <option value="Grupi C">Grupi C</option>
+                                    <option value="Grupi D">Grupi D</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div id="modalAlertStudent" class="alert alert-danger py-1 px-2 d-none extra-small mb-2"></div>
+                        <div class="text-end border-top pt-3">
+                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Anulo</button>
+                            <button type="submit" class="btn btn-dark btn-sm fw-semibold">Ruaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITO STUDENT -->
+    <div class="modal fade" id="modalEditoStudent" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom">
+                    <h6 class="modal-title fw-bold">Edito Te Dhenat e Studentit</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditoStudent" onsubmit="handleEditoStudent(event)">
+                        <input type="hidden" id="editoId">
+                        <input type="hidden" id="editoStatus">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Emri</label>
+                                <input type="text" id="editoEmri" class="form-control form-control-sm"
+                                    placeholder="Emer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Mbiemri</label>
+                                <input type="text" id="editoMbiemri" class="form-control form-control-sm"
+                                    placeholder="Mbiemer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Email Institucional</label>
+                                <input type="text" id="editoEmail" class="form-control form-control-sm"
+                                    placeholder="emri.mbiemri@fti.edu.al" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Nr. Matrikullimit</label>
+                                <input type="text" id="editoMatrikulimi" class="form-control form-control-sm"
+                                    placeholder="202400000001" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Programi (Niveli)</label>
+                                <select id="editoProgram" class="form-select form-select-sm" required>
+                                    <option value="">Duke ngarkuar...</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold d-block">Diplome e Dyfishte (Double
+                                    Degree)?</label>
+                                <div class="pt-1">
+                                    <div class="form-check form-check-inline me-3">
+                                        <input class="form-check-input" type="radio" name="editoDoubleDegree"
+                                            id="editoDoubleDegreeNo" value="false" checked>
+                                        <label class="form-check-label small" for="editoDoubleDegreeNo">Jo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="editoDoubleDegree"
+                                            id="editoDoubleDegreeYes" value="true">
+                                        <label class="form-check-label small" for="editoDoubleDegreeYes">Po</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Departamenti / Dega / Specializimi</label>
+                                <select id="editoDega" class="form-select form-select-sm" required>
+                                    <option value="">Zgjidhni nivelin fillimisht...</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Viti i Studimit</label>
+                                <select id="editoViti" class="form-select form-select-sm" required>
+                                    <option value="1">Viti 1</option>
+                                    <option value="2">Viti 2</option>
+                                    <option value="3">Viti 3</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Grupi / Klasa</label>
+                                <select id="editoGrupi" class="form-select form-select-sm" required>
+                                    <option value="Grupi A">Grupi A</option>
+                                    <option value="Grupi B">Grupi B</option>
+                                    <option value="Grupi C">Grupi C</option>
+                                    <option value="Grupi D">Grupi D</option>
+                                </select>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div id="modalAlertEditoStudent" class="alert alert-danger py-1 px-2 d-none extra-small mb-2">
+                        </div>
+                        <div class="text-end border-top pt-3">
+                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Anulo</button>
+                            <button type="submit" class="btn btn-primary btn-sm fw-semibold">Ruaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- JS KODI -->
+    <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+        var dataTable;
+
+        $(document).ready(function () {
+            $.fn.dataTable.ext.pager.single_number = function (page, pages) {
+                return ['previous', page, 'next'];
+            };
+
+            dataTable = $('#tabelaStudenteve').DataTable({
+                pageLength: 10,
+                pagingType: "single_number",
+                responsive: true,
+                dom: '<"d-flex justify-content-between align-items-center mb-3"l>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                language: {
+                    lengthMenu: "_MENU_",
+                    info: "Shfaqur _START_ deri _END_ nga _TOTAL_ studente",
+                    paginate: {
+                        first: "«",
+                        last: "»",
+                        next: "&gt;",
+                        previous: "&lt;"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: [0, 10] }
+                ]
+            });
+
+            // Autonumerim per Nr.
+            dataTable.on('order.dt search.dt', function () {
+                let i = 1;
+                dataTable.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                    this.data(i++);
+                });
+            }).draw();
+
+            // FILTRIMI ME BUTON
+            $('#btnFilter').on('click', function () {
+                var emri = $('#filterEmri').val();
+                var niveli = $('#filterNiveli').val();
+                var viti = $('#filterViti').val();
+                var grupi = $('#filterGrupi').val();
+                var dega = $('#filterDega').val();
+
+                dataTable.column(1).search(emri)
+                    .column(5).search(niveli)
+                    .column(6).search(dega)
+                    .column(7).search(viti)
+                    .column(8).search(grupi)
+                    .draw();
+            });
+
+            $('#filterFormStudentet input').on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    $('#btnFilter').click();
+                }
+            });
+
+            // RESET
+            $('#btnReset').on('click', function () {
+                $('#filterFormStudentet')[0].reset();
+                onFilterNiveliChange();
+                dataTable.columns().search('').draw();
+            });
+
+            // Dynamic filter binding when level changes
+            $('#filterNiveli').on('change', function () {
+                onFilterNiveliChange();
+            });
+
+            // Ngarkojme te dhenat reale nga DB
+            loadProgramOptions();
+            onProgramOrDoubleDegreeChange();
+            loadRealStudents();
+
+            // Lidhja e degjuesve te ngjarjeve per ndryshimin e Programit dhe Double Degree
+            $('#shtoProgram').on('change', function () {
+                onProgramOrDoubleDegreeChange();
+            });
+
+            $(document).on('change', 'input[name="shtoDoubleDegree"]', function () {
+                onProgramOrDoubleDegreeChange();
+            });
+
+            $('#modalShtoStudent').on('shown.bs.modal', function () {
+                onProgramOrDoubleDegreeChange();
+            });
+        });
+
+        async function onProgramOrDoubleDegreeChange() {
+            const nivel = $('#shtoProgram').val();
+            const doubleRadio = document.querySelector('input[name="shtoDoubleDegree"]:checked');
+            const isDouble = doubleRadio ? doubleRadio.value === 'true' : false;
+
+            const degaSelect = $('#shtoDega');
+
+            if (!nivel) {
+                degaSelect.empty();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/students/specializimet?nivel=${encodeURIComponent(nivel)}&doubleDegree=${isDouble}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                degaSelect.empty();
+                if (response.ok) {
+                    const list = await response.json();
+                    if (list && list.length > 0) {
+                        const uniqueList = [...new Set(list)];
+                        uniqueList.forEach(item => {
+                            degaSelect.append(new Option(item, item));
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te specializimeve nga DB:", err);
+            }
+        }
+
+        async function onFilterNiveliChange() {
+            const nivel = $('#filterNiveli').val();
+            const filterDegaSelect = $('#filterDega');
+            filterDegaSelect.find('option:not(:first)').remove();
+
+            let url = '/api/admin/students/specializimet';
+            if (nivel) {
+                url += `?nivel=${encodeURIComponent(nivel)}`;
+            }
+
+            try {
+                const resSpec = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (resSpec.ok) {
+                    const specializimet = await resSpec.json();
+                    if (specializimet && specializimet.length > 0) {
+                        const uniqueSpec = [...new Set(specializimet)];
+                        uniqueSpec.forEach(sp => {
+                            filterDegaSelect.append(new Option(sp, sp));
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te degeve per filtrim:", err);
+            }
+        }
+
+        async function loadProgramOptions() {
+            try {
+                // 1. Load nivelet (levels) for the form dropdown and filter
+                const resNivel = await fetch('/api/admin/students/nivelet', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (resNivel.ok) {
+                    const nivelet = await resNivel.json();
+                    const shtoProgSelect = $('#shtoProgram');
+                    const filterNivelSelect = $('#filterNiveli');
+                    shtoProgSelect.empty();
+                    filterNivelSelect.find('option:not(:first)').remove();
+                    const uniqueNivelet = [...new Set(nivelet)];
+                    uniqueNivelet.forEach(n => {
+                        shtoProgSelect.append(new Option(n, n));
+                        filterNivelSelect.append(new Option(n, n));
+                    });
+                    // After nivelet are loaded, load specializimet for the selected level
+                    await onProgramOrDoubleDegreeChange();
+                }
+
+                // 2. Load specializimet for the filter bar
+                await onFilterNiveliChange();
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te niveleve/specializimeve nga DB:", err);
+            }
+        }
+
+        let cachedStudents = [];
+
+        async function loadRealStudents() {
+            try {
+                const response = await fetch('/api/admin/students', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (response.ok) {
+                    const students = await response.json();
+                    cachedStudents = students;
+                    dataTable.clear();
+
+                    students.forEach(s => {
+                        const statusBadge = s.status === 'VERIFIKUAR'
+                            ? '<span class="text-dark">Verifikuar</span>'
+                            : '<span class="text-dark">Pararegjistruar</span>';
+
+                        const deleteBtn = `<button class="btn btn-sm btn-outline-danger me-1" onclick="deleteStudent(${s.id}, '${s.status}')" title="Fshi studentin"><i class="bi bi-trash"></i></button>`;
+                        const editBtn = `<button class="btn btn-sm btn-outline-primary me-1" onclick="editStudent(${s.id})" title="Edito te dhenat"><i class="bi bi-pencil"></i></button>`;
+                        const verifyBtn = s.status === 'PARAREGJISTRUAR'
+                            ? `<button class="btn btn-sm btn-outline-success me-1" onclick="verifyStudent(${s.id})" title="Verifiko & Regjistro direkt te User dhe Student"><i class="bi bi-check-circle-fill"></i></button>`
+                            : '';
+
+                        const actions = `<div class="text-center text-nowrap">${verifyBtn}${editBtn}${deleteBtn}</div>`;
+
+                        const studentName = `<span class="fw-semibold text-dark text-nowrap">${s.emri} ${s.mbiemri}</span>`;
+                        const matrikullaText = `<div class="text-center font-monospace text-dark text-nowrap">${s.nrMatrikulimit}</div>`;
+                        const emailText = `<span class="text-dark text-nowrap">${s.email}</span>`;
+                        const deptText = `<div style="max-width: 140px; white-space: normal; line-height: 1.25;">${s.dega || ''}</div>`;
+                        const specText = `<div style="max-width: 140px; white-space: normal; line-height: 1.25;">${s.specializimi || ''}</div>`;
+
+                        dataTable.row.add([
+                            1,
+                            studentName,
+                            matrikullaText,
+                            emailText,
+                            deptText,
+                            s.program || '',
+                            specText,
+                            'Viti ' + (s.vitStudimit || 1),
+                            s.grupi || '',
+                            statusBadge,
+                            actions
+                        ]);
+                    });
+
+                    dataTable.draw();
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te studenteve nga DB:", err);
+            }
+        }
+
+        async function onEditoProgramOrDoubleDegreeChange() {
+            const nivel = $('#editoProgram').val();
+            const doubleRadio = document.querySelector('input[name="editoDoubleDegree"]:checked');
+            const isDouble = doubleRadio ? doubleRadio.value === 'true' : false;
+
+            const degaSelect = $('#editoDega');
+
+            if (!nivel) {
+                degaSelect.empty();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/students/specializimet?nivel=${encodeURIComponent(nivel)}&doubleDegree=${isDouble}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                degaSelect.empty();
+                if (response.ok) {
+                    const list = await response.json();
+                    if (list && list.length > 0) {
+                        const uniqueList = [...new Set(list)];
+                        uniqueList.forEach(item => {
+                            degaSelect.append(new Option(item, item));
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te specializimeve per editim nga DB:", err);
+            }
+        }
+
+        function clearEditoStudentFormErrors() {
+            const alertDiv = document.getElementById('modalAlertEditoStudent');
+            if (alertDiv) {
+                alertDiv.classList.add('d-none');
+                alertDiv.textContent = '';
+            }
+            const form = document.getElementById('formEditoStudent');
+            if (form) {
+                form.querySelectorAll('.form-control, .form-select').forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+                form.querySelectorAll('.invalid-feedback').forEach(div => {
+                    div.textContent = '';
+                });
+            }
+        }
+
+        function setEditoStudentFieldError(inputId, message) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.classList.add('is-invalid');
+            const container = input.closest('.col-md-6, .col-md-3') || input.parentElement;
+            const feedback = container ? container.querySelector('.invalid-feedback') : null;
+            if (feedback) {
+                feedback.textContent = message;
+            }
+        }
+
+        async function editStudent(id) {
+            clearEditoStudentFormErrors();
+            const s = cachedStudents.find(st => st.id === id);
+            if (!s) return;
+
+            $('#editoId').val(s.id);
+            $('#editoStatus').val(s.status);
+            $('#editoEmri').val(s.emri);
+            $('#editoMbiemri').val(s.mbiemri);
+            $('#editoEmail').val(s.email);
+            $('#editoMatrikulimi').val(s.nrMatrikulimit);
+            $('#editoViti').val(s.vitStudimit || 1);
+            $('#editoGrupi').val(s.grupi || 'Grupi A');
+
+            // Populate program levels dynamically from DB
+            try {
+                const resNivel = await fetch('/api/admin/students/nivelet', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (resNivel.ok) {
+                    const nivelet = await resNivel.json();
+                    const editoProgSelect = $('#editoProgram');
+                    editoProgSelect.empty();
+                    const uniqueNivelet = [...new Set(nivelet)];
+                    uniqueNivelet.forEach(n => {
+                        editoProgSelect.append(new Option(n, n));
+                    });
+                    if (s.program) {
+                        editoProgSelect.val(s.program);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            await onEditoProgramOrDoubleDegreeChange();
+            if (s.specializimi) {
+                $('#editoDega').val(s.specializimi);
+            }
+
+            // Bind change handlers for edito form
+            $('#editoProgram').off('change').on('change', function () {
+                onEditoProgramOrDoubleDegreeChange();
+            });
+
+            $('input[name="editoDoubleDegree"]').off('change').on('change', function () {
+                onEditoProgramOrDoubleDegreeChange();
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditoStudent'));
+            modal.show();
+        }
+
+        async function handleEditoStudent(event) {
+            event.preventDefault();
+            clearEditoStudentFormErrors();
+
+            const form = event.target;
+            const emptyFields = Array.from(form.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                form.reportValidity();
+                return;
+            }
+
+            const id = $('#editoId').val();
+            const status = $('#editoStatus').val();
+            const emri = $('#editoEmri').val().trim();
+            const mbiemri = $('#editoMbiemri').val().trim();
+            const email = $('#editoEmail').val().trim();
+            const nrMatrikulimit = $('#editoMatrikulimi').val().trim();
+            const program = $('#editoProgram').val();
+            const dega = $('#editoDega').val();
+            const doubleRadio = document.querySelector('input[name="editoDoubleDegree"]:checked');
+            const isDoubleDegree = doubleRadio ? doubleRadio.value === 'true' : false;
+
+            let isValid = true;
+
+            if (emri.length < 3) {
+                setEditoStudentFieldError('editoEmri', "Emri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            if (mbiemri.length < 3) {
+                setEditoStudentFieldError('editoMbiemri', "Mbiemri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setEditoStudentFieldError('editoEmail', "Email-i duhet te jete i tipit @fti.edu.al");
+                isValid = false;
+            }
+
+            if (nrMatrikulimit.length !== 12) {
+                setEditoStudentFieldError('editoMatrikulimi', "Nr. i matrikullimit duhet te kete saktesisht 12 karaktere.");
+                isValid = false;
+            }
+
+            if (!program) {
+                setEditoStudentFieldError('editoProgram', "Zgjidhni programin.");
+                isValid = false;
+            }
+
+            if (!dega) {
+                setEditoStudentFieldError('editoDega', "Zgjidhni departamentin / degen.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const reqData = {
+                emri: emri,
+                mbiemri: mbiemri,
+                email: email,
+                nrMatrikulimit: nrMatrikulimit,
+                program: program,
+                doubleDegree: isDoubleDegree,
+                dega: dega,
+                vitStudimit: parseInt($('#editoViti').val()),
+                grupi: $('#editoGrupi').val(),
+                status: status
+            };
+
+            try {
+                const response = await fetch(`/api/admin/students/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const modalEl = document.getElementById('modalEditoStudent');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    clearEditoStudentFormErrors();
+                    loadRealStudents();
+                } else {
+                    const alertDiv = document.getElementById('modalAlertEditoStudent');
+                    const errMsg = data.message || "Gabim gjate perditesimit te studentit.";
+                    if (errMsg.toLowerCase().includes("email")) {
+                        setEditoStudentFieldError('editoEmail', errMsg);
+                    } else if (errMsg.toLowerCase().includes("matrikulim") || errMsg.toLowerCase().includes("matrikullim")) {
+                        setEditoStudentFieldError('editoMatrikulimi', errMsg);
+                    } else {
+                        alertDiv.textContent = errMsg;
+                        alertDiv.classList.remove('d-none');
+                    }
+                }
+            } catch (err) {
+                const alertDiv = document.getElementById('modalAlertEditoStudent');
+                alertDiv.textContent = "Gabim lidhje me serverin.";
+                alertDiv.classList.remove('d-none');
+            }
+        }
+
+        function clearStudentFormErrors() {
+            const alertDiv = document.getElementById('modalAlertStudent');
+            if (alertDiv) {
+                alertDiv.classList.add('d-none');
+                alertDiv.textContent = '';
+            }
+            const form = document.getElementById('formShtoStudent');
+            if (form) {
+                form.querySelectorAll('.form-control, .form-select').forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+                form.querySelectorAll('.invalid-feedback').forEach(div => {
+                    div.textContent = '';
+                });
+            }
+        }
+
+        function setStudentFieldError(inputId, message) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.classList.add('is-invalid');
+            const container = input.closest('.col-md-6, .col-md-3') || input.parentElement;
+            const feedback = container ? container.querySelector('.invalid-feedback') : null;
+            if (feedback) {
+                feedback.textContent = message;
+            }
+        }
+
+        async function handleShtoStudent(event) {
+            event.preventDefault();
+            clearStudentFormErrors();
+
+            const form = event.target;
+            const emptyFields = Array.from(form.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                form.reportValidity();
+                return;
+            }
+
+            const emri = document.getElementById('shtoEmri').value.trim();
+            const mbiemri = document.getElementById('shtoMbiemri').value.trim();
+            const email = document.getElementById('shtoEmail').value.trim();
+            const nrMatrikulimit = document.getElementById('shtoMatrikulimi').value.trim();
+            const program = document.getElementById('shtoProgram').value;
+            const dega = document.getElementById('shtoDega').value;
+            const doubleRadio = document.querySelector('input[name="shtoDoubleDegree"]:checked');
+            const isDoubleDegree = doubleRadio ? doubleRadio.value === 'true' : false;
+
+            let isValid = true;
+
+            if (emri.length < 3) {
+                setStudentFieldError('shtoEmri', "Emri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            if (mbiemri.length < 3) {
+                setStudentFieldError('shtoMbiemri', "Mbiemri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setStudentFieldError('shtoEmail', "Email-i duhet te jete i tipit @fti.edu.al");
+                isValid = false;
+            }
+
+            if (nrMatrikulimit.length !== 12) {
+                setStudentFieldError('shtoMatrikulimi', "Nr. i matrikullimit duhet te kete saktesisht 12 karaktere.");
+                isValid = false;
+            }
+
+            if (!program) {
+                setStudentFieldError('shtoProgram', "Zgjidhni programin.");
+                isValid = false;
+            }
+
+            if (!dega) {
+                setStudentFieldError('shtoDega', "Zgjidhni departamentin / degen.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const reqData = {
+                emri: emri,
+                mbiemri: mbiemri,
+                email: email,
+                nrMatrikulimit: nrMatrikulimit,
+                program: program,
+                doubleDegree: isDoubleDegree,
+                dega: dega,
+                vitStudimit: parseInt(document.getElementById('shtoViti').value),
+                grupi: document.getElementById('shtoGrupi').value
+            };
+
+            try {
+                const response = await fetch('/api/admin/students/pre-enrollment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const modalEl = document.getElementById('modalShtoStudent');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    document.getElementById('formShtoStudent').reset();
+                    clearStudentFormErrors();
+                    loadRealStudents();
+                } else {
+                    const alertDiv = document.getElementById('modalAlertStudent');
+                    const errMsg = data.message || "Gabim gjate ruajtjes se studentit.";
+                    if (errMsg.toLowerCase().includes("email")) {
+                        setStudentFieldError('shtoEmail', errMsg);
+                    } else if (errMsg.toLowerCase().includes("matrikulim") || errMsg.toLowerCase().includes("matrikullim")) {
+                        setStudentFieldError('shtoMatrikulimi', errMsg);
+                    } else {
+                        alertDiv.textContent = errMsg;
+                        alertDiv.classList.remove('d-none');
+                    }
+                }
+            } catch (err) {
+                const alertDiv = document.getElementById('modalAlertStudent');
+                alertDiv.textContent = "Gabim lidhje me serverin.";
+                alertDiv.classList.remove('d-none');
+            }
+        }
+
+        async function verifyStudent(id) {
+            try {
+                const response = await fetch(`/api/admin/students/pre-enrollment/${id}/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '')
+                    }
+                });
+
+                if (response.ok) {
+                    loadRealStudents();
+                } else {
+                    const data = await response.json().catch(() => ({}));
+                    alert(data.message || "Gabim gjate verifikimit direkt te studentit.");
+                }
+            } catch (e) {
+                console.error("Gabim gjate verifikimit:", e);
+                alert("Gabim ne komunikim me serverin.");
+            }
+        }
+
+        async function deleteStudent(id, status) {
+            if (!confirm("A jeni i sigurt qe deshironi ta fshini kete student?")) return;
+            try {
+                const response = await fetch(`/api/admin/students/${id}?status=${encodeURIComponent(status || '')}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadRealStudents();
+                } else {
+                    alert("Gabim gjate fshirjes se studentit.");
+                }
+            } catch (e) {
+                console.error("Gabim gjate fshirjes se studentit:", e);
+            }
+        }
+
+        async function editStudent(id) {
+            clearEditoStudentFormErrors();
+            const s = cachedStudents.find(st => st.id === id);
+            if (!s) return;
+
+            $('#editoId').val(s.id);
+            $('#editoStatus').val(s.status);
+            $('#editoEmri').val(s.emri);
+            $('#editoMbiemri').val(s.mbiemri);
+            $('#editoEmail').val(s.email);
+            $('#editoMatrikulimi').val(s.nrMatrikulimit);
+            $('#editoViti').val(s.vitStudimit || 1);
+            $('#editoGrupi').val(s.grupi || 'Grupi A');
+
+            // Populate program levels dynamically from DB
+            try {
+                const resNivel = await fetch('/api/admin/students/nivelet', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (resNivel.ok) {
+                    const nivelet = await resNivel.json();
+                    const editoProgSelect = $('#editoProgram');
+                    editoProgSelect.empty();
+                    const uniqueNivelet = [...new Set(nivelet)];
+                    uniqueNivelet.forEach(n => {
+                        editoProgSelect.append(new Option(n, n));
+                    });
+                    if (s.program) {
+                        editoProgSelect.val(s.program);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            await onEditoProgramOrDoubleDegreeChange();
+            if (s.specializimi) {
+                $('#editoDega').val(s.specializimi);
+            }
+
+            // Bind change handlers for edito form
+            $('#editoProgram').off('change').on('change', function () {
+                onEditoProgramOrDoubleDegreeChange();
+            });
+
+            $('input[name="editoDoubleDegree"]').off('change').on('change', function () {
+                onEditoProgramOrDoubleDegreeChange();
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditoStudent'));
+            modal.show();
+        }
+    </script>
+
+</body>
+
+</html>

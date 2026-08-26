@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menaxhimi i Pedagogeve - FTI Admin</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- CSS i Paneli i Administratorit -->
+    <link rel="stylesheet" href="/css/styleadm.css">
+    <style>
+        .extra-small {
+            font-size: 0.75rem;
+        }
+    </style>
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside id="sidebar-wrapper">
+
+            <div>
+                <!-- Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/std" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte -->
+                <div class="list-group list-group-flush py-3">
+                    <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
+                        Dashboard
+                    </a>
+                    <a href="/std" class="list-group-item list-group-item-action px-4">
+                        Studentet
+                    </a>
+                    <a href="/adm" class="list-group-item list-group-item-action px-4 active">
+                        Pedagoget
+                    </a>
+                    <a href="/lende" class="list-group-item list-group-item-action px-4">
+                        Lendet
+                    </a>
+                    <a href="/tc" class="list-group-item list-group-item-action px-4">
+                        Alokimi
+                    </a>
+                    <a href="/course_schedule" class="list-group-item list-group-item-action px-4">
+                        Orare
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-3 border-top">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <div id="page-content-wrapper">
+
+            <!-- Header -->
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"></h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark">Administrator</span>
+                        <span class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="page-wrapper">
+
+                <!-- Header & Butoni Shto -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">Menaxhimi i stafit akademik</h3>
+                        <p class="text-muted small mb-0"></p>
+                    </div>
+                    <button class="btn btn-dark fw-semibold" data-bs-toggle="modal" data-bs-target="#modalShtoPedagog">
+                        <i class="bi bi-plus"></i> Shto petagog
+                    </button>
+                </div>
+
+                <!-- SEKSIONI I FILTRIMIT AUTOMATIK -->
+                <div class="ibox mb-4">
+                    <div class="ibox-content rounded">
+                        <form id="filterFormPedagoget" onsubmit="return false;">
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <label class="form-label small fw-semibold text-muted">Pedagogu</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="filterEmri" class="form-control"
+                                            placeholder="Kerko emer/mbiemer">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold text-muted">Departamenti</label>
+                                    <select id="filterDepartamenti" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 text-end align-self-end">
+                                    <button type="button" id="btnReset" class="btn btn-outline-secondary btn-sm me-1">
+                                       Refresh
+                                    </button>
+                                    <button type="button" id="btnFilter"
+                                        class="btn btn-primary btn-sm px-3 fw-semibold">
+                                         Kerko
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABELA DATATABLE -->
+                <div class="ibox">
+                    <div class="ibox-content p-0">
+                        <div class="table-responsive p-2">
+                            <table id="tabelaPedagogeve"
+                                class="table table-sm table-striped table-bordered table-hover align-middle w-100">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;" class="text-center">Nr.</th>
+                                        <th>Pedagogu</th>
+                                        <th>Departamenti</th>
+                                        <th>Email Zyrtar</th>
+                                        <th>Statusi</th>
+                                        <th class="text-center text-nowrap" style="width: 100px;">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /page-wrapper -->
+        </div><!-- /page-content-wrapper -->
+
+    </div><!-- /wrapper -->
+
+    <!-- MODAL 1: SHTO PEDAGOG -->
+    <div class="modal fade" id="modalShtoPedagog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom">
+                    <h6 class="modal-title fw-bold">Shto Pedagog te Ri</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formShtoPedagog" onsubmit="handleShtoPedagog(event)">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Emri</label>
+                                <input type="text" id="shtoEmri" class="form-control form-control-sm" placeholder="Emer"
+                                    required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Mbiemri</label>
+                                <input type="text" id="shtoMbiemri" class="form-control form-control-sm"
+                                    placeholder="Mbiemer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Email</label>
+                            <input type="text" id="shtoEmail" class="form-control form-control-sm"
+                                placeholder="emri.mbiemri@fti.edu.al" required>
+                            <div class="invalid-feedback extra-small"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Departamenti</label>
+                            <select id="shtoDepartamenti" class="form-select form-select-sm" required>
+                                <option value="">Duke ngarkuar...</option>
+                            </select>
+                            <div class="invalid-feedback extra-small"></div>
+                        </div>
+                        <div id="modalAlertPedagog" class="alert alert-danger py-1 px-2 d-none extra-small mb-2"></div>
+                        <div class="text-end border-top pt-3">
+                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Anulo</button>
+                            <button type="submit" class="btn btn-dark btn-sm fw-semibold">Ruaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EDITO PEDAGOG -->
+    <div class="modal fade" id="modalEditoPedagog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom">
+                    <h6 class="modal-title fw-bold">Edit</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditoPedagog" onsubmit="handleEditoPedagog(event)">
+                        <input type="hidden" id="editoId">
+                        <input type="hidden" id="editoStatus">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Emri</label>
+                                <input type="text" id="editoEmri" class="form-control form-control-sm"
+                                    placeholder="Emer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Mbiemri</label>
+                                <input type="text" id="editoMbiemri" class="form-control form-control-sm"
+                                    placeholder="Mbiemer" required>
+                                <div class="invalid-feedback extra-small"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Email</label>
+                            <input type="text" id="editoEmail" class="form-control form-control-sm"
+                                placeholder="emri.mbiemri@fti.edu.al" required>
+                            <div class="invalid-feedback extra-small"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Departamenti</label>
+                            <select id="editoDepartamenti" class="form-select form-select-sm" required>
+                                <option value="">Duke ngarkuar...</option>
+                            </select>
+                            <div class="invalid-feedback extra-small"></div>
+                        </div>
+                        <div id="modalAlertEditoPedagog" class="alert alert-danger py-1 px-2 d-none extra-small mb-2">
+                        </div>
+                        <div class="text-end border-top pt-3">
+                            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Anulo</button>
+                            <button type="submit" class="btn btn-primary btn-sm fw-semibold">Ruaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- JS KODI -->
+    <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+        var dataTable;
+        let cachedProfessors = [];
+
+        $(document).ready(function () {
+            $.fn.dataTable.ext.pager.single_number = function (page, pages) {
+                return ['previous', page, 'next'];
+            };
+
+            dataTable = $('#tabelaPedagogeve').DataTable({
+                pageLength: 10,
+                pagingType: "single_number",
+                responsive: true,
+                dom: '<"d-flex justify-content-between align-items-center mb-3"l>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                language: {
+                    lengthMenu: " _MENU_",
+                    info: "Shfaqur _START_ deri _END_ nga _TOTAL_ pedagoge",
+                    paginate: {
+                        first: "«",
+                        last: "»",
+                        next: "&gt;",
+                        previous: "&lt;"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: [0, 5] }
+                ]
+            });
+
+            // Autonumerim per Nr.
+            dataTable.on('order.dt search.dt', function () {
+                let i = 1;
+                dataTable.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                    this.data(i++);
+                });
+            }).draw();
+
+            // FILTRIMI ME BUTON
+            $('#btnFilter').on('click', function () {
+                var emri = $('#filterEmri').val();
+                var dep = $('#filterDepartamenti').val();
+
+                dataTable.column(1).search(emri)
+                    .column(2).search(dep)
+                    .draw();
+            });
+
+            $('#filterFormPedagoget input').on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    $('#btnFilter').click();
+                }
+            });
+
+            // RESET
+            $('#btnReset').on('click', function () {
+                $('#filterFormPedagoget')[0].reset();
+                dataTable.columns().search('').draw();
+            });
+
+            // Ngarkojme te dhenat reale nga DB
+            loadDepartmentOptions();
+            loadRealProfessors();
+        });
+
+        async function loadDepartmentOptions() {
+            try {
+                const res = await fetch('/api/admin/professors/departamentet', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (res.ok) {
+                    const depts = await res.json();
+                    const filterDepSelect = $('#filterDepartamenti');
+                    const shtoDepSelect = $('#shtoDepartamenti');
+                    const editoDepSelect = $('#editoDepartamenti');
+
+                    filterDepSelect.find('option:not(:first)').remove();
+                    shtoDepSelect.empty();
+                    editoDepSelect.empty();
+
+                    const uniqueDepts = [...new Set(depts)];
+                    uniqueDepts.forEach(d => {
+                        filterDepSelect.append(new Option(d, d));
+                        shtoDepSelect.append(new Option(d, d));
+                        editoDepSelect.append(new Option(d, d));
+                    });
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te departamenteve nga DB:", err);
+            }
+        }
+
+        async function loadRealProfessors() {
+            try {
+                const response = await fetch('/api/admin/professors', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (response.ok) {
+                    const professors = await response.json();
+                    cachedProfessors = professors;
+                    dataTable.clear();
+
+                    professors.forEach(p => {
+                        const statusBadge = p.status === 'VERIFIKUAR'
+                            ? '<span class="text-dark">Verifikuar</span>'
+                            : '<span class="text-dark">Pararegjistruar</span>';
+
+                        const deleteBtn = `<button class="btn btn-sm btn-outline-danger me-1" onclick="deleteProfessor(${p.id}, '${p.status}')" title="Fshi pedagogun"><i class="bi bi-trash"></i></button>`;
+                        const editBtn = `<button class="btn btn-sm btn-outline-primary me-1" onclick="editProfessor(${p.id})" title="Edito te dhenat"><i class="bi bi-pencil"></i></button>`;
+                        const verifyBtn = p.status === 'PARAREGJISTRUAR'
+                            ? `<button class="btn btn-sm btn-outline-success me-1" onclick="verifyProfessor(${p.id})" title="Verifiko & Regjistro direkt te User dhe Pedagog"><i class="bi bi-check-circle-fill"></i></button>`
+                            : '';
+
+                        const actions = `<div class="text-center text-nowrap">${verifyBtn}${editBtn}${deleteBtn}</div>`;
+
+                        const profName = `<span class="fw-semibold text-dark text-nowrap">${p.emri} ${p.mbiemri}</span>`;
+                        const emailText = `<span class="text-dark text-nowrap">${p.email}</span>`;
+                        const deptText = `<span class="text-dark">${p.department || ''}</span>`;
+
+                        dataTable.row.add([
+                            1,
+                            profName,
+                            deptText,
+                            emailText,
+                            statusBadge,
+                            actions
+                        ]);
+                    });
+
+                    dataTable.draw();
+                }
+            } catch (err) {
+                console.error("Gabim gjate ngarkimit te pedagogeve nga DB:", err);
+            }
+        }
+
+        function clearPedagogFormErrors(formId, alertId) {
+            const alertDiv = document.getElementById(alertId);
+            if (alertDiv) {
+                alertDiv.classList.add('d-none');
+                alertDiv.textContent = '';
+            }
+            const form = document.getElementById(formId);
+            if (form) {
+                form.querySelectorAll('.form-control, .form-select').forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+                form.querySelectorAll('.invalid-feedback').forEach(div => {
+                    div.textContent = '';
+                });
+            }
+        }
+
+        function setPedagogFieldError(inputId, message) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.classList.add('is-invalid');
+            const container = input.closest('.col-md-6, .mb-3') || input.parentElement;
+            const feedback = container ? container.querySelector('.invalid-feedback') : null;
+            if (feedback) {
+                feedback.textContent = message;
+            }
+        }
+
+        async function handleShtoPedagog(event) {
+            event.preventDefault();
+            clearPedagogFormErrors('formShtoPedagog', 'modalAlertPedagog');
+
+            const form = event.target;
+            const emptyFields = Array.from(form.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                form.reportValidity();
+                return;
+            }
+
+            const emri = document.getElementById('shtoEmri').value.trim();
+            const mbiemri = document.getElementById('shtoMbiemri').value.trim();
+            const email = document.getElementById('shtoEmail').value.trim();
+            const department = document.getElementById('shtoDepartamenti').value;
+
+            let isValid = true;
+
+            if (emri.length < 3) {
+                setPedagogFieldError('shtoEmri', "Emri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            if (mbiemri.length < 3) {
+                setPedagogFieldError('shtoMbiemri', "Mbiemri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setPedagogFieldError('shtoEmail', "Email-i duhet te jete i tipit @fti.edu.al");
+                isValid = false;
+            }
+
+            if (!department) {
+                setPedagogFieldError('shtoDepartamenti', "Zgjidhni departamentin.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const reqData = {
+                emri: emri,
+                mbiemri: mbiemri,
+                email: email,
+                department: department
+            };
+
+            try {
+                const response = await fetch('/api/admin/professors/pre-enrollment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const modalEl = document.getElementById('modalShtoPedagog');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    document.getElementById('formShtoPedagog').reset();
+                    clearPedagogFormErrors('formShtoPedagog', 'modalAlertPedagog');
+                    loadRealProfessors();
+                } else {
+                    const alertDiv = document.getElementById('modalAlertPedagog');
+                    const errMsg = data.message || "Gabim gjate ruajtjes se pedagogut.";
+                    if (errMsg.toLowerCase().includes("email")) {
+                        setPedagogFieldError('shtoEmail', errMsg);
+                    } else {
+                        alertDiv.textContent = errMsg;
+                        alertDiv.classList.remove('d-none');
+                    }
+                }
+            } catch (err) {
+                const alertDiv = document.getElementById('modalAlertPedagog');
+                alertDiv.textContent = "Gabim lidhje me serverin.";
+                alertDiv.classList.remove('d-none');
+            }
+        }
+
+        async function editProfessor(id) {
+            clearPedagogFormErrors('formEditoPedagog', 'modalAlertEditoPedagog');
+            const p = cachedProfessors.find(pr => pr.id === id);
+            if (!p) return;
+
+            $('#editoId').val(p.id);
+            $('#editoStatus').val(p.status);
+            $('#editoEmri').val(p.emri);
+            $('#editoMbiemri').val(p.mbiemri);
+            $('#editoEmail').val(p.email);
+
+            await loadDepartmentOptions();
+            if (p.department) {
+                $('#editoDepartamenti').val(p.department);
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditoPedagog'));
+            modal.show();
+        }
+
+        async function handleEditoPedagog(event) {
+            event.preventDefault();
+            clearPedagogFormErrors('formEditoPedagog', 'modalAlertEditoPedagog');
+
+            const form = event.target;
+            const emptyFields = Array.from(form.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                form.reportValidity();
+                return;
+            }
+
+            const id = $('#editoId').val();
+            const status = $('#editoStatus').val();
+            const emri = $('#editoEmri').val().trim();
+            const mbiemri = $('#editoMbiemri').val().trim();
+            const email = $('#editoEmail').val().trim();
+            const department = $('#editoDepartamenti').val();
+
+            let isValid = true;
+
+            if (emri.length < 3) {
+                setPedagogFieldError('editoEmri', "Emri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            if (mbiemri.length < 3) {
+                setPedagogFieldError('editoMbiemri', "Mbiemri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setPedagogFieldError('editoEmail', "Email-i duhet te jete i tipit @fti.edu.al");
+                isValid = false;
+            }
+
+            if (!department) {
+                setPedagogFieldError('editoDepartamenti', "Zgjidhni departamentin.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const reqData = {
+                emri: emri,
+                mbiemri: mbiemri,
+                email: email,
+                department: department,
+                status: status
+            };
+
+            try {
+                const response = await fetch(`/api/admin/professors/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const modalEl = document.getElementById('modalEditoPedagog');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    clearPedagogFormErrors('formEditoPedagog', 'modalAlertEditoPedagog');
+                    loadRealProfessors();
+                } else {
+                    const alertDiv = document.getElementById('modalAlertEditoPedagog');
+                    const errMsg = data.message || "Gabim gjate perditesimit te pedagogut.";
+                    if (errMsg.toLowerCase().includes("email")) {
+                        setPedagogFieldError('editoEmail', errMsg);
+                    } else {
+                        alertDiv.textContent = errMsg;
+                        alertDiv.classList.remove('d-none');
+                    }
+                }
+            } catch (err) {
+                const alertDiv = document.getElementById('modalAlertEditoPedagog');
+                alertDiv.textContent = "Gabim lidhje me serverin.";
+                alertDiv.classList.remove('d-none');
+            }
+        }
+
+        async function verifyProfessor(id) {
+            try {
+                const response = await fetch(`/api/admin/professors/pre-enrollment/${id}/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '')
+                    }
+                });
+
+                if (response.ok) {
+                    loadRealProfessors();
+                } else {
+                    const data = await response.json().catch(() => ({}));
+                    alert(data.message || "Gabim gjate verifikimit direkt te pedagogut.");
+                }
+            } catch (e) {
+                console.error("Gabim gjate verifikimit:", e);
+                alert("Gabim ne komunikim me serverin.");
+            }
+        }
+
+        async function deleteProfessor(id, status) {
+            if (!confirm("A jeni i sigurt qe deshironi ta fshini kete pedagog?")) return;
+            try {
+                const response = await fetch(`/api/admin/professors/${id}?status=${encodeURIComponent(status || '')}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadRealProfessors();
+                } else {
+                    alert("Gabim gjate fshirjes se pedagogut.");
+                }
+            } catch (e) {
+                console.error("Gabim gjate fshirjes se pedagogut:", e);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

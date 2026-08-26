@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notat e Studentit - FTI</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body class="overflow-hidden">
+
+    <div class="d-flex vh-100 overflow-hidden" id="wrapper">
+
+        <!-- ================= SIDEBAR (FIKS) ================= -->
+        <aside id="sidebar-wrapper"
+            class="bg-white border-end d-flex flex-column justify-content-between h-100 flex-shrink-0"
+            style="width: 250px;">
+
+            <!-- Pjesa e Siperme: Logo + Navigimi -->
+            <div>
+                <!-- Header i Sidebar-it me Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/student" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte Kryesore -->
+                <div class="list-group list-group-flush py-3">
+                    <!-- Profili -->
+                    <a href="/student" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Profili
+                    </a>
+
+                    <!-- Notat (Aktiv) -->
+                    <a href="/nota" class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
+                        Notat
+                    </a>
+
+                    <!-- Mungesat -->
+                    <a href="/mungesat" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Mungesat
+                    </a>
+
+                    <!-- Orari -->
+                    <a href="/course_schedule" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Orari
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pjesa e Poshtme: Logout -->
+            <div class="p-3 border-top bg-white">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT AREA ================= -->
+        <div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
+
+            <!-- HEADER TOP BAR (FIKS) -->
+            <header
+                class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between flex-shrink-0">
+                <div class="d-flex align-items-center">
+                    <h6 class="mb-0 fw-bold text-secondary"></h6>
+                </div>
+
+                <!-- User Info -->
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark" id="headerStudentName">-</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PERMBAJTJA E FAQES (VETEM KJO PJESE BEN SCROLL) -->
+            <main class="flex-grow-1 overflow-y-auto p-4">
+
+                <div class="container py-2 grades-page-container" id="gradesPageContainer">
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        Po ngarkohen notat...
+                    </div>
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- ================= MODAL 1: KERKESE PERMIRESIMI ================= -->
+    <div class="modal fade" id="permiresimModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content rounded-0 border">
+                <div class="modal-header bg-light py-2">
+                    <h6 class="modal-title fw-bold text-black">Kerkese Permiresimi</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="small text-muted mb-1">Po kerkoni permiresim per lenden:</p>
+                    <p class="fw-bold text-black mb-3" id="modalSubjectTitle"></p>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Jo</button>
+                        <button type="button" class="btn btn-sm btn-dark" onclick="konfirmoPermiresimin()">Po</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: ANULIM KERKESE ================= -->
+    <div class="modal fade" id="anuloModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content rounded-0 border">
+                <div class="modal-header bg-light py-2">
+                    <h6 class="modal-title fw-bold text-black">Anulo Kerkesen</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="small text-muted mb-1">A jeni i sigurt qe deshironi ta anuloni kerkesen per lenden:</p>
+                    <p class="fw-bold text-black mb-3" id="modalAnuloSubjectTitle"></p>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Jo</button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="konfirmoAnulimin()">Po</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Logjika JS -->
+    <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+        let currentCellId = null;
+        let currentSubject = '';
+        let currentGrade = '';
+        let bsPermiresimModal = null;
+        let bsAnuloModal = null;
+
+        $(document).ready(function () {
+            loadStudentHeader();
+            loadStudentGrades();
+        });
+
+        async function loadStudentHeader() {
+            const userId = localStorage.getItem('userId');
+            const userEmail = localStorage.getItem('userEmail');
+
+            let url = '/api/student/me';
+            const params = [];
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+            if (params.length > 0) url += '?' + params.join('&');
+
+            try {
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.emriMbiemri && data.emriMbiemri !== '-') {
+                        $('#headerStudentName').text(data.emriMbiemri);
+                    }
+                    if (data.programiStudimit && data.programiStudimit !== '-') {
+                        $('#headerStudentProgram').text(data.programiStudimit);
+                    }
+                }
+            } catch (e) {
+                console.error("Gabim gjate ngarkimit te header-it:", e);
+            }
+        }
+
+        async function loadStudentGrades() {
+            const userId = localStorage.getItem('userId');
+            const userEmail = localStorage.getItem('userEmail');
+
+            let url = '/api/student/grades';
+            const params = [];
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+            if (params.length > 0) url += '?' + params.join('&');
+
+            try {
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (!res.ok) return;
+
+                const grades = await res.json();
+                if (!grades || grades.length === 0) {
+                    $('#gradesPageContainer').html('<div class="text-center py-5 text-muted">Nuk ka nota te regjistruara ne sistem.</div>');
+                    return;
+                }
+
+                // Group grades by studyYear (descending: 3, 2, 1)
+                const grouped = {};
+                grades.forEach(g => {
+                    const yr = g.studyYear || 1;
+                    if (!grouped[yr]) grouped[yr] = [];
+                    grouped[yr].push(g);
+                });
+
+                const years = Object.keys(grouped).map(Number).sort((a, b) => b - a);
+                const container = $('#gradesPageContainer');
+                container.empty();
+
+                const romanYears = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV' };
+
+                years.forEach(yr => {
+                    const yearGrades = grouped[yr];
+                    const yearRoman = romanYears[yr] || yr;
+
+                    let yearKrediteFituara = 0;
+                    let yearTotalKredite = 0;
+                    let yearWeightedSum = 0;
+
+                    let rowsHtml = '';
+                    yearGrades.forEach((g, idx) => {
+                        const cellId = `grade-cell-${yr}-${idx}`;
+                        const kredite = g.kredite || 0;
+                        yearTotalKredite += kredite;
+
+                        let notaCellContent = '';
+                        if (g.nota && g.nota !== 'X' && g.notaValue !== null) {
+                            const gradeNum = g.notaValue;
+                            if (gradeNum >= 5) {
+                                yearKrediteFituara += kredite;
+                                yearWeightedSum += (gradeNum * kredite);
+                            }
+                            notaCellContent = `
+                            <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}')">
+                                ${g.nota}
+                            </span>
+                        `;
+                        } else {
+                            notaCellContent = `<span class="grade-pending">X</span>`;
+                        }
+
+                        rowsHtml += `
+                        <tr>
+                            <td class="subject-name">${escapeHtml(g.emriLende)}</td>
+                            <td class="col-center">${kredite}</td>
+                            <td class="col-center" id="${cellId}">
+                                ${notaCellContent}
+                            </td>
+                        </tr>
+                    `;
+                    });
+
+                    let yearAverageStr = '0.00';
+                    if (yearKrediteFituara > 0) {
+                        const avg = yearWeightedSum / yearKrediteFituara;
+                        yearAverageStr = avg.toFixed(2);
+                    }
+
+                    const yearBlockHtml = `
+                    <div class="year-block mb-4">
+                        <h6 class="year-title">Viti ${yearRoman}</h6>
+                        <table class="grades-table">
+                            <thead>
+                            <tr>
+                                <th>Lenda</th>
+                                <th class="col-center">Kredite</th>
+                                <th class="col-center">Nota</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                            <tfoot>
+                            <tr class="grades-table-summary">
+                                <td class="summary-label"></td>
+                                <td class="col-center summary-value">${yearKrediteFituara} / ${yearTotalKredite}</td>
+                                <td class="col-center summary-value">${yearAverageStr}</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                    container.append(yearBlockHtml);
+                });
+            } catch (e) {
+                console.error("Gabim gjate ngarkimit te notave te studentit:", e);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        }
+
+        function hapModalPermiresimi(subjectName, cellId, grade) {
+            currentSubject = subjectName;
+            currentCellId = cellId;
+            currentGrade = grade;
+            document.getElementById('modalSubjectTitle').innerText = subjectName;
+            bsPermiresimModal = new bootstrap.Modal(document.getElementById('permiresimModal'));
+            bsPermiresimModal.show();
+        }
+
+        function konfirmoPermiresimin() {
+            if (currentCellId) {
+                const cell = document.getElementById(currentCellId);
+                cell.innerHTML = `
+                <div class="grade-cell-content">
+                    <span class="fw-bold">${currentGrade}</span>
+                    <button type="button" class="btn-cancel-link" onclick="hapModalAnulimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}')">
+                        Anulo kerkesen
+                    </button>
+                </div>
+            `;
+            }
+            if (bsPermiresimModal) bsPermiresimModal.hide();
+        }
+
+        function hapModalAnulimi(subjectName, cellId, grade) {
+            currentSubject = subjectName;
+            currentCellId = cellId;
+            currentGrade = grade;
+            document.getElementById('modalAnuloSubjectTitle').innerText = subjectName;
+            bsAnuloModal = new bootstrap.Modal(document.getElementById('anuloModal'));
+            bsAnuloModal.show();
+        }
+
+        function konfirmoAnulimin() {
+            if (currentCellId) {
+                const cell = document.getElementById(currentCellId);
+                cell.innerHTML = `
+                <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}')">
+                    ${currentGrade}
+                </span>
+            `;
+            }
+            if (bsAnuloModal) bsAnuloModal.hide();
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alokimi i Mesimdhenies</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/styleadm.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside id="sidebar-wrapper">
+
+            <div>
+                <!-- Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/std" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte -->
+                <div class="list-group list-group-flush py-3">
+                    <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
+                        Dashboard
+                    </a>
+                    <a href="/std" class="list-group-item list-group-item-action px-4">
+                        Studentet
+                    </a>
+                    <a href="/adm" class="list-group-item list-group-item-action px-4">
+                        Pedagoget
+                    </a>
+                    <a href="/lende" class="list-group-item list-group-item-action px-4">
+                        Lendet
+                    </a>
+                    <a href="/tc" class="list-group-item list-group-item-action px-4 active">
+                        Alokimi
+                    </a>
+                    <a href="/course_schedule" class="list-group-item list-group-item-action px-4">
+                        Orare
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-3 border-top">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <div id="page-content-wrapper">
+
+            <!-- Header -->
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"></h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark">Administrator</span>
+                        <span class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="page-wrapper">
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="fw-bold mb-1">Menaxhimi i mesimdhenies</h4>
+                        <p class="text-muted small mb-0">
+                            </p>
+                    </div>
+                    <button class="btn btn-dark btn-sm px-3" onclick="openCreateModal()">
+                        <i class="bi bi-plus-lg me-1"></i>Shto
+                    </button>
+                </div>
+
+                <!-- FILTRAT (PROGRAMI, VITI & KERKO) -->
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-body p-3">
+                        <form id="filterFormTc" onsubmit="return false;">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold text-muted">Dega </label>
+                                    <select id="tableFilterProg" class="form-select form-select-sm">
+                                        <option value="">Te gjitha deget</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold text-muted">Viti</label>
+                                    <select id="tableFilterViti" class="form-select form-select-sm">
+                                        <option value="">Gjithe vitet</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex gap-2">
+                                    <button type="button" id="btnFiltroTable"
+                                        class="btn btn-dark btn-sm flex-fill fw-semibold">
+                                        Kerko
+                                    </button>
+                                    <button type="button" id="btnRefreshTable"
+                                        class="btn btn-outline-secondary btn-sm flex-fill fw-semibold">
+                                         Refresh
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABELA KRYESORE -->
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="tabelaTeaching" class="table table-hover align-middle mb-0 w-100">
+                                <thead class="table-dark small text-uppercase">
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">Nr.</th>
+                                        <th>Departamenti</th>
+                                        <th>Lenda</th>
+                                        <th class="text-center">Viti</th>
+                                        <th class="text-center">Semestri</th>
+                                        <th class="text-center">Kohezgjatja</th>
+                                        <th class="text-center">Ore</th>
+                                        <th class="text-center">Detajet</th>
+                                        <th class="text-end text-nowrap">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaTeachingBody" class="small">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MODAL SHTO / EDITO -->
+            <div class="modal fade" id="modalTeaching" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-md modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+
+                        <div class="modal-header border-bottom py-2">
+                            <h6 class="modal-title fw-bold text-dark" id="modalTitle"></h6>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body p-4">
+                            <div id="modalTcAlert" class="alert alert-danger small d-none mb-3"></div>
+                            <form id="formTeaching">
+
+                                <!-- 1. DEPARTAMENTI -->
+                                <div class="mb-3" id="groupDepartamenti">
+                                    <label class="form-label small fw-bold text-dark">Departamenti</label>
+                                    <select class="form-select form-select-sm" id="selectDepartamenti">
+                                    </select>
+                                </div>
+
+                                <!-- 2. NIVELI -->
+                                <div class="mb-3" id="groupNiveli">
+                                    <label class="form-label small fw-bold text-dark">Niveli</label>
+                                    <select class="form-select form-select-sm" id="selectNiveli" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <!-- 3. DEGA / PROGRAMI -->
+                                <div class="mb-3" id="groupProgrami">
+                                    <label class="form-label small fw-bold text-dark">Dega</label>
+                                    <select class="form-select form-select-sm" id="selectProgrami" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <!-- 4. VITI I STUDIMIT -->
+                                <div class="mb-3" id="groupViti">
+                                    <label class="form-label small fw-bold text-dark">Viti</label>
+                                    <select class="form-select form-select-sm" id="selectViti" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <!-- 5. SEMESTRI -->
+                                <div class="mb-3" id="groupSemestri">
+                                    <label class="form-label small fw-bold text-dark">Semestri</label>
+                                    <select class="form-select form-select-sm" id="selectSemestri" required>
+                                        <option value="1">Semestri 1</option>
+                                        <option value="2">Semestri 2</option>
+                                    </select>
+                                </div>
+
+                                <!-- 6. LENDA -->
+                                <div class="mb-3" id="groupLenda">
+                                    <label class="form-label small fw-bold text-dark">Lenda</label>
+                                    <select class="form-select form-select-sm" id="selectLenda" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <!-- 7. KOHEZGJATJA & ORET -->
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-dark">Kohezgjatja (Jave)</label>
+                                        <input type="number" class="form-control form-control-sm" id="inputKohezgjatja"
+                                             required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-dark">Ore</label>
+                                        <input type="number" class="form-control form-control-sm" id="inputOreGjithsej"
+                                             required>
+                                    </div>
+                                </div>
+
+                                <div class="border-top my-3"></div>
+
+                                <!-- 8. SEKSIONI LEKSION -->
+                                <div class="mb-3">
+                                    <label
+                                        class="form-label small fw-bold text-dark d-block border-bottom pb-1 mb-2">Pedagogu
+                                        i leksionit</label>
+                                    <select class="form-select form-select-sm" id="selectLeksionProf" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <!-- 9. SEKSIONI SEMINAR -->
+                                <div class="mb-3">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
+                                        <label class="form-label small fw-bold text-dark mb-0">Petagogu i seminarit</label>
+                                        <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-7"
+                                            onclick="addSeminarRow()">+ Shto pedagog</button>
+                                    </div>
+                                    <div id="seminarContainer">
+                                        <!-- Dynamic Seminar Rows -->
+                                    </div>
+                                </div>
+
+                                <!-- 10. SEKSIONI LABORATOR -->
+                                <div class="mb-3">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" id="hasLabSwitch"
+                                                onchange="toggleLabSection()">
+                                            <label class="form-check-label small fw-bold text-dark"
+                                                for="hasLabSwitch">Kjo lende ka laborator</label>
+                                        </div>
+                                    </div>
+
+                                    <div id="labSection" class="d-none mt-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="small text-muted fw-bold"></span>
+                                            <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-7"
+                                                onclick="addLabRow()">+ Shto petagog laboratori</button>
+                                        </div>
+                                        <div id="labContainer">
+                                            <!-- Dynamic Lab Rows -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                                    <button type="button" class="btn btn-sm btn-light"
+                                        data-bs-dismiss="modal">Anulo</button>
+                                    <button type="submit" class="btn btn-sm btn-dark px-4 fw-semibold">Ruaj</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCRIPTS -->
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+            <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+                let modalTeaching;
+                let tableTeaching = null;
+                let allProfessors = [];
+                let allCourses = [];
+                let dbDepartments = [];
+                let dbPrograms = [];
+                let allAllocationsData = [];
+                let currentEditingCourseId = null;
+
+                $(document).ready(function () {
+                    modalTeaching = new bootstrap.Modal(document.getElementById('modalTeaching'));
+                    setupTableDataFilter();
+                    loadDatabaseData();
+
+                    $('#btnFiltroTable').on('click', function () {
+                        if (tableTeaching) tableTeaching.draw();
+                    });
+
+                    $('#btnRefreshTable').on('click', function () {
+                        $('#tableFilterProg').val('');
+                        $('#tableFilterViti').val('');
+                        if (tableTeaching) tableTeaching.draw();
+                    });
+
+                    // Step 1: Departamenti Change
+                    $('#selectDepartamenti').on('change', function () {
+                        populateNiveliDropdown();
+                        populateProgramDropdown();
+                        populateVitiDropdown();
+                        updateLendetOptions();
+                    });
+
+                    // Step 2: Niveli Change
+                    $('#selectNiveli').on('change', function () {
+                        populateProgramDropdown();
+                        populateVitiDropdown();
+                        updateLendetOptions();
+                    });
+
+                    // Step 3: Programi Change
+                    $('#selectProgrami').on('change', function () {
+                        populateVitiDropdown();
+                        updateLendetOptions();
+                    });
+
+                    // Step 4: Viti Change
+                    $('#selectViti').on('change', function () {
+                        updateLendetOptions();
+                    });
+
+                    // Step 5: Lenda Change -> Ngarkon alokimin ekzistues nese ekziston
+                    $('#selectLenda').on('change', async function () {
+                        const courseId = $(this).val();
+                        if (courseId) {
+                            await checkExistingCourseAllocation(courseId);
+                        } else {
+                            $('#modalTcAlert').addClass('d-none').empty();
+                        }
+                    });
+
+                    $('#formTeaching').on('submit', async function (e) {
+                        e.preventDefault();
+                        await saveAllocationData();
+                    });
+                });
+
+                async function loadDatabaseData() {
+                    try {
+                        // 1. Load Departments from DB API
+                        const resDept = await fetch('/api/admin/courses/departments', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (resDept.ok) {
+                            dbDepartments = await resDept.json();
+                        }
+
+                        // 2. Load Programs from DB API
+                        const resProg = await fetch('/api/admin/courses/programs', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (resProg.ok) {
+                            dbPrograms = await resProg.json();
+                        }
+
+                        // 3. Load Professors from DB API
+                        const resProf = await fetch('/api/admin/professors', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (resProf.ok) {
+                            allProfessors = await resProf.json();
+                            populateProfessorOptions();
+                        }
+
+                        // 4. Load Courses from DB API
+                        const resCourses = await fetch('/api/admin/courses', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (resCourses.ok) {
+                            allCourses = await resCourses.json();
+                        }
+
+                        populateDepartmentDropdown();
+                        populateNiveliDropdown();
+                        populateProgramDropdown();
+                        populateVitiDropdown();
+                        updateLendetOptions();
+                        populateTopFilterDropdowns();
+
+                        // 5. Load Allocations Table
+                        loadAllocationsTable();
+                    } catch (err) {
+                        console.error("Gabim gjate ngarkimit te te dhenave nga databaza:", err);
+                    }
+                }
+
+                function setupTableDataFilter() {
+                    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                        if (!settings || settings.nTable.id !== 'tabelaTeaching') return true;
+
+                        const selProgId = $('#tableFilterProg').val();
+                        const selViti = $('#tableFilterViti').val();
+
+                        if (!selProgId && !selViti) return true;
+
+                        if (!allAllocationsData || !allAllocationsData[dataIndex]) return true;
+                        const item = allAllocationsData[dataIndex];
+
+                        if (selProgId && String(item.programId) !== String(selProgId)) return false;
+                        if (selViti && String(item.studyYear) !== String(selViti)) return false;
+
+                        return true;
+                    });
+                }
+
+                function populateTopFilterDropdowns() {
+                    const progSelect = $('#tableFilterProg');
+                    progSelect.empty().append('<option value="">Te gjitha deget</option>');
+                    if (dbPrograms && dbPrograms.length > 0) {
+                        dbPrograms.forEach(p => {
+                            const nivelInfo = p.nivel ? ` (${p.nivel})` : '';
+                            progSelect.append(`<option value="${p.programId}">${p.emri}${nivelInfo}</option>`);
+                        });
+                    }
+
+                    const vitiSelect = $('#tableFilterViti');
+                    vitiSelect.empty().append('<option value="">Gjithe vitet</option>');
+                    if (allCourses && allCourses.length > 0) {
+                        const uniqueYears = [...new Set(allCourses.map(c => c.studyYear).filter(Boolean))].sort((a, b) => a - b);
+                        uniqueYears.forEach(y => {
+                            vitiSelect.append(`<option value="${y}">Viti ${y}</option>`);
+                        });
+                    }
+                }
+
+                function populateDepartmentDropdown() {
+                    const deptSelect = $('#selectDepartamenti');
+                    deptSelect.empty().append('<option value=""></option>');
+
+                    if (dbDepartments && dbDepartments.length > 0) {
+                        dbDepartments.forEach(d => {
+                            deptSelect.append(`<option value="${d.departmentId}">${d.emerDepartamenti}</option>`);
+                        });
+                    }
+                }
+
+                function populateNiveliDropdown() {
+                    const selectedDeptId = $('#selectDepartamenti').val();
+                    const niveliSelect = $('#selectNiveli');
+                    const currentVal = niveliSelect.val();
+                    niveliSelect.empty().append('<option value=""></option>');
+
+                    let sourcePrograms = dbPrograms;
+                    if (selectedDeptId) {
+                        sourcePrograms = dbPrograms.filter(p => String(p.departmentId) === String(selectedDeptId));
+                    }
+
+                    const uniqueNivele = [...new Set(sourcePrograms.map(p => p.nivel).filter(Boolean))];
+                    uniqueNivele.forEach(n => {
+                        niveliSelect.append(`<option value="${n}">${n}</option>`);
+                    });
+
+                    if (currentVal && uniqueNivele.includes(currentVal)) {
+                        niveliSelect.val(currentVal);
+                    }
+                }
+
+                function populateProgramDropdown() {
+                    const selectedDeptId = $('#selectDepartamenti').val();
+                    const selectedNivel = $('#selectNiveli').val();
+                    const progSelect = $('#selectProgrami');
+                    const currentVal = progSelect.val();
+                    progSelect.empty().append('<option value=""></option>');
+
+                    let filteredProgs = dbPrograms;
+                    if (selectedDeptId) {
+                        filteredProgs = filteredProgs.filter(p => String(p.departmentId) === String(selectedDeptId));
+                    }
+                    if (selectedNivel) {
+                        filteredProgs = filteredProgs.filter(p => p.nivel && p.nivel.toLowerCase() === selectedNivel.toLowerCase());
+                    }
+
+                    filteredProgs.forEach(p => {
+                        const nivelInfo = p.nivel ? ` (${p.nivel})` : '';
+                        progSelect.append(`<option value="${p.programId}">${p.emri}${nivelInfo}</option>`);
+                    });
+
+                    if (currentVal && filteredProgs.some(p => String(p.programId) === String(currentVal))) {
+                        progSelect.val(currentVal);
+                    }
+                }
+
+                function populateVitiDropdown() {
+                    const selectedDeptId = $('#selectDepartamenti').val();
+                    const selectedNivel = $('#selectNiveli').val();
+                    const selectedProgId = $('#selectProgrami').val();
+                    const vitiSelect = $('#selectViti');
+                    const currentVal = vitiSelect.val();
+                    vitiSelect.empty().append('<option value=""></option>');
+
+                    let filteredCourses = allCourses;
+                    if (selectedDeptId) {
+                        filteredCourses = filteredCourses.filter(c => String(c.departmentId) === String(selectedDeptId));
+                    }
+                    if (selectedNivel) {
+                        filteredCourses = filteredCourses.filter(c => c.programNivel && c.programNivel.toLowerCase() === selectedNivel.toLowerCase());
+                    }
+                    if (selectedProgId) {
+                        filteredCourses = filteredCourses.filter(c => String(c.programId) === String(selectedProgId));
+                    }
+
+                    const uniqueYears = [...new Set(filteredCourses.map(c => c.studyYear).filter(Boolean))].sort((a, b) => a - b);
+                    uniqueYears.forEach(y => {
+                        vitiSelect.append(`<option value="${y}">Viti ${y}</option>`);
+                    });
+
+                    if (currentVal && uniqueYears.some(y => String(y) === String(currentVal))) {
+                        vitiSelect.val(currentVal);
+                    }
+                }
+
+                function updateLendetOptions() {
+                    const deptId = $('#selectDepartamenti').val();
+                    const nivel = $('#selectNiveli').val();
+                    const progId = $('#selectProgrami').val();
+                    const viti = $('#selectViti').val();
+
+                    const selectLenda = $('#selectLenda');
+                    selectLenda.empty();
+
+                    let filtered = allCourses;
+
+                    if (deptId) {
+                        filtered = filtered.filter(c => String(c.departmentId) === String(deptId));
+                    }
+                    if (nivel) {
+                        filtered = filtered.filter(c => c.programNivel && c.programNivel.toLowerCase() === nivel.toLowerCase());
+                    }
+                    if (progId) {
+                        filtered = filtered.filter(c => String(c.programId) === String(progId));
+                    }
+                    if (viti) {
+                        filtered = filtered.filter(c => String(c.studyYear) === String(viti));
+                    }
+
+                    // Requirement 14: If no courses match, display EXACTLY: "Nuk u gjeten lende per kete kombinim filtrash."
+                    if (!filtered || filtered.length === 0) {
+                        selectLenda.append('<option value="">Nuk u gjeten lende per kete kombinim filtrash.</option>');
+                        selectLenda.prop('disabled', true);
+                        return;
+                    }
+
+                    selectLenda.append('<option value=""></option>');
+                    filtered.forEach(lenda => {
+                        selectLenda.append(`<option value="${lenda.courseId}">${lenda.emriCourse}</option>`);
+                    });
+
+                    selectLenda.prop('disabled', false);
+                }
+
+                function populateProfessorOptions() {
+                    const selectL = $('#selectLeksionProf');
+                    selectL.find('option:not(:first)').remove();
+
+                    allProfessors.forEach(p => {
+                        selectL.append(`<option value="${p.id}">${p.emri} ${p.mbiemri}</option>`);
+                    });
+                }
+
+                async function loadAllocationsTable() {
+                    try {
+                        const res = await fetch('/api/admin/teaching-courses', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (!res.ok) throw new Error("Gabim leximi nga serveri");
+                        const data = await res.json();
+                        allAllocationsData = data || [];
+
+                        if ($.fn.DataTable.isDataTable('#tabelaTeaching')) {
+                            $('#tabelaTeaching').DataTable().destroy();
+                        }
+
+                        const tbody = $('#tabelaTeachingBody');
+                        tbody.empty();
+
+                        if (!data || data.length === 0) {
+                            tbody.append(`<tr><td colspan="9" class="text-center text-muted">Nuk u gjet asnje alokim mesimdhenieje.</td></tr>`);
+                        } else {
+                            data.forEach((item, index) => {
+                                const rowId = index + 1;
+                                const deptName = item.departmentName || '-';
+                                const courseName = item.courseEmri ? item.courseEmri : '-';
+                                const viti = item.studyYear != null ? `Vit ${item.studyYear}` : '-';
+                                const sem = item.semester ? `Sem ${item.semester}` : '-';
+                                const duration = item.durationWeeks ? `${item.durationWeeks} Jave` : '-';
+                                const totalHours = item.totalHours ? `${item.totalHours} Ore` : '-';
+
+                                let popoverContent = '';
+                                if (item.lectureProfessor) {
+                                    popoverContent += `
+                                        <div class='item-teaching border-leksion mb-1'>
+                                            <span class='badge bg-secondary mb-1'>Leksion</span>
+                                            <div><strong>Pedagogu:</strong> ${item.lectureProfessor.professorName}<br><span class='text-muted'><strong>Klasat:</strong> Te gjitha</span></div>
+                                        </div>
+                                    `;
+                                }
+                                if (item.seminarProfessors && item.seminarProfessors.length > 0) {
+                                    let semRows = item.seminarProfessors.map(s => {
+                                        let grp = (s.classNames && s.classNames.length > 0)
+                                            ? [...new Set(s.classNames)].join(', ')
+                                            : (s.classGroup ? [...new Set(s.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A');
+                                        return `<div>• <strong>${s.professorName}</strong> &rarr; ${grp}</div>`;
+                                    }).join('');
+                                    popoverContent += `
+                                        <div class='item-teaching border-seminar mb-1'>
+                                            <span class='badge bg-secondary mb-1'>Seminar</span>
+                                            <div>${semRows}</div>
+                                        </div>
+                                    `;
+                                }
+                                if (item.labProfessors && item.labProfessors.length > 0) {
+                                    let labRows = item.labProfessors.map(l => {
+                                        let grp = (l.classNames && l.classNames.length > 0)
+                                            ? [...new Set(l.classNames)].join(', ')
+                                            : (l.classGroup ? [...new Set(l.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A & B');
+                                        return `<div>• <strong>${l.professorName}</strong> &rarr; ${grp}</div>`;
+                                    }).join('');
+                                    popoverContent += `
+                                        <div class='item-teaching border-lab mb-1'>
+                                            <span class='badge bg-secondary mb-1'>Lab</span>
+                                            <div>${labRows}</div>
+                                        </div>
+                                    `;
+                                }
+                                if (!popoverContent) {
+                                    popoverContent = `<div class='text-muted small'>Pa pedagoge te caktuar.</div>`;
+                                }
+
+                                const popoverBtn = `
+                                    <button type="button"
+                                            class="btn btn-sm btn-light text-primary border-0 btn-eye-popover"
+                                            data-bs-toggle="popover"
+                                            data-bs-trigger="focus"
+                                            data-bs-placement="left"
+                                            data-bs-html="true"
+                                            title="<div class='fw-bold small'>Detajet e Mesimdhenies</div>"
+                                            data-bs-content="${popoverContent.replace(/"/g, '&quot;')}">
+                                        <i class="bi bi-eye-fill fs-5"></i>
+                                    </button>
+                                `;
+
+                                const row = `
+                                    <tr>
+                                        <td class="text-center font-monospace fw-bold">${rowId}</td>
+                                        <td><span class="badge badge-status-secondary">${deptName}</span></td>
+                                        <td class="fw-bold">${courseName}</td>
+                                        <td class="text-center"><span class="badge bg-light text-dark border">${viti}</span></td>
+                                        <td class="text-center"><span class="badge bg-light text-dark border">${sem}</span></td>
+                                        <td class="text-center">${duration}</td>
+                                        <td class="text-center fw-bold text-primary-orange">${totalHours}</td>
+                                        <td class="text-center">${popoverBtn}</td>
+                                        <td class="text-end text-nowrap">
+                                            <button class="btn btn-sm btn-outline-dark me-1" title="Edito" onclick="openEditModal(${item.courseId})"><i class="bi bi-pencil"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Fshi" onclick="deleteAllocation(${item.courseId})"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `;
+                                tbody.append(row);
+                            });
+                        }
+
+                        tableTeaching = $('#tabelaTeaching').DataTable({
+                            pageLength: 10,
+                            responsive: true,
+                            dom: '<"d-flex justify-content-between align-items-center mb-3"l>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                            language: {
+                                paginate: {
+                                    previous: "<",
+                                    next: ">"
+                                }
+                            }
+                        });
+
+                        initPopovers();
+                        tableTeaching.on('draw', function () {
+                            initPopovers();
+                        });
+                    } catch (err) {
+                        console.error("Gabim ne leximin e alokimeve:", err);
+                    }
+                }
+
+                function initPopovers() {
+                    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+                    [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+                }
+
+                function openCreateModal() {
+                    currentEditingCourseId = null;
+                    $('#modalTitle').text("Shto Alokim te Ri");
+                    $('#formTeaching')[0].reset();
+
+                    // Hiq modalitetin edit: aktivizo te gjitha fushat
+                    setEditMode(false);
+
+                    $('#selectDepartamenti').val('');
+                    $('#selectNiveli').val('');
+                    $('#selectProgrami').val('');
+                    $('#selectViti').val('');
+
+                    populateDepartmentDropdown();
+                    populateNiveliDropdown();
+                    populateProgramDropdown();
+                    populateVitiDropdown();
+                    updateLendetOptions();
+
+                    $('#seminarContainer').empty();
+                    $('#labContainer').empty();
+                    addSeminarRow();
+                    $('#hasLabSwitch').prop('checked', false);
+                    toggleLabSection();
+                    modalTeaching.show();
+                }
+
+                function setEditMode(isEdit) {
+                    const readOnlyIds = ['selectDepartamenti', 'selectNiveli', 'selectProgrami', 'selectViti', 'selectSemestri', 'selectLenda'];
+                    readOnlyIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        el.disabled = isEdit;
+                        el.style.backgroundColor = isEdit ? '#f8f9fa' : '';
+                        el.style.cursor = isEdit ? 'not-allowed' : '';
+                        el.style.opacity = isEdit ? '0.72' : '';
+                    });
+                }
+
+                async function openEditModal(courseId) {
+                    currentEditingCourseId = courseId;
+                    $('#modalTitle').text("Edito Alokimin");
+                    $('#formTeaching')[0].reset();
+                    $('#seminarContainer').empty();
+                    $('#labContainer').empty();
+
+                    // Vendos modalitetin edit: blloko fushat read-only
+                    setEditMode(true);
+
+                    try {
+                        const targetCourse = allCourses.find(c => String(c.courseId) === String(courseId));
+
+                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (!res.ok) throw new Error("Nuk u mundesua leximi i alokimit");
+                        const data = await res.json();
+
+                        const deptId = data.departmentId || (targetCourse ? targetCourse.departmentId : null);
+                        const progId = data.programId || (targetCourse ? targetCourse.programId : null);
+                        const progNivel = data.programNivel || (targetCourse ? targetCourse.programNivel : null);
+                        const studyYear = data.studyYear || (targetCourse ? targetCourse.studyYear : null);
+
+                        populateDepartmentDropdown();
+                        if (deptId) {
+                            $('#selectDepartamenti').val(deptId);
+                        } else {
+                            $('#selectDepartamenti').val('');
+                        }
+
+                        populateNiveliDropdown();
+                        if (progNivel) {
+                            $('#selectNiveli').val(progNivel);
+                        }
+
+                        populateProgramDropdown();
+                        if (progId) {
+                            $('#selectProgrami').val(progId);
+                        }
+
+                        populateVitiDropdown();
+                        if (studyYear) {
+                            $('#selectViti').val(studyYear);
+                        }
+
+                        updateLendetOptions();
+
+                        if (data.courseId || courseId) {
+                            $('#selectLenda').val(data.courseId || courseId);
+                        }
+                        if (data.semester) $('#selectSemestri').val(data.semester);
+                        if (data.durationWeeks) $('#inputKohezgjatja').val(data.durationWeeks);
+                        if (data.totalHours) $('#inputOreGjithsej').val(data.totalHours);
+
+                        if (data.lectureProfessor) {
+                            $('#selectLeksionProf').val(data.lectureProfessor.professorId);
+                        }
+
+                        if (data.seminarProfessors && data.seminarProfessors.length > 0) {
+                            data.seminarProfessors.forEach(s => {
+                                addSeminarRow(s.professorId, s.classGroup);
+                            });
+                        } else {
+                            addSeminarRow();
+                        }
+
+                        if (data.labProfessors && data.labProfessors.length > 0) {
+                            $('#hasLabSwitch').prop('checked', true);
+                            toggleLabSection();
+                            data.labProfessors.forEach(l => {
+                                addLabRow(l.professorId, l.classGroup);
+                            });
+                        } else {
+                            $('#hasLabSwitch').prop('checked', false);
+                            toggleLabSection();
+                        }
+
+                        modalTeaching.show();
+                    } catch (err) {
+                        alert("Gabim gjate leximit te te dhenave: " + err.message);
+                    }
+                }
+
+                function toggleLabSection() {
+                    if ($('#hasLabSwitch').is(':checked')) {
+                        $('#labSection').removeClass('d-none');
+                    } else {
+                        $('#labSection').addClass('d-none');
+                    }
+                }
+
+                function addSeminarRow(selectedProfId = "", selectedGroup = "Klasa A") {
+                    let profOpts = '<option value="">Pedagogu i seminarit</option>';
+                    allProfessors.forEach(p => {
+                        const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
+                        profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
+                    });
+
+                    const isA = selectedGroup && (selectedGroup === 'Klasa A' || (selectedGroup.includes('A') && !selectedGroup.includes('B')));
+                    const isB = selectedGroup && (selectedGroup === 'Klasa B' || (selectedGroup.includes('B') && !selectedGroup.includes('A')));
+                    const isAll = selectedGroup && (selectedGroup.includes('gjitha') || (selectedGroup.includes('A') && selectedGroup.includes('B')));
+
+                    let html = `
+                    <div class="row g-2 mb-2 align-items-center seminar-row">
+                        <div class="col-md-7">
+                            <select class="form-select form-select-sm select-seminar-prof" required>
+                                ${profOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select form-select-sm select-seminar-group" required>
+                                <option value="Klasa A" ${isA || (!isB && !isAll) ? 'selected' : ''}>Klasa A</option>
+                                <option value="Klasa B" ${isB ? 'selected' : ''}>Klasa B</option>
+                                <option value="Te gjitha klasat" ${isAll ? 'selected' : ''}>Te gjitha klasat</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                    $('#seminarContainer').append(html);
+                }
+
+                function addLabRow(selectedProfId = "", selectedGroup = "Klasa A & B") {
+                    let profOpts = '<option value=""></option>';
+                    allProfessors.forEach(p => {
+                        const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
+                        profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
+                    });
+
+                    const isA = selectedGroup && (selectedGroup === 'Klasa A' || (selectedGroup.includes('A') && !selectedGroup.includes('B')));
+                    const isB = selectedGroup && (selectedGroup === 'Klasa B' || (selectedGroup.includes('B') && !selectedGroup.includes('A')));
+                    const isAll = selectedGroup && (selectedGroup.includes('&') || selectedGroup.includes('gjitha') || (selectedGroup.includes('A') && selectedGroup.includes('B')));
+
+                    let html = `
+                    <div class="row g-2 mb-2 align-items-center lab-row">
+                        <div class="col-md-7">
+                            <select class="form-select form-select-sm select-lab-prof">
+                                ${profOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select form-select-sm select-lab-group">
+                                <option value="Klasa A & B" ${isAll || (!isA && !isB) ? 'selected' : ''}>Klasa A & B</option>
+                                <option value="Klasa A" ${isA ? 'selected' : ''}>Klasa A</option>
+                                <option value="Klasa B" ${isB ? 'selected' : ''}>Klasa B</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                    $('#labContainer').append(html);
+                }
+
+                function removeRow(btn) {
+                    $(btn).closest('.row').remove();
+                }
+
+                async function checkExistingCourseAllocation(courseId) {
+                    $('#modalTcAlert').addClass('d-none').empty();
+                    // Reset fields first
+                    $('#selectLeksionProf').val('');
+                    $('#seminarContainer').empty();
+                    $('#labContainer').empty();
+                    addSeminarRow();
+                    $('#hasLabSwitch').prop('checked', false);
+                    toggleLabSection();
+
+                    try {
+                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                        if (!res.ok) return;
+                        const data = await res.json();
+
+                        if (data && (data.lectureProfessor || (data.seminarProfessors && data.seminarProfessors.length > 0) || (data.labProfessors && data.labProfessors.length > 0))) {
+                            $('#modalTcAlert')
+                                .removeClass('d-none alert-danger')
+                                .addClass('alert-info')
+                                .html('<i class="bi bi-info-circle me-1"></i> Kjo lende ka alokim ekzistues ne databaze. Te dhenat u ngarkuan per perditesim.');
+
+                            if (data.semester) $('#selectSemestri').val(data.semester);
+                            if (data.durationWeeks) $('#inputKohezgjatja').val(data.durationWeeks);
+                            if (data.totalHours) $('#inputOreGjithsej').val(data.totalHours);
+
+                            if (data.lectureProfessor) {
+                                $('#selectLeksionProf').val(data.lectureProfessor.professorId);
+                            }
+
+                            $('#seminarContainer').empty();
+                            if (data.seminarProfessors && data.seminarProfessors.length > 0) {
+                                data.seminarProfessors.forEach(s => {
+                                    addSeminarRow(s.professorId, s.classGroup);
+                                });
+                            } else {
+                                addSeminarRow();
+                            }
+
+                            $('#labContainer').empty();
+                            if (data.labProfessors && data.labProfessors.length > 0) {
+                                $('#hasLabSwitch').prop('checked', true);
+                                toggleLabSection();
+                                data.labProfessors.forEach(l => {
+                                    addLabRow(l.professorId, l.classGroup);
+                                });
+                            } else {
+                                $('#hasLabSwitch').prop('checked', false);
+                                toggleLabSection();
+                            }
+                        }
+                    } catch (err) {
+                        console.log("Nuk u gjet alokim ekzistues per kete lende:", err);
+                    }
+                }
+
+                async function saveAllocationData() {
+                    // Ne edit mode, courseId vjen nga currentEditingCourseId
+                    // jQuery .val() funksionon edhe per disabled selects
+                    const isEditMode = currentEditingCourseId !== null;
+                    const courseIdVal = isEditMode ? currentEditingCourseId : ($('#selectLenda').val() || null);
+                    const courseId = courseIdVal ? parseInt(courseIdVal) : null;
+                    if (!courseId) {
+                        alert("Ju lutem zgjidhni lenden!");
+                        return;
+                    }
+
+                    const lectureProfId = $('#selectLeksionProf').val() ? parseInt($('#selectLeksionProf').val()) : null;
+
+                    const seminars = [];
+                    $('#seminarContainer .seminar-row').each(function () {
+                        const profId = $(this).find('.select-seminar-prof').val();
+                        const group = $(this).find('.select-seminar-group').val();
+                        if (profId) {
+                            seminars.push({ professorId: parseInt(profId), classGroup: group });
+                        }
+                    });
+
+                    const hasLab = $('#hasLabSwitch').is(':checked');
+                    const labs = [];
+                    if (hasLab) {
+                        $('#labContainer .lab-row').each(function () {
+                            const profId = $(this).find('.select-lab-prof').val();
+                            const group = $(this).find('.select-lab-group').val();
+                            if (profId) {
+                                labs.push({ professorId: parseInt(profId), classGroup: group });
+                            }
+                        });
+                    }
+
+                    // Lexo semester edhe kur disabled (ne edit mode)
+                    const semesterVal = $('#selectSemestri').val();
+
+                    const payload = {
+                        courseId: courseId,
+                        semester: semesterVal,
+                        durationWeeks: $('#inputKohezgjatja').val() !== '' ? parseInt($('#inputKohezgjatja').val()) : null,
+                        totalHours: $('#inputOreGjithsej').val() !== '' ? parseInt($('#inputOreGjithsej').val()) : null,
+                        lectureProfessorId: lectureProfId,
+                        seminars: seminars,
+                        hasLab: hasLab,
+                        labs: labs
+                    };
+
+
+                    try {
+                        const response = await fetch('/api/admin/teaching-courses', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            modalTeaching.hide();
+                            loadAllocationsTable();
+                        } else {
+                            let msg = "Gabim gjate ruajtjes se te dhenave te alokimit.";
+                            try {
+                                const errObj = await response.json();
+                                if (errObj.message) msg = errObj.message;
+                            } catch (_) { }
+                            $('#modalTcAlert').removeClass('d-none alert-info').addClass('alert-danger').text(msg);
+                            alert(msg);
+                        }
+                    } catch (err) {
+                        console.error("Gabim ruajtjeje:", err);
+                        alert("Gabim lidhjeje me serverin: " + err.message);
+                    }
+                }
+
+                async function deleteAllocation(courseId) {
+                    if (!confirm("A jeni i sigurt qe deshironi ta fshini kete mesimdhenie?")) return;
+                    try {
+                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            loadAllocationsTable();
+                        } else {
+                            alert("Gabim gjate fshirjes se mesimdhenies.");
+                        }
+                    } catch (err) {
+                        console.error("Gabim fshirjeje:", err);
+                    }
+                }
+            </script>
+
+        </div><!-- /page-wrapper -->
+    </div><!-- /page-content-wrapper -->
+
+    </div><!-- /wrapper -->
+
+</body>
+
+</html>

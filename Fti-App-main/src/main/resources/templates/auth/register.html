@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="sq" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regjistrohu — FTI App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style1.css">
+</head>
+
+<body class="d-flex align-items-center justify-content-center min-vh-100 p-2">
+
+    <div class="card register-card p-3">
+
+        <!-- LOGO -->
+        <div class="text-center mb-2">
+            <img src="/images/ftilogo.png" alt="Logo" class="school-logo">
+        </div>
+
+        <h6 class="fw-bold text-center mb-2">Regjistrohu</h6>
+
+        <!-- ERROR BANNER (Dynamic JS) -->
+        <div id="errorBanner" class="alert alert-danger py-1 px-2 text-center extra-small mb-2 d-none" role="alert">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- ZGJEDHJA E ROLIT -->
+        <div class="field-group">
+            <div class="btn-group w-100 role-btn-group" role="group">
+                <input type="radio" class="btn-check" name="userRole" id="roleStudent" value="STUDENT" checked
+                    onchange="switchForm()">
+                <label class="btn btn-outline-primary btn-sm py-1 extra-small" for="roleStudent">Student</label>
+
+                <input type="radio" class="btn-check" name="userRole" id="roleTeacher" value="TEACHER"
+                    onchange="switchForm()">
+                <label class="btn btn-outline-primary btn-sm py-1 extra-small" for="roleTeacher">Pedagog</label>
+            </div>
+        </div>
+
+        <!-- FORMA E STUDENTIT -->
+        <form id="formStudent" onsubmit="handleStudentSubmit(event)">
+
+            <div class="field-group">
+                <label for="std-firstName" class="form-label fw-semibold">Emri</label>
+                <input type="text" id="std-firstName" name="emri" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="std-lastName" class="form-label fw-semibold">Mbiemri</label>
+                <input type="text" id="std-lastName" name="mbiemri" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="std-email" class="form-label fw-semibold">Email Institucional</label>
+                <input type="text" id="std-email" name="email" class="form-control form-control-sm"
+                    placeholder="emri.mbiemri@fti.edu.al" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="std-matrikulimi" class="form-label fw-semibold">Nr. Matrikulimit</label>
+                <input type="text" id="std-matrikulimi" name="nrMatrikulimit" class="form-control form-control-sm"
+                    required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="std-password" class="form-label fw-semibold">Fjalekalimi</label>
+                <input type="password" id="std-password" name="password" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="std-confirmPassword" class="form-label fw-semibold">Konfirmo Fjalekalimin</label>
+                <input type="password" id="std-confirmPassword" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm w-100 py-1 fw-semibold extra-small mt-2">
+                <span class="spinner-border spinner-border-sm d-none me-1" id="std-spinner"></span>
+                Regjistrohu si Student
+            </button>
+        </form>
+
+        <!-- FORMA E PEDAGOGUT -->
+        <form id="formPedagog" class="d-none" onsubmit="handlePedagogSubmit(event)">
+
+            <div class="field-group">
+                <label for="ped-firstName" class="form-label fw-semibold">Emri</label>
+                <input type="text" id="ped-firstName" name="emri" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="ped-lastName" class="form-label fw-semibold">Mbiemri</label>
+                <input type="text" id="ped-lastName" name="mbiemri" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="ped-email" class="form-label fw-semibold">Email Institucional</label>
+                <input type="text" id="ped-email" name="email" class="form-control form-control-sm"
+                    placeholder="emri.mbiemri@fti.edu.al" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="ped-department" class="form-label fw-semibold">Departamenti</label>
+                <select id="ped-department" name="department" class="form-select form-select-sm" required>
+                    <option value="" selected disabled>Zgjidh Departamentin</option>
+                    <option th:each="dept : ${departments}"
+                            th:value="${dept.emerDepartamenti}"
+                            th:text="${dept.emerDepartamenti}">
+                    </option>
+                </select>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="ped-password" class="form-label fw-semibold">Fjalekalimi</label>
+                <input type="password" id="ped-password" name="password" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="ped-confirmPassword" class="form-label fw-semibold">Konfirmo Fjalekalimin</label>
+                <input type="password" id="ped-confirmPassword" class="form-control form-control-sm" required>
+                <div class="invalid-feedback extra-small"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm w-100 py-1 fw-semibold extra-small mt-2">
+                <span class="spinner-border spinner-border-sm d-none me-1" id="ped-spinner"></span>
+                Regjistrohu si Pedagog
+            </button>
+        </form>
+
+        <div class="text-center mt-3 pt-2 border-top extra-small">
+            <span class="text-muted">Keni llogari? </span>
+            <a href="/login" class="fw-bold text-decoration-none text-primary">Hyni ketu</a>
+        </div>
+
+    </div>
+
+    <script>
+        function switchForm() {
+            const isStudent = document.getElementById('roleStudent').checked;
+            document.getElementById('formStudent').classList.toggle('d-none', !isStudent);
+            document.getElementById('formPedagog').classList.toggle('d-none', isStudent);
+            clearErrors('formStudent');
+            clearErrors('formPedagog');
+        }
+
+        function showError(msg) {
+            const banner = document.getElementById('errorBanner');
+            const text = document.getElementById('errorText');
+            if (msg) {
+                text.textContent = msg;
+                banner.classList.remove('d-none');
+            } else {
+                banner.classList.add('d-none');
+            }
+        }
+
+        function clearErrors(formId) {
+            showError(null);
+            const form = document.getElementById(formId);
+            if (!form) return;
+            const inputs = form.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.classList.remove('is-invalid', 'is-valid');
+            });
+        }
+
+        function setFieldError(inputId, message) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            input.classList.add('is-invalid');
+            const feedback = input.closest('.field-group').querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.textContent = message;
+            }
+        }
+
+        async function handleStudentSubmit(e) {
+            e.preventDefault();
+            clearErrors('formStudent');
+
+            // 1. Kontrolli i fushave bosh (required) me validimin native te browser-it
+            const emptyFields = Array.from(e.target.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                e.target.reportValidity();
+                return;
+            }
+
+            const firstName = document.getElementById('std-firstName').value.trim();
+            const lastName = document.getElementById('std-lastName').value.trim();
+            const email = document.getElementById('std-email').value.trim();
+            const nrMatrikulimit = document.getElementById('std-matrikulimi').value.trim();
+            const password = document.getElementById('std-password').value;
+            const confirmPassword = document.getElementById('std-confirmPassword').value;
+
+            let isValid = true;
+
+            // 2. Validimet custom me JS (mesazhet shfaqen te .invalid-feedback poshte input-it)
+            if (firstName.length < 3) {
+                setFieldError('std-firstName', "Emri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            if (lastName.length < 3) {
+                setFieldError('std-lastName', "Mbiemri duhet te kete te pakten 3 karaketre.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setFieldError('std-email', "Email-i duhet te jete i tipit @fti.edu.al ");
+                isValid = false;
+            }
+
+            if (nrMatrikulimit.length !== 12) {
+                setFieldError('std-matrikulimi', "Nr. i matrikullimit duhet te kete sakteisht 12 karaktere.");
+                isValid = false;
+            }
+
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!passwordRegex.test(password)) {
+                setFieldError('std-password', "Fjalekalimi duhet te kete te pakten 8 karaktere, 1 shkronje te madhe, 1 te vogel, 1 numer dhe 1 karakter special.");
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                setFieldError('std-confirmPassword', "Fjalekalimet nuk perputhen.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const spinner = document.getElementById('std-spinner');
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/register/student', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        emri: firstName,
+                        mbiemri: lastName,
+                        email: email,
+                        nrMatrikulimit: nrMatrikulimit,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = `/verify?userId=${data.id}`;
+                } else {
+                    showError(data.message || "Gabim gjate regjistrimit.");
+                }
+            } catch (err) {
+                showError("Gabim lidhje me serverin.");
+            } finally {
+                spinner.classList.add('d-none');
+            }
+        }
+
+        async function handlePedagogSubmit(e) {
+            e.preventDefault();
+            clearErrors('formPedagog');
+
+            // 1. Kontrolli i fushave bosh (required) me validimin native te browser-it
+            const emptyFields = Array.from(e.target.elements).filter(el => el.validity && el.validity.valueMissing);
+            if (emptyFields.length > 0) {
+                e.target.reportValidity();
+                return;
+            }
+
+            const firstName = document.getElementById('ped-firstName').value.trim();
+            const lastName = document.getElementById('ped-lastName').value.trim();
+            const email = document.getElementById('ped-email').value.trim();
+            const department = document.getElementById('ped-department').value;
+            const password = document.getElementById('ped-password').value;
+            const confirmPassword = document.getElementById('ped-confirmPassword').value;
+
+            let isValid = true;
+
+            if (firstName.length < 3) {
+                setFieldError('ped-firstName', "Emri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            if (lastName.length < 3) {
+                setFieldError('ped-lastName', "Mbiemri duhet te kete te pakten 3 karaktere.");
+                isValid = false;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@fti\.edu\.al$/i;
+            if (!emailRegex.test(email)) {
+                setFieldError('ped-email', "Email-i duhet te jete i tipit @fti.edu.al (p.sh. emri.mbiemri@fti.edu.al).");
+                isValid = false;
+            }
+
+            if (!department) {
+                setFieldError('ped-department', "Zgjidhni departamentin tuaj.");
+                isValid = false;
+            }
+
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!passwordRegex.test(password)) {
+                setFieldError('ped-password', "Fjalekalimi duhet te kete te pakten 8 karaktere, te pakten nje shkronje te madhe, nje te vogel, nje numer dhe nje karakter special.");
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                setFieldError('ped-confirmPassword', "Fjalekalimet nuk perputhen.");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const spinner = document.getElementById('ped-spinner');
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/register/professor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        emri: firstName,
+                        mbiemri: lastName,
+                        email: email,
+                        department: department,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = `/verify?userId=${data.id}`;
+                } else {
+                    showError(data.message || "Gabim gjate regjistrimit.");
+                }
+            } catch (err) {
+                showError("Gabim lidhje me serverin.");
+            } finally {
+                spinner.classList.add('d-none');
+            }
+        }
+
+        async function loadDepartments() {
+            const select = document.getElementById('ped-department');
+            if (select && select.options.length <= 1) {
+                try {
+                    const res = await fetch('/api/departments');
+                    if (res.ok) {
+                        const depts = await res.json();
+                        depts.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.emerDepartamenti;
+                            opt.textContent = d.emerDepartamenti;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) {
+                    console.error("Gabim gjate ngarkimit te departamenteve:", e);
+                }
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadDepartments);
+    </script>
+
+</body>
+
+</html>

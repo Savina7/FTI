@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Studenti - Pasqyra e Mungesave</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body class="overflow-hidden">
+
+    <div class="d-flex vh-100 overflow-hidden" id="wrapper">
+
+        <!-- ================= SIDEBAR (FIKS) ================= -->
+        <aside id="sidebar-wrapper"
+            class="bg-white border-end d-flex flex-column justify-content-between h-100 flex-shrink-0"
+            style="width: 250px;">
+
+            <!-- Pjesa e Siperme: Logo + Navigimi -->
+            <div>
+                <!-- Header i Sidebar-it me Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/student" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte Kryesore -->
+                <div class="list-group list-group-flush py-3">
+                    <!-- Profili -->
+                    <a href="/student" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Profili
+                    </a>
+
+                    <!-- Notat -->
+                    <a href="/nota" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Notat
+                    </a>
+
+                    <!-- Mungesat (Aktiv) -->
+                    <a href="/mungesat" class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
+                        Mungesat
+                    </a>
+
+                    <!-- Orari -->
+                    <a href="/course_schedule" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        Orari
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pjesa e Poshtme: Logout -->
+            <div class="p-3 border-top bg-white">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT AREA ================= -->
+        <div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
+
+            <!-- HEADER TOP BAR (FIKS) -->
+            <header
+                class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between flex-shrink-0">
+                <div class="d-flex align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark"></h6>
+                </div>
+
+                <!-- User Info -->
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark" id="headerStudentName">-</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PERMBAJTJA E FAQES (PASQYRA E MUNGESAVE - SCROLLABLE) -->
+            <main class="flex-grow-1 overflow-y-auto p-4">
+
+                <div class="container py-2 attendance-page-container" style="max-width: 650px !important;">
+
+                  
+
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Lenda</th>
+                                <th class="col-center" style="width: 110px;">Seminare</th>
+                                <th class="col-center" style="width: 125px;">Status</th>
+                                <th class="col-center" style="width: 110px;">Laboratore</th>
+                                <th class="col-center" style="width: 125px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Po ngarkohen mungesat...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- ================= MODAL PER DATAT ================= -->
+    <div class="modal fade" id="datesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content rounded-0 border">
+                <div class="modal-header bg-light py-2">
+                    <h6 class="modal-title fw-bold text-black" id="modalSubjectName">Mungesat</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="small text-muted mb-2">Datat e regjistruara:</p>
+                    <ul class="list-group list-group-flush small" id="modalDatesList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Logjika JS per Modalin e Mungesave -->
+    <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+        let datesModalObj = null;
+
+        $(document).ready(function () {
+            loadStudentHeader();
+            loadStudentAttendances();
+        });
+
+        async function loadStudentHeader() {
+            const userId = localStorage.getItem('userId');
+            const userEmail = localStorage.getItem('userEmail');
+
+            let url = '/api/student/me';
+            const params = [];
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+            if (params.length > 0) url += '?' + params.join('&');
+
+            try {
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.emriMbiemri && data.emriMbiemri !== '-') {
+                        $('#headerStudentName').text(data.emriMbiemri);
+                    }
+                    if (data.programiStudimit && data.programiStudimit !== '-') {
+                        $('#headerStudentProgram').text(data.programiStudimit);
+                    }
+                }
+            } catch (e) {
+                console.error("Gabim gjate ngarkimit te header-it:", e);
+            }
+        }
+
+        async function loadStudentAttendances() {
+            const userId = localStorage.getItem('userId');
+            const userEmail = localStorage.getItem('userEmail');
+
+            let url = '/api/student/mungesat';
+            const params = [];
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+            if (params.length > 0) url += '?' + params.join('&');
+
+            try {
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                if (!res.ok) return;
+
+                const list = await res.json();
+                const tbody = $('#attendanceTableBody');
+                tbody.empty();
+
+                if (!list || list.length === 0) {
+                    tbody.append('<tr><td colspan="5" class="text-center py-4 text-muted">Nuk ka te dhene per mungesat.</td></tr>');
+                    return;
+                }
+
+                list.forEach(item => {
+                    const semAbsences = item.seminareAbsencesCount || 0;
+                    const semTotal = item.seminareTotalHours || 15;
+                    const semStatus = item.seminareStatus || 'Kalon';
+                    const semDates = item.seminareDates || [];
+
+                    const labAbsences = item.laboratoreAbsencesCount || 0;
+                    const labTotal = item.laboratoreTotalHours || 15;
+                    const labStatus = item.laboratoreStatus || 'Kalon';
+                    const labDates = item.laboratoreDates || [];
+
+                    // Seminare Cell
+                    let semCellHtml = '';
+                    if (semAbsences > 0) {
+                        const jsonSemDates = JSON.stringify(semDates).replace(/"/g, '&quot;');
+                        semCellHtml = `
+                        <button type="button" class="btn-clean-text" onclick="showDates('${escapeJs(item.emriLende)} (Seminar)', ${jsonSemDates})">
+                            ${semAbsences} / ${semTotal} ore
+                        </button>
+                    `;
+                    } else {
+                        semCellHtml = `<span class="text-muted">0 / ${semTotal} ore</span>`;
+                    }
+
+                    // Seminare Status Cell
+                    const semStatusClass = semStatus === 'Rrezikon' ? 'status-danger' : 'status-pass';
+
+                    // Laboratore Cell
+                    let labCellHtml = '';
+                    if (labAbsences > 0) {
+                        const jsonLabDates = JSON.stringify(labDates).replace(/"/g, '&quot;');
+                        labCellHtml = `
+                        <button type="button" class="btn-clean-text" onclick="showDates('${escapeJs(item.emriLende)} (Laborator)', ${jsonLabDates})">
+                            ${labAbsences} / ${labTotal} ore
+                        </button>
+                    `;
+                    } else {
+                        labCellHtml = `<span class="text-muted">0 / ${labTotal} ore</span>`;
+                    }
+
+                    // Laboratore Status Cell
+                    const labStatusClass = labStatus === 'Rrezikon' ? 'status-danger' : 'status-pass';
+
+                    const rowHtml = `
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">${escapeHtml(item.emriLende)}</div>
+                        </td>
+                        <td class="col-center">
+                            ${semCellHtml}
+                        </td>
+                        <td class="col-center ${semStatusClass}">${semStatus}</td>
+                        <td class="col-center">
+                            ${labCellHtml}
+                        </td>
+                        <td class="col-center ${labStatusClass}">${labStatus}</td>
+                    </tr>
+                `;
+
+                    tbody.append(rowHtml);
+                });
+
+            } catch (e) {
+                console.error("Gabim gjate ngarkimit te mungesave:", e);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function escapeJs(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        }
+
+        function showDates(subject, datesArray) {
+            document.getElementById('modalSubjectName').innerText = subject;
+            const listContainer = document.getElementById('modalDatesList');
+            listContainer.innerHTML = '';
+
+            if (!datesArray || datesArray.length === 0) {
+                listContainer.innerHTML = '<li class="list-group-item px-0 py-1 border-0 text-muted">Nuk ka data.</li>';
+            } else {
+                datesArray.forEach(dateStr => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item px-0 py-1 border-0 text-black fw-semibold';
+                    li.innerHTML = `• ${escapeHtml(dateStr)}`;
+                    listContainer.appendChild(li);
+                });
+            }
+
+            const modalEl = document.getElementById('datesModal');
+            datesModalObj = new bootstrap.Modal(modalEl);
+            datesModalObj.show();
+        }
+    </script>
+
+</body>
+
+</html>

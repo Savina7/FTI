@@ -1,0 +1,523 @@
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --soft-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    /* Vendosja e Times New Roman si font kryesor */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+
+.text-dark-custom {
+    color: var(--text-dark);
+}
+
+.extra-small {
+    font-size: 0.85rem;
+}
+
+/* Karta kryesore me kende minimaliste */
+.student-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--soft-shadow);
+}
+
+/* Header-i */
+.profile-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Struktura vertikale */
+.info-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+
+/* =========================================================
+   PAGESA / NOTAT - STILET SPECIFIKE (TABELE ME E VOGEL)
+   ========================================================= */
+
+.grades-page-container {
+    max-width: 520px;
+    /* E zvogeluar nga 720px ne 520px */
+    margin: 0 auto;
+}
+
+.grades-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.year-block {
+    margin-bottom: 2rem;
+}
+
+.year-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+/* Tabela e Notave Kompakte */
+.grades-table {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    /* Shkrim pak me i vogel */
+}
+
+.grades-table th {
+    background-color: #f8fafc;
+    color: #000000;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.5rem 0.75rem;
+    /* Padding me i ngjeshur */
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+/* Rreshtat e lendeve me background portokalli te lehte */
+.grades-table tbody tr {
+    background-color: #fff7ed;
+}
+
+.grades-table td {
+    padding: 0.5rem 0.75rem;
+    /* Hapesire me e vogel vertikale/horizontale */
+    vertical-align: middle;
+    color: #000000;
+    border: 1px solid #fed7aa;
+}
+
+.grades-table .subject-name {
+    font-weight: 600;
+    color: #000000;
+}
+
+.grades-table .col-center {
+    text-align: center;
+    width: 75px;
+    /* Kolonat e ngushtuara nga 100px ne 75px */
+    color: #000000;
+}
+
+.grades-table .grade-pending {
+    color: #000000;
+    font-weight: 600;
+}
+
+.grades-table .grade-passed {
+    font-weight: 700;
+    color: #000000;
+}
+
+/* Rreshti permbledhes neutral i poshtem */
+.grades-table-summary {
+    background-color: #f8fafc;
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+
+.grades-table-summary td {
+    border-top: 2px solid #e2e8f0;
+    color: #000000;
+}
+
+.summary-label {
+    text-align: right;
+    color: #000000;
+}
+
+.summary-value {
+    color: #000000;
+    font-weight: 700;
+}
+
+/* Linku minimalist "Permireso" */
+.btn-clean-text {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #c2410c !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-clean-text:hover {
+    color: #9a3412 !important;
+}
+
+/* Badge "Ne pritje" */
+.badge-pending {
+    background-color: #fff7ed;
+    color: #c2410c;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid #fed7aa;
+}
+
+/* Linku minimalist (Zhbej) */
+.btn-undo-link {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin-left: 0.3rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.btn-undo-link:hover {
+    color: #dc2626;
+}
+
+/* Styling per Noten kur lejohet permiresimi */
+.grade-clickable {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: #c2410c;
+    /* Ngjyra portokalli minimalist */
+    font-weight: 700;
+}
+
+.grade-clickable:hover {
+    color: #9a3412;
+}
+
+/* Siguron qe nota dhe tag-u te rrine KUDO ne nje rresht te vetem */
+.grade-pending-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    /* Ndalon daljen ne rresht te ri */
+}
+
+/* Tag-u minimalist "Ne pritje" */
+.pending-tag {
+    font-size: 0.72rem;
+    color: #c2410c;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    padding: 1px 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.pending-tag:hover {
+    color: #dc2626;
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+}
+
+/* Styling per butonin minimalist Anulo */
+.btn-cancel-grade {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-cancel-grade:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+/* Container per noten dhe butonin anulo ne nje rresht */
+.grade-action-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+}
+
+/* Container vertikal brenda qelise se notes */
+.grade-cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+/* Linku minimalist per ta anuluar te rreshti i dyte */
+.btn-cancel-link {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #dc2626 !important;
+    /* Ngjyre e kuqe e paster */
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    line-height: 1.2;
+}
+
+.btn-cancel-link:hover {
+    color: #991b1b !important;
+}
+
+
+/* =========================================================
+   MUNGESAT - ZGJIDHJE PA KORNIZA DHE ME 2 STATUSE
+   ========================================================= */
+
+.attendance-page-container {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+.attendance-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.attendance-table {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+/* Header Portokalli Minimalist */
+.attendance-table th {
+    background-color: #fff7ed;
+    color: #c2410c;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.5rem 0.5rem;
+    border: 1px solid #fed7aa;
+    text-align: center;
+}
+
+.attendance-table th:first-child {
+    text-align: left;
+    padding-left: 0.8rem;
+}
+
+.attendance-table td {
+    padding: 0.5rem 0.5rem;
+    vertical-align: middle;
+    color: #000000;
+    border: 1px solid #e2e8f0;
+}
+
+.attendance-table .col-center {
+    text-align: center;
+}
+
+/* BUTONI PA ASNJE KORNIZE / HOVER / BORDER / SHADOW */
+.btn-clean-text {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #000000 !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-clean-text:hover {
+    color: #c2410c !important;
+    /* Ndryshon vetem ngjyra e tekstit ne portokalli kur kalon miun */
+    text-decoration: underline;
+}
+
+/* Statuset */
+.status-pass {
+    font-weight: 700;
+    color: #000000;
+}
+
+.status-danger {
+    font-weight: 700;
+    color: #c2410c;
+}
+
+.repeat-badge {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Layout General Setup */
+#wrapper {
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Sidebar Setup */
+#sidebar-wrapper {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+}
+
+/* Sidebar Heading & Top Navbar - Lartesi e njejte ne nivel */
+.sidebar-heading {
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 1rem !important;
+}
+
+header.navbar {
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Logoja FTI */
+.sidebar-logo {
+    max-width: 160px;
+    max-height: 38px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Linket e Sidebar-it */
+#sidebar-wrapper .list-group-item {
+    color: #4b5563;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    color: #000000;
+    background-color: #f3f4f6;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    color: #000000;
+    background-color: #e5e7eb;
+    font-weight: 700;
+    border-left: 4px solid #000000 !important;
+}
+
+/* Butoni Logout ne fund te Sidebar */
+.btn-logout {
+    color: #dc2626;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+    background-color: #fef2f2;
+    color: #991b1b;
+}
+
+/* Avatar i perdoruesit te Header-i */
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    background-color: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+}

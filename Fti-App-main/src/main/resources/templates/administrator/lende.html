@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menaxhimi i Lendeve (Courses) - FTI Admin</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- CSS Baza (I izoluar) -->
+    <link rel="stylesheet" href="/css/styleadm.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside id="sidebar-wrapper">
+
+            <div>
+                <!-- Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="/std" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
+                    </a>
+                </div>
+
+                <!-- Menyte -->
+                <div class="list-group list-group-flush py-3">
+                    <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
+                        Dashboard
+                    </a>
+                    <a href="/std" class="list-group-item list-group-item-action px-4">
+                        Studentet
+                    </a>
+                    <a href="/adm" class="list-group-item list-group-item-action px-4">
+                        Pedagoget
+                    </a>
+                    <a href="/lende" class="list-group-item list-group-item-action px-4 active">
+                        Lendet
+                    </a>
+                    <a href="/tc" class="list-group-item list-group-item-action px-4">
+                        Alokimi
+                    </a>
+                    <a href="/course_schedule" class="list-group-item list-group-item-action px-4">
+                        Orare
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-3 border-top">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <div id="page-content-wrapper">
+
+            <!-- Header -->
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"></h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark">Administrator</span>
+                        pan class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</pan>
+                    </div>
+                </div>
+            </header>
+
+            <div id="page-wrapper" class="courses-container">
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">Menaxhimi i lendeve</h3>
+                        <p class="text-muted small mb-0"></p>
+                    </div>
+                    <div>
+                        <!-- Butoni per te hapur modal-in e krijimit te lendes -->
+                        <button class="btn btn-dark fw-semibold px-3" id="btnOpenShtoModal" data-bs-toggle="modal"
+                            data-bs-target="#modalShtoCourse">
+                            <i class="bi bi-plus"></i>
+
+                            Shto lende
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FILTRAT E KERKIMIT -->
+                <div class="ibox mb-4">
+                    <div class="ibox-content rounded">
+                        <form id="filterFormCourses" onsubmit="return false;">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Lenda</label>
+                                    <input type="text" id="filterEmri" class="form-control form-control-sm"
+                                        >
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Niveli</label>
+                                    <select id="filterNiveli" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                        <option value="Bachelor">Bachelor</option>
+                                        <option value="Master">Master</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Dega</label>
+                                    <select id="filterProgram" class="form-select form-select-sm">
+                                        <option value="">Te gjitha</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold text-muted">Viti</label>
+                                    <select id="filterViti" class="form-select form-select-sm">
+                                        <option value="">Te gjithe</option>
+                                        <option value="1">Viti 1</option>
+                                        <option value="2">Viti 2</option>
+                                        <option value="3">Viti 3</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12 text-end">
+                                    <button type="button" id="btnPastroFiltra"
+                                        class="btn btn-outline-secondary btn-sm me-1">Refresh</button>
+                                    <button type="button" id="btnFiltro"
+                                        class="btn btn-dark btn-sm px-4">Kerko</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABELA KRYESORE E COURSES -->
+                <div class="ibox">
+
+                    <div class="ibox-content p-0">
+                        <div class="table-responsive p-3">
+                            <table id="tabelaCourses"
+                                class="table table-striped table-bordered table-hover align-middle w-100">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 60px;" class="text-center">Nr.</th>
+                                        <th>Lenda</th>
+                                        <th>Dega</th>
+                                        <th class="text-center">Viti</th>
+                                        <th class="text-center">Kredite</th>
+                                        <th class="text-center">Statusi</th>
+                                        <th class="text-end text-nowrap" style="width: 120px;">Veprime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaCoursesBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= MODAL: SHTO / EDITO COURSE ================= -->
+                <div class="modal fade modal-courses" id="modalShtoCourse" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title fw-bold" id="modalCourseTitle">Shto lende</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalCourseAlert" class="alert alert-danger small d-none mb-3"></div>
+                                <form id="formCourse">
+                                    <!-- EMRI_COURSE -->
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Lenda</label>
+                                        <input type="text" class="form-control form-control-sm" name="EMRI_COURSE"
+                                            required>
+                                    </div>
+
+                                    <!-- PROGRAM_ID -->
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Dega</label>
+                                        <select class="form-select form-select-sm" name="PROGRAM_ID"
+                                            id="modalProgramSelect" required>
+                                        </select>
+                                    </div>
+
+                                    <!-- STUDY_YEAR -->
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold">Viti</label>
+                                        <input type="number" class="form-control form-control-sm" name="STUDY_YEAR"
+                                            min="1" max="3" placeholder="" required>
+                                    </div>
+
+                                    <div class="row g-2 mb-3">
+                                        <!-- KREDITE -->
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Kredite</label>
+                                            <input type="number" class="form-control form-control-sm" name="KREDITE"
+                                                min="1" max="30" placeholder="6" required>
+                                        </div>
+                                        <!-- STATUS -->
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Statusi</label>
+                                            <select class="form-select form-select-sm" name="STATUS" required>
+                                                <option value="Active">Active</option>
+                                                <option value="Inactive">Inactive</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end border-top pt-3">
+                                        <button type="button" class="btn btn-light btn-sm"
+                                            data-bs-dismiss="modal">Anulo</button>
+                                        <button type="submit" class="btn btn-dark btn-sm fw-semibold">Ruaj</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scripts -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+                <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+                <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+                    let coursesDataTable = null;
+                    let allCoursesData = [];
+                    let currentEditingCourseId = null;
+
+                    $(document).ready(function () {
+                        setupDataTablesFilter();
+                        loadProgramsForModal();
+                        loadCourses();
+
+                        $('#btnOpenShtoModal').on('click', function () {
+                            currentEditingCourseId = null;
+                            $('#modalCourseTitle').text("Shto lende");
+                            $('#formCourse')[0].reset();
+                            $('#modalCourseAlert').addClass('d-none');
+                        });
+
+                        $('#filterNiveli').on('change', function () {
+                            updateProgramDropdown();
+                        });
+
+                        $('#btnFiltro').on('click', function (e) {
+                            e.preventDefault();
+                            if (coursesDataTable) coursesDataTable.draw();
+                        });
+
+                        $('#filterFormCourses').on('submit', function (e) {
+                            e.preventDefault();
+                            if (coursesDataTable) coursesDataTable.draw();
+                        });
+
+                        $('#btnPastroFiltra').on('click', function () {
+                            $('#filterEmri').val('');
+                            $('#filterNiveli').val('');
+                            updateProgramDropdown();
+                            $('#filterProgram').val('');
+                            $('#filterViti').val('');
+                            if (coursesDataTable) coursesDataTable.draw();
+                        });
+
+                        $('#formCourse').on('submit', async function (e) {
+                            e.preventDefault();
+                            const alertDiv = $('#modalCourseAlert');
+                            alertDiv.addClass('d-none');
+
+                            const form = this;
+                            const payload = {
+                                emriCourse: form.elements['EMRI_COURSE'].value.trim(),
+                                programId: parseInt(form.elements['PROGRAM_ID'].value),
+                                studyYear: form.elements['STUDY_YEAR'].value ? parseInt(form.elements['STUDY_YEAR'].value) : null,
+                                kredite: parseInt(form.elements['KREDITE'].value),
+                                status: form.elements['STATUS'].value
+                            };
+
+                            const isEdit = currentEditingCourseId != null;
+                            const url = isEdit ? `/api/admin/courses/${currentEditingCourseId}` : '/api/admin/courses';
+                            const method = isEdit ? 'PUT' : 'POST';
+
+                            try {
+                                const response = await fetch(url, {
+                                    method: method,
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(payload)
+                                });
+
+                                if (response.ok) {
+                                    const modalEl = document.getElementById('modalShtoCourse');
+                                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                    if (modalInstance) modalInstance.hide();
+                                    loadCourses();
+                                } else {
+                                    let errMsg = "Gabim gjate ruajtjes se lendes.";
+                                    try {
+                                        const errData = await response.json();
+                                        if (errData.message) errMsg = errData.message;
+                                    } catch (_) { }
+                                    alertDiv.text(errMsg).removeClass('d-none');
+                                }
+                            } catch (err) {
+                                alertDiv.text("Gabim lidhjeje me serverin.").removeClass('d-none');
+                            }
+                        });
+                    });
+
+                    async function loadProgramsForModal() {
+                        try {
+                            const res = await fetch('/api/admin/courses/programs', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                            if (!res.ok) return;
+                            const programs = await res.json();
+                            const modalSelect = $('#modalProgramSelect');
+                            modalSelect.find('option:not(:first)').remove();
+                            programs.forEach(p => {
+                                const optText = p.emri ? (p.nivel ? `${p.emri} (${p.nivel})` : p.emri) : `ID: ${p.programId}`;
+                                modalSelect.append(`<option value="${p.programId}">${optText}</option>`);
+                            });
+                        } catch (err) {
+                            console.error('Gabim ngarkimi programesh modal:', err);
+                        }
+                    }
+
+                    function updateProgramDropdown() {
+                        const selectedNivel = $('#filterNiveli').val();
+                        const filterSelect = $('#filterProgram');
+                        filterSelect.find('option:not(:first)').remove();
+
+                        let filtered = allCoursesData;
+                        if (selectedNivel) {
+                            filtered = allCoursesData.filter(c => c.programNivel && c.programNivel.toLowerCase().includes(selectedNivel.toLowerCase()));
+                        }
+
+                        const uniquePrograms = [...new Set(filtered.map(c => c.programEmri).filter(Boolean))];
+                        uniquePrograms.forEach(prog => {
+                            filterSelect.append(`<option value="${prog}">${prog}</option>`);
+                        });
+                    }
+
+                    function setupDataTablesFilter() {
+                        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                            if (settings.nTable.id !== 'tabelaCourses') return true;
+
+                            const searchEmri = $('#filterEmri').val().toLowerCase().trim();
+                            const selectedNiveli = $('#filterNiveli').val();
+                            const selectedProg = $('#filterProgram').val();
+                            const selectedViti = $('#filterViti').val();
+
+                            const courseObj = allCoursesData[dataIndex];
+                            const emriCourse = (data[1] || '').toLowerCase();
+                            const programi = (data[2] || '');
+                            const viti = (data[3] || '').trim();
+
+                            if (searchEmri && !emriCourse.includes(searchEmri)) {
+                                return false;
+                            }
+                            if (selectedNiveli && courseObj && courseObj.programNivel) {
+                                if (!courseObj.programNivel.toLowerCase().includes(selectedNiveli.toLowerCase())) {
+                                    return false;
+                                }
+                            }
+                            if (selectedProg && !programi.toLowerCase().includes(selectedProg.toLowerCase())) {
+                                return false;
+                            }
+                            if (selectedViti && viti !== selectedViti) {
+                                return false;
+                            }
+                            return true;
+                        });
+                    }
+
+                    async function openEditCourseModal(id) {
+                        currentEditingCourseId = id;
+                        $('#modalCourseTitle').text("Edit");
+                        $('#modalCourseAlert').addClass('d-none');
+
+                        try {
+                            const res = await fetch(`/api/admin/courses/${id}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                            if (!res.ok) throw new Error("Nuk u mundesua marrja e te dhenave te lendes.");
+                            const c = await res.json();
+
+                            const form = $('#formCourse')[0];
+                            form.elements['EMRI_COURSE'].value = c.emriCourse || '';
+                            form.elements['PROGRAM_ID'].value = c.programId || '';
+                            form.elements['STUDY_YEAR'].value = c.studyYear || '';
+                            form.elements['KREDITE'].value = c.kredite || '';
+                            form.elements['STATUS'].value = c.status || 'Active';
+
+                            const modalEl = document.getElementById('modalShtoCourse');
+                            const modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                        } catch (err) {
+                            alert("Gabim gjate leximit te lendes: " + err.message);
+                        }
+                    }
+
+                    async function deleteCourse(id) {
+                        if (!confirm("A jeni i sigurt qe deshironi ta fshini kete lende?")) return;
+                        try {
+                            const res = await fetch(`/api/admin/courses/${id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                loadCourses();
+                            } else {
+                                alert("Gabim gjate fshirjes se lendes.");
+                            }
+                        } catch (err) {
+                            console.error("Gabim fshirjeje:", err);
+                        }
+                    }
+
+                    async function loadCourses() {
+                        try {
+                            const response = await fetch('/api/admin/courses', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                            if (!response.ok) throw new Error('Gabim gjate marrjes se lendeve');
+                            const data = await response.json();
+                            allCoursesData = data || [];
+
+                            if ($.fn.DataTable.isDataTable('#tabelaCourses')) {
+                                $('#tabelaCourses').DataTable().destroy();
+                            }
+
+                            const tbody = $('#tabelaCoursesBody');
+                            tbody.empty();
+
+                            updateProgramDropdown();
+
+                            if (!data || data.length === 0) {
+                                tbody.append(`<tr><td colspan="7" class="text-center text-muted">Nuk u gjet asnje lende ne bazen e te dhenave.</td></tr>`);
+                            } else {
+                                data.forEach((c, index) => {
+                                    const progName = c.programEmri || '-';
+                                    const row = `
+                        <tr>
+                            <td class="text-center">${index + 1}</td>
+                            <td>${c.emriCourse || ''}</td>
+                            <td>${progName}</td>
+                            <td class="text-center">${c.studyYear != null ? c.studyYear : '-'}</td>
+                            <td class="text-center">${c.kredite || 0}</td>
+                            <td class="text-center">${c.status || 'Active'}</td>
+                            <td class="text-end text-nowrap">
+                                <button class="btn btn-sm btn-outline-dark me-1" title="Edito" onclick="openEditCourseModal(${c.courseId})"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-dark" title="Fshi" onclick="deleteCourse(${c.courseId})"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                                    tbody.append(row);
+                                });
+                            }
+
+                            coursesDataTable = $('#tabelaCourses').DataTable({
+                                pageLength: 10,
+                                responsive: true,
+                                searching: true,
+                                pagingType: "simple",
+                                dom: '<"d-flex justify-content-between align-items-center mb-3"l>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                                language: {
+                                    lengthMenu: "_MENU_",
+                                    info: "Shfaqur _START_ deri _END_ nga _TOTAL_ lende",
+                                    paginate: {
+                                        previous: "&lt;",
+                                        next: "&gt;"
+                                    }
+                                },
+                                drawCallback: function () {
+                                    const api = this.api();
+                                    const pageInfo = api.page.info();
+                                    const paginateEl = $(api.table().container()).find('.pagination');
+                                    if (paginateEl.find('.page-number-display').length === 0) {
+                                        paginateEl.find('.paginate_button.previous, .previous').after(
+                                            `<li class="paginate_button page-item disabled"><span class="page-link page-number-display text-dark bg-light px-3">${pageInfo.page + 1}</span></li>`
+                                        );
+                                    } else {
+                                        paginateEl.find('.page-number-display').text(pageInfo.page + 1);
+                                    }
+                                }
+                            });
+                        } catch (err) {
+                            console.error('Gabim gjate ngarkimit te lendeve:', err);
+                        }
+                    }
+                </script>
+
+            </div><!-- /page-wrapper -->
+        </div><!-- /page-content-wrapper -->
+
+    </div><!-- /wrapper -->
+
+</body>
+
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pedagogu - Statistikat e Deges</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- SheetJS (XLSX) per eksportin ne Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- jsPDF + html2canvas (lokal) -->
+    <script src="/js/html2canvas.min.js"></script>
+    <script src="/js/jspdf.umd.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/stylepetagog.css">
+    <!-- Auth Interceptor -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth-interceptor.js"></script>
+</head>
+
+<body class="overflow-hidden">
+
+    <div class="d-flex vh-100 overflow-hidden" id="wrapper">
+
+        <!-- ================= SIDEBAR (FIKS) ================= -->
+        <aside id="sidebar-wrapper"
+            class="bg-white border-end d-flex flex-column justify-content-between h-100 flex-shrink-0"
+            style="width: 250px;">
+
+            <div>
+                <!-- Logo -->
+                <div class="sidebar-heading px-3 py-3 border-bottom text-center">
+                    <a href="#" class="d-block text-decoration-none">
+                        <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo" style="max-height: 40px;">
+                    </a>
+                </div>
+
+                <!-- Menyte e Pedagogut -->
+                <div class="list-group list-group-flush py-3" id="sidebarMenu">
+                    <a href="/rregjistri" id="menuLendet"
+                        class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        <i class="bi bi-grid-1x2 me-2"></i> Menaxhimi Lendeve
+                    </a>
+                    <a href="/lektor" id="menuLektor"
+                        class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
+                        <i class="bi bi-bar-chart-line me-2"></i> Statistikat e Deges
+                    </a>
+                    <a href="#" id="menuOrari" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+                        <i class="bi bi-calendar3 me-2"></i> Orari Im
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="p-3 border-top bg-white">
+                <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ================= MAIN CONTENT AREA ================= -->
+        <div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
+
+            <!-- HEADER TOP BAR (FIKS) -->
+            <header
+                class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between flex-shrink-0">
+                <div class="d-flex align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark" id="headerTitle"></h6>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-sm-block">
+                        <span class="d-block fw-bold small text-dark" id="headerProfName">Profesor Lektor</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PERMBAJTJA E FAQES (SCROLLABLE) -->
+            <main class="flex-grow-1 overflow-y-auto p-4">
+
+                <div class="container-fluid py-2">
+
+                    <!-- ================= SEKSIONI: FILTRAT ================= -->
+                    <!-- Renditja e kerkuar: 1. Viti -> 2. Departamenti -> 3. Lenda -> 4. Dega -->
+                    <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+                        <h6 class="fw-bold mb-3 text-dark">Zgjidh statistikat e deges</h6>
+
+                        <form id="filterForm" onsubmit="gjeneroStatistikatLektori(event)">
+                            <div class="row g-3 align-items-end">
+
+                                <!-- 1. VITI (Viti Akademik) -->
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="selectViti" required>
+                                        <option value="2025-2026" selected>Viti 2025-2026</option>
+                                        <option value="2024-2025">Viti 2024-2025</option>
+                                        <option value="2026-2027">Viti 2026-2027</option>
+                                    </select>
+                                </div>
+
+                                <!-- 2. DEPARTAMENTI -->
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="selectDepartamenti" required>
+                                        <option value="Departamenti i Inxhinierise Kompjuterike" data-dept-id="1" selected>Departamenti i Inxhinierise Kompjuterike</option>
+                                        <option value="Departamenti i Elektronikes dhe Telekomunikacionit" data-dept-id="2">Departamenti i Elektronikes dhe Telekomunikacionit</option>
+                                    </select>
+                                </div>
+
+                                <!-- 3. LENDA -->
+                                <div class="col-md-3">
+                                    <select class="form-select form-select-sm" id="selectLenda" required>
+                                        <option value="Programim ne Web" data-course-id="1" data-program-name="Inxhinieri Informatike" selected>Programim ne Web</option>
+                                        <option value="Baza te Dhenash" data-course-id="2" data-program-name="Inxhinieri Informatike">Baza te Dhenash</option>
+                                    </select>
+                                </div>
+
+                                <!-- 4. DEGA (Dega / Grupi) -->
+                                <div class="col-md-2">
+                                    <select class="form-select form-select-sm" id="selectDega" required>
+                                        <option value="Inxhinieri Informatike" selected>Inxhinieri Informatike</option>
+                                        <option value="Inxhinieri Telekomunikacioni">Inxhinieri Telekomunikacioni</option>
+                                    </select>
+                                </div>
+
+                                <!-- Butoni Kerko -->
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-amber-light btn-sm w-100 fw-semibold"
+                                        id="btnKerko">
+                                         Kerko
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ZONA E REZULTATEVE (TREGOHET VETEM PAS KERKIMIT) -->
+                    <div id="searchResultsSection" class="d-none">
+
+                        <div class="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
+
+                            <!-- HEADER I KARTES ME TITULLIN DHE AKSIONET (EXCEL DEGE + SHKARKO PDF) -->
+                            <div
+                                class="card-header bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h6 class="fw-bold mb-0 text-dark" id="statistikatTitle">
+                                    Rezultatet e Pergjithshme
+                                </h6>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- DROPDOWN SHKARKIM EXCELI PER TE GJITHE DEGEN -->
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-amber-light btn-sm fw-semibold dropdown-toggle"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-file-earmark-excel me-1"></i> Excel Dege
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                            <li>
+                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
+                                                    onclick="shkarkoExcelDega('ngelasa'); return false;">
+                                                    <i class="bi bi-file-earmark-x text-danger me-2"></i>
+                                                    Shkarko Gjithe Ngelsat (A, B, C)
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
+                                                    onclick="shkarkoExcelDega('permiresime'); return false;">
+                                                    <i class="bi bi-file-earmark-check text-warning me-2"></i>
+                                                    Shkarko Gjithe Permiresimet
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
+                                                    onclick="shkarkoExcelDega('ngelasa_permiresime'); return false;">
+                                                    <i class="bi bi-file-earmark-arrow-down me-2"></i> Ngelsa +
+                                                    Permiresime (Gjithe Dega)
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
+                                                    onclick="shkarkoExcelDega('gjitha'); return false;">
+                                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i> Te gjithe
+                                                    Studentet e Deges
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- BUTONI SHKARKO PDF -->
+                                    <button id="btnShkarkoPDF" class="btn btn-outline-amber-light btn-sm fw-semibold"
+                                        onclick="shkarkoStatistikatLektoriPDF()">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Shkarko PDF
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- BODY I KARTES: STATISTIKAT E PLOTA TE DEGES -->
+                            <div class="card-body p-4">
+                                <!-- Seksioni qe do te printohet ne PDF -->
+                                <div id="statistikatPrintArea" class="bg-white p-2">
+
+                                    <!-- Header vetem gjate gjenerimit te PDF-se -->
+                                    <div class="pdf-only-header border-bottom pb-3 mb-4 d-none">
+                                        <h5 class="fw-bold mb-1 text-dark">Pasqyra Statistikore e Deges</h5>
+                                        <p class="text-muted small mb-0" id="pdfSubHeader">
+                                            Lenda: Programim ne Web &nbsp;|&nbsp; Dega: Inxhinieri Informatike
+                                            &nbsp;|&nbsp; Viti: 2025-2026
+                                        </p>
+                                    </div>
+
+                                    <!-- Detajet dhe Shperndarja e Notave -->
+                                    <div class="row g-5 align-items-start position-relative">
+
+                                        <!-- Kolona e majte: Metrikat liste -->
+                                        <div class="col-md-6 col-12 pe-md-4">
+                                            <h6 class="fw-bold text-dark mb-3" style="font-size: 0.9rem;">
+                                                Pasqyra e Pergjithshme</h6>
+                                            <div class="stat-list">
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    <span class="text-secondary small fw-medium">Numri i
+                                                        studenteve</span>
+                                                    <span class="fw-bold text-dark small"
+                                                        id="detailNumriStudentave">124</span>
+                                                </div>
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    <span class="text-secondary small fw-medium">Mesatarja</span>
+                                                    <span class="fw-bold text-dark small"
+                                                        id="detailMesatarja">7.45</span>
+                                                </div>
+
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    <span class="text-secondary small fw-medium">Kalueshmeria</span>
+                                                    <span class="fw-bold text-dark small"
+                                                        id="detailKalueshmeria">89.5%</span>
+                                                </div>
+
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    <span class="text-secondary small fw-medium">Moda</span>
+                                                    <span class="fw-bold text-dark small" id="detailModa">8</span>
+                                                </div>
+
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    <span class="text-secondary small fw-medium">Nota me e larte / me e
+                                                        ulet</span>
+                                                    <span class="fw-bold text-dark small" id="detailMinMax">10 /
+                                                        4</span>
+                                                </div>
+
+                                                <div
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5">
+                                                    <span class="text-secondary small fw-medium">Pjesemarrja ne sezon te
+                                                        rregullt</span>
+                                                    <span class="fw-bold text-dark small"
+                                                        id="detailPjesemarrja">86.2%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Kolona e djathte: Shperndarja e notave ne tabele -->
+                                        <div class="col-md-6 col-12 ps-md-4 border-amber-divider">
+                                            <h6 class="fw-bold text-dark mb-3" style="font-size: 0.9rem;">
+                                                Shperndarja e notave</h6>
+
+                                            <table
+                                                class="table table-sm table-borderless align-middle custom-compact-table border-top mb-0">
+                                                <thead>
+                                                    <tr class="border-bottom text-muted" style="font-size: 0.75rem;">
+                                                        <th>Nota</th>
+                                                        <th class="text-center">Studente</th>
+                                                        <th class="text-end">Perqindja</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="distributionTableBody">
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">10</td>
+                                                        <td class="text-center fw-semibold">22</td>
+                                                        <td class="text-end text-muted">17.7%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">9</td>
+                                                        <td class="text-center fw-semibold">54</td>
+                                                        <td class="text-end text-muted">43.5%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">8</td>
+                                                        <td class="text-center fw-semibold">54</td>
+                                                        <td class="text-end text-muted">43.5%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">7</td>
+                                                        <td class="text-center fw-semibold">35</td>
+                                                        <td class="text-end text-muted">28.2%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">6</td>
+                                                        <td class="text-center fw-semibold">35</td>
+                                                        <td class="text-end text-muted">28.2%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">5</td>
+                                                        <td class="text-center fw-semibold">35</td>
+                                                        <td class="text-end text-muted">10.6%</td>
+                                                    </tr>
+                                                    <tr class="border-bottom">
+                                                        <td class="fw-semibold">4</td>
+                                                        <td class="text-center fw-semibold">35</td>
+                                                        <td class="text-end text-muted">10.6%</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Skriptet e Lektorit dhe Filtrave Dinamike -->
+    <script>
+        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+        let pedagogOptionsData = null;
+        let currentBranchStats = null;
+        let currentBranchStudents = [];
+
+        // Shfaq emrin menjëherë nga localStorage
+        (function initHeaderNameImmediately() {
+            const headerProfName = document.getElementById('headerProfName');
+            const storedName = localStorage.getItem('userName');
+            const storedEmail = localStorage.getItem('userEmail');
+            if (headerProfName) {
+                if (storedName && storedName.trim() && storedName !== 'null' && storedName !== 'undefined') {
+                    headerProfName.textContent = storedName.trim();
+                } else if (storedEmail && storedEmail !== 'null' && storedEmail !== 'undefined') {
+                    headerProfName.textContent = storedEmail.split('@')[0];
+                }
+            }
+        })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadPedagogOptions();
+        });
+
+        // 1. NGARKIMI I OPSIONEVE TE PEDAGOGUT DHE KONTROLLI I ROLIT LEKTOR
+        async function loadPedagogOptions() {
+            const userId = localStorage.getItem('userId');
+            const userEmail = localStorage.getItem('userEmail');
+            const token = localStorage.getItem('jwtToken');
+
+            let url = '/api/pedagog/options';
+            const params = [];
+            if (userId) params.push('userId=' + encodeURIComponent(userId));
+            if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+            if (params.length > 0) url += '?' + params.join('&');
+
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            try {
+                let response = await fetch(url, { headers });
+                if (!response.ok) {
+                    response = await fetch('/api/pedagog/options', { headers });
+                }
+                if (response.ok) {
+                    pedagogOptionsData = await response.json();
+                }
+            } catch (err) {
+                console.error("Gabim gjate marrjes se opsioneve te pedagogut:", err);
+            }
+
+            if (!pedagogOptionsData) {
+                pedagogOptionsData = {
+                    professorName: localStorage.getItem('userName') || 'Profesor',
+                    academicYears: ["2025-2026", "2024-2025", "2026-2027"],
+                    departments: [
+                        { id: 1, name: "Departamenti i Inxhinierise Kompjuterike" },
+                        { id: 2, name: "Departamenti i Elektronikes dhe Telekomunikacionit" }
+                    ],
+                    courses: [
+                        { id: 1, name: "Programim ne Web", departmentId: 1, programName: "Inxhinieri Informatike" },
+                        { id: 2, name: "Baza te Dhenash", departmentId: 1, programName: "Inxhinieri Informatike" }
+                    ],
+                    programs: [
+                        { id: 1, name: "Inxhinieri Informatike", departmentId: 1 },
+                        { id: 2, name: "Inxhinieri Telekomunikacioni", departmentId: 2 }
+                    ],
+                    isLektor: true,
+                    hasRegistry: true
+                };
+            }
+
+            // Shfaq ose fshih menute ne sidebar
+            const menuLektor = document.getElementById('menuLektor');
+            if (menuLektor) {
+                menuLektor.style.display = '';
+            }
+            const menuLendet = document.getElementById('menuLendet');
+            if (menuLendet) {
+                menuLendet.style.display = '';
+            }
+
+            // Perditeso Emrin e Pedagogut ne Header
+            const headerProfName = document.getElementById('headerProfName');
+            const storedName = localStorage.getItem('userName');
+            const storedEmail = localStorage.getItem('userEmail');
+            if (headerProfName) {
+                const apiName = pedagogOptionsData && pedagogOptionsData.professorName ? pedagogOptionsData.professorName.trim() : '';
+                if (apiName && apiName !== 'Profesor Lektor') {
+                    headerProfName.textContent = apiName;
+                } else if (storedName && storedName.trim() && storedName !== 'null' && storedName !== 'undefined') {
+                    headerProfName.textContent = storedName.trim();
+                } else if (storedEmail && storedEmail !== 'null' && storedEmail !== 'undefined') {
+                    headerProfName.textContent = storedEmail.split('@')[0];
+                } else if (apiName) {
+                    headerProfName.textContent = apiName;
+                } else {
+                    headerProfName.textContent = 'Profesor Lektor';
+                }
+            }
+
+            // 1. VITI AKADEMIK
+            const selectViti = document.getElementById('selectViti');
+            if (selectViti) {
+                const years = (pedagogOptionsData && pedagogOptionsData.academicYears && pedagogOptionsData.academicYears.length > 0)
+                    ? pedagogOptionsData.academicYears
+                    : ["2025-2026", "2024-2025", "2026-2027"];
+                selectViti.innerHTML = '';
+                years.forEach((y, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = `Viti ${y}`;
+                    if (idx === 0) opt.selected = true;
+                    selectViti.appendChild(opt);
+                });
+            }
+
+            // 2. DEPARTAMENTI
+            const selectDept = document.getElementById('selectDepartamenti');
+            if (selectDept) {
+                selectDept.innerHTML = '';
+                let deptList = (pedagogOptionsData && pedagogOptionsData.departments && pedagogOptionsData.departments.length > 0)
+                    ? pedagogOptionsData.departments
+                    : [
+                        { id: 1, name: "Departamenti i Inxhinierise Kompjuterike" },
+                        { id: 2, name: "Departamenti i Elektronikes dhe Telekomunikacionit" }
+                    ];
+
+                deptList.forEach((d, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = d.name;
+                    opt.dataset.deptId = d.id || '';
+                    opt.textContent = d.name;
+                    if (idx === 0) opt.selected = true;
+                    selectDept.appendChild(opt);
+                });
+
+                selectDept.onchange = function () {
+                    filterCoursesBySelectedDepartment();
+                };
+            }
+
+            filterCoursesBySelectedDepartment();
+        }
+
+        // 3. FILTRIMI I LENDEVE SIPAS DEPARTAMENTIT
+        function filterCoursesBySelectedDepartment() {
+            if (!pedagogOptionsData || !pedagogOptionsData.courses || pedagogOptionsData.courses.length === 0) {
+                populateCourses([]);
+                return;
+            }
+
+            const selectDept = document.getElementById('selectDepartamenti');
+            const selectedOption = selectDept && selectDept.selectedIndex >= 0 ? selectDept.options[selectDept.selectedIndex] : null;
+
+            let filteredCourses = pedagogOptionsData.courses;
+            if (selectedOption && selectedOption.dataset && selectedOption.dataset.deptId) {
+                const deptId = parseInt(selectedOption.dataset.deptId);
+                const matched = pedagogOptionsData.courses.filter(c => {
+                    if (c.departmentId && c.departmentId === deptId) return true;
+                    if (c.departmentIds && c.departmentIds.includes(deptId)) return true;
+                    return false;
+                });
+                if (matched.length > 0) {
+                    filteredCourses = matched;
+                }
+            }
+
+            populateCourses(filteredCourses);
+        }
+
+        function populateCourses(courseList) {
+            const selectLenda = document.getElementById('selectLenda');
+            if (!selectLenda) return;
+
+            selectLenda.innerHTML = '';
+            let listToUse = (courseList && courseList.length > 0)
+                ? courseList
+                : (pedagogOptionsData && pedagogOptionsData.courses ? pedagogOptionsData.courses : []);
+
+            if (!listToUse || listToUse.length === 0) {
+                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lende te caktuara</option>';
+                populateBranches([]);
+                return;
+            }
+
+            listToUse.forEach((c, idx) => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.dataset.courseId = c.id || '';
+                opt.dataset.studyYear = c.studyYear || '';
+                opt.dataset.deptId = c.departmentId || '';
+                opt.dataset.programName = c.programName || '';
+                opt.textContent = c.name;
+                if (idx === 0) opt.selected = true;
+                selectLenda.appendChild(opt);
+            });
+
+            selectLenda.onchange = function () {
+                filterBranchesBySelectedCourse();
+            };
+
+            filterBranchesBySelectedCourse();
+        }
+
+        // 4. FILTRIMI I DEGEVE (E GJITHE DEGA / PROGRAMI - PA NDARJE ME KLASA)
+        function filterBranchesBySelectedCourse() {
+            const selectLenda = document.getElementById('selectLenda');
+            const selectDept = document.getElementById('selectDepartamenti');
+            const selectedCourseOpt = selectLenda && selectLenda.selectedIndex >= 0 ? selectLenda.options[selectLenda.selectedIndex] : null;
+            const selectedDeptOpt = selectDept && selectDept.selectedIndex >= 0 ? selectDept.options[selectDept.selectedIndex] : null;
+
+            let branches = [];
+            let defaultBranch = "";
+
+            if (selectedCourseOpt && selectedCourseOpt.dataset && selectedCourseOpt.dataset.programName) {
+                defaultBranch = selectedCourseOpt.dataset.programName.trim();
+                if (defaultBranch) branches.push(defaultBranch);
+            }
+
+            const deptId = selectedDeptOpt && selectedDeptOpt.dataset && selectedDeptOpt.dataset.deptId
+                ? parseInt(selectedDeptOpt.dataset.deptId)
+                : null;
+
+            if (pedagogOptionsData && pedagogOptionsData.programs && pedagogOptionsData.programs.length > 0) {
+                pedagogOptionsData.programs.forEach(p => {
+                    if (!deptId || !p.departmentId || p.departmentId === deptId) {
+                        if (p.name && !branches.includes(p.name.trim())) {
+                            branches.push(p.name.trim());
+                        }
+                    }
+                });
+            }
+
+            if (branches.length === 0) {
+                branches = ["Inxhinieri Informatike", "Inxhinieri Kompjuterike", "Inxhinieri Telekomunikacioni"];
+            }
+
+            populateBranches(branches, defaultBranch);
+        }
+
+        function populateBranches(branchList, defaultBranch) {
+            const selectDega = document.getElementById('selectDega');
+            if (!selectDega) return;
+
+            selectDega.innerHTML = '';
+
+            branchList.forEach((b, idx) => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                if (defaultBranch && b.toLowerCase() === defaultBranch.toLowerCase()) {
+                    opt.selected = true;
+                } else if (!defaultBranch && idx === 0) {
+                    opt.selected = true;
+                }
+                selectDega.appendChild(opt);
+            });
+        }
+
+        // 5. GJENERIMI I STATISTIKAVE TE LEKTORIT NGA API
+        async function gjeneroStatistikatLektori(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('btnKerko');
+            const origBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Po kerkohet...';
+
+            const selectViti = document.getElementById('selectViti');
+            const selectDept = document.getElementById('selectDepartamenti');
+            const selectLenda = document.getElementById('selectLenda');
+            const selectDega = document.getElementById('selectDega');
+
+            const viti = selectViti.value || "2025-2026";
+            const deptName = selectDept.value || "";
+            const deptId = selectDept.selectedIndex >= 0 && selectDept.options[selectDept.selectedIndex].dataset.deptId
+                ? selectDept.options[selectDept.selectedIndex].dataset.deptId : "";
+            const lenda = selectLenda.value || "";
+            const courseId = selectLenda.selectedIndex >= 0 && selectLenda.options[selectLenda.selectedIndex].dataset.courseId
+                ? selectLenda.options[selectLenda.selectedIndex].dataset.courseId : "";
+            const dega = selectDega.value || "Te gjithe";
+
+            const params = new URLSearchParams();
+            if (courseId) params.append('courseId', courseId);
+            if (lenda) params.append('courseName', lenda);
+            if (viti) params.append('academicYear', viti);
+            if (dega) params.append('dega', dega);
+            if (deptId) params.append('departmentId', deptId);
+
+            const token = localStorage.getItem('jwtToken');
+            const headers = {};
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+
+            try {
+                const response = await fetch('/api/pedagog/branch-stats?' + params.toString(), { headers });
+                if (response.ok) {
+                    currentBranchStats = await response.json();
+                }
+            } catch (err) {
+                console.error("Gabim gjate marrjes se statistikave te deges:", err);
+            }
+
+            renderBranchStats(lenda, dega, viti, deptName);
+
+            btn.disabled = false;
+            btn.innerHTML = origBtnText;
+
+            // Shfaq div-in e rezultateve
+            document.getElementById('searchResultsSection').classList.remove('d-none');
+        }
+
+        function renderBranchStats(lenda, dega, viti, deptName) {
+            const stats = currentBranchStats || {
+                numriStudenteve: 124,
+                mesatarja: 7.45,
+                kalueshmeria: 89.5,
+                moda: "8",
+                notaLarteUlet: "10 / 4",
+                pjesemarrja: 86.2,
+                gradeDistribution: [
+                    { nota: 10, count: 22, percentage: 17.7 },
+                    { nota: 9, count: 54, percentage: 43.5 },
+                    { nota: 8, count: 54, percentage: 43.5 },
+                    { nota: 7, count: 35, percentage: 28.2 },
+                    { nota: 6, count: 35, percentage: 28.2 },
+                    { nota: 5, count: 13, percentage: 10.5 },
+                    { nota: 4, count: 13, percentage: 10.5 }
+                ],
+                groups: [
+                    { groupName: "Grupi A", studentCount: 42, kalueshmeria: 92.0, pjesemarrja: 88.0, mesatarja: 7.8 },
+                    { groupName: "Grupi B", studentCount: 39, kalueshmeria: 87.0, pjesemarrja: 84.0, mesatarja: 7.2 },
+                    { groupName: "Grupi C", studentCount: 43, kalueshmeria: 89.0, pjesemarrja: 86.0, mesatarja: 7.3 }
+                ],
+                students: [
+                    { emri: "Savina Shimi", matrikulli: "IK-3042", grupi: "Grupi A", nota: 9, statusi: "Permiresim" },
+                    { emri: "Bora Hoxha", matrikulli: "IK-3011", grupi: "Grupi A", nota: 4, statusi: "Ngeles" },
+                    { emri: "Altea Prifti", matrikulli: "IK-3088", grupi: "Grupi A", nota: 10, statusi: "Kaluar" },
+                    { emri: "Albi Rama", matrikulli: "IK-3091", grupi: "Grupi B", nota: 4, statusi: "Ngeles" },
+                    { emri: "Ervis Meta", matrikulli: "IK-3015", grupi: "Grupi B", nota: 8, statusi: "Permiresim" },
+                    { emri: "Klaudio Zeka", matrikulli: "IK-3077", grupi: "Grupi C", nota: 4, statusi: "Ngeles" },
+                    { emri: "Sara Berisha", matrikulli: "IK-3022", grupi: "Grupi C", nota: 9, statusi: "Permiresim" }
+                ]
+            };
+
+            currentBranchStudents = stats.students || [];
+
+            // Perditeso tekstet e titujve
+            document.getElementById('statistikatTitle').innerText = `Rezultatet: ${lenda} — ${dega} (${viti})`;
+            document.getElementById('pdfSubHeader').innerHTML = `Lenda: ${lenda} &nbsp;|&nbsp; Dega: ${dega} &nbsp;|&nbsp; Viti: ${viti}`;
+
+            // Perditeso Metrikat e Pergjithshme
+            document.getElementById('detailNumriStudentave').innerText = stats.numriStudenteve || 0;
+            document.getElementById('detailMesatarja').innerText = stats.mesatarja ? Number(stats.mesatarja).toFixed(2) : "0.00";
+            document.getElementById('detailKalueshmeria').innerText = (stats.kalueshmeria ? Number(stats.kalueshmeria).toFixed(1) : "0.0") + "%";
+            document.getElementById('detailModa').innerText = stats.moda || "-";
+            document.getElementById('detailMinMax').innerText = stats.notaLarteUlet || "- / -";
+            document.getElementById('detailPjesemarrja').innerText = (stats.pjesemarrja ? Number(stats.pjesemarrja).toFixed(1) : "0.0") + "%";
+
+            // Perditeso Tabelen e Shperndarjes se Notave
+            const tbodyDist = document.getElementById('distributionTableBody');
+            if (tbodyDist && stats.gradeDistribution && stats.gradeDistribution.length > 0) {
+                tbodyDist.innerHTML = '';
+                stats.gradeDistribution.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-bottom';
+                    tr.innerHTML = `
+                    <td class="fw-semibold">${item.nota}</td>
+                    <td class="text-center fw-semibold">${item.count}</td>
+                    <td class="text-end text-muted">${item.percentage ? Number(item.percentage).toFixed(1) : 0}%</td>
+                `;
+                    tbodyDist.appendChild(tr);
+                });
+            }
+        }
+
+        // 6. SHKARKIMI I RAPORTIT PDF
+        async function shkarkoStatistikatLektoriPDF() {
+            const btn = document.getElementById('btnShkarkoPDF');
+            const element = document.getElementById('statistikatPrintArea');
+
+            if (!element) { alert('Elementi nuk u gjet!'); return; }
+
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Po gjenerohet...';
+
+            const clone = element.cloneNode(true);
+            const cloneHeader = clone.querySelector('.pdf-only-header');
+            if (cloneHeader) cloneHeader.classList.remove('d-none');
+
+            clone.style.position = 'fixed';
+            clone.style.top = '0';
+            clone.style.left = '-9999px';
+            clone.style.width = '1100px';
+            clone.style.background = '#ffffff';
+            clone.style.zIndex = '-1';
+            clone.style.padding = '24px';
+            document.body.appendChild(clone);
+
+            try {
+                const canvas = await html2canvas(clone, {
+                    scale: 1.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: clone.scrollWidth,
+                    height: clone.scrollHeight,
+                    windowWidth: 1100
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+                const pgW = pdf.internal.pageSize.getWidth();
+                const pgH = pdf.internal.pageSize.getHeight();
+                const margin = 8;
+                const imgW = pgW - margin * 2;
+                const imgH = (canvas.height * imgW) / canvas.width;
+
+                let yOff = 0;
+                while (yOff < imgH) {
+                    if (yOff > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', margin, margin - yOff, imgW, imgH);
+                    yOff += pgH - margin * 2;
+                }
+
+                pdf.save('Statistikat_Lektori_Deges.pdf');
+
+            } catch (err) {
+                console.error('Gabim PDF:', err);
+                alert('Gabim gjate gjenerimit te PDF: ' + err.message);
+            } finally {
+                document.body.removeChild(clone);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // 7. SHKARKIMI NE EXCEL I TE DHENAVE TE DEGES
+        function shkarkoExcelDega(tipi) {
+            const lenda = document.getElementById('selectLenda').value || "Lenda";
+            const dega = document.getElementById('selectDega').value || "Dega";
+            const viti = document.getElementById('selectViti').value || "Viti";
+
+            const teDhenatStudentet = (currentBranchStudents && currentBranchStudents.length > 0)
+                ? currentBranchStudents
+                : [
+                    { emri: "Savina Shimi", matrikulli: "IK-3042", grupi: "Grupi A", nota: 9, statusi: "Permiresim" },
+                    { emri: "Bora Hoxha", matrikulli: "IK-3011", grupi: "Grupi A", nota: 4, statusi: "Ngeles" },
+                    { emri: "Altea Prifti", matrikulli: "IK-3088", grupi: "Grupi A", nota: 10, statusi: "Kaluar" },
+                    { emri: "Albi Rama", matrikulli: "IK-3091", grupi: "Grupi B", nota: 4, statusi: "Ngeles" },
+                    { emri: "Ervis Meta", matrikulli: "IK-3015", grupi: "Grupi B", nota: 8, statusi: "Permiresim" },
+                    { emri: "Klaudio Zeka", matrikulli: "IK-3077", grupi: "Grupi C", nota: 4, statusi: "Ngeles" },
+                    { emri: "Sara Berisha", matrikulli: "IK-3022", grupi: "Grupi C", nota: 9, statusi: "Permiresim" }
+                ];
+
+            let meFiltruar = [];
+            let emriSkedarit = "";
+
+            if (tipi === 'ngelasa') {
+                meFiltruar = teDhenatStudentet.filter(s => (s.nota && s.nota <= 4) || (s.statusi && s.statusi.toLowerCase().includes("ngel")));
+                emriSkedarit = `Ngelsat_${dega}_${viti}.xlsx`;
+            } else if (tipi === 'permiresime') {
+                meFiltruar = teDhenatStudentet.filter(s => s.statusi && s.statusi.toLowerCase().includes("permiresim"));
+                emriSkedarit = `Permiresimet_${dega}_${viti}.xlsx`;
+            } else if (tipi === 'ngelasa_permiresime') {
+                meFiltruar = teDhenatStudentet.filter(s => (s.nota && s.nota <= 4) || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("permiresim"))));
+                emriSkedarit = `Ngelsa_Permiresime_${dega}_${viti}.xlsx`;
+            } else {
+                meFiltruar = teDhenatStudentet;
+                emriSkedarit = `Gjithe_Studentet_${dega}_${viti}.xlsx`;
+            }
+
+            if (meFiltruar.length === 0) {
+                alert("Nuk u gjeten te dhena per filtrin e zgjedhur!");
+                return;
+            }
+
+            // Formatimi per kolonat e Excel-it (Per ngelsat dhe permiresimet VETEM Emri dhe Mbiemri)
+            const isVetEmri = (tipi === 'permiresime' || tipi === 'ngelasa' || tipi === 'ngelasa_permiresime');
+            const rowsForExcel = meFiltruar.map(s => {
+                if (isVetEmri) {
+                    return {
+                        "Emri dhe Mbiemri": s.emri || ""
+                    };
+                }
+                return {
+                    "Emri dhe Mbiemri": s.emri || "",
+                    "Nota": s.nota != null ? s.nota : ""
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(rowsForExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Statistikat e Deges");
+
+            XLSX.writeFile(workbook, emriSkedarit.replace(/[\s\(\)]+/g, '_'));
+        }
+    </script>
+
+</body>
+
+</html>

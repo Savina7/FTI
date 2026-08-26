@@ -1,0 +1,160 @@
+:root {
+    --bg-main: #f8fafc;
+    --border-color: #e2e8f0;
+    --soft-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+body {
+    background-color: var(--bg-main);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Karta kryesore me gjeresi ideale per nje kolone vertikale */
+.register-card {
+    max-width: 380px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--soft-shadow);
+    background-color: #ffffff;
+}
+
+/* Logoja */
+.school-logo {
+    max-height: 28px;
+    width: auto;
+}
+
+.extra-small {
+    font-size: 0.8rem;
+}
+
+/* Grupi i secilit input me hapesire rezerve poshte per tekstin e validimit */
+.field-group {
+    margin-bottom: 0.4rem;
+    position: relative;
+}
+
+/* Stili i input-eve */
+.form-control-sm, .form-select-sm {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Label kompakt */
+.form-label {
+    margin-bottom: 0.15rem !important;
+    font-size: 0.75rem;
+}
+
+/* Pozicionimi i mesazheve te gabimit (validimit) */
+.invalid-feedback {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+}
+
+/* Butonat e rolit */
+.role-btn-group .btn-check:checked + .btn {
+    background-color: #0d6efd;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+
+
+/* ==========================================
+   STILET SPECIFIKE PER LOGIN
+   ========================================== */
+
+/* Karta e Login-it (trashegon permasat e kartes se regjistrimit) */
+.login-card {
+    max-width: 380px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--soft-shadow);
+    background-color: #ffffff;
+}
+
+/* Stili i checkbox-it te Login */
+.login-card .form-check-input {
+    width: 0.9em;
+    height: 0.9em;
+    cursor: pointer;
+}
+
+.login-card .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* ==========================================
+   STILET PER VALIDIMIN E REGISTER
+   ========================================== */
+
+.password-rules {
+    font-size: 0.72rem;
+    margin-top: 4px;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.rule {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6c757d;
+    transition: color 0.2s;
+}
+
+.rule.valid { color: #198754; }
+.rule.invalid { color: #dc3545; }
+.rule i { font-size: 0.75rem; }
+
+.field-hint {
+    font-size: 0.70rem;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.char-counter {
+    font-size: 0.70rem;
+    text-align: right;
+    margin-top: 2px;
+}
+
+.char-counter.ok { color: #198754; }
+.char-counter.bad { color: #dc3545; }
+
+
+
+
+/* ==========================================
+   STILET SPECIFIKE PER VERIFIKIMIN E KODIT (OTP)
+   ========================================== */
+
+.verify-card {
+    max-width: 380px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--soft-shadow);
+    background-color: #ffffff;
+}
+
+/* Kutite e reja per 6-shifrorin */
+.otp-input {
+    width: 45px;
+    height: 48px;
+    font-size: 1.2rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.otp-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
