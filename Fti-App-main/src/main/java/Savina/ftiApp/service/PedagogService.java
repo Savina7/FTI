@@ -40,66 +40,111 @@ public class PedagogService {
 
     @Transactional(readOnly = true)
     public PedagogOptionsDto getPedagogOptions(Integer userId, String email) {
+        log.info("[getPedagogOptions] Filloi kërkimi për userId={}, email='{}'", userId, email);
+
+        // 1. Gjejmë User në DB
         User user = null;
         if (userId != null) {
             user = userRepo.findById(userId).orElse(null);
         }
         if (user == null && email != null && !email.isBlank()) {
-            user = userRepo.findByEmailIgnoreCase(email.trim()).orElse(null);
+            String cleanEmail = email.trim().toLowerCase();
+            user = userRepo.findByEmailIgnoreCase(cleanEmail)
+                    .orElseGet(() -> userRepo.findByEmail(cleanEmail).orElse(null));
         }
 
+        if (user != null) {
+            log.info("[getPedagogOptions] U gjet User: ID={}, Email='{}', Emri='{}', Mbiemri='{}'",
+                    user.getUserId(), user.getEmail(), user.getEmri(), user.getMbiemri());
+        } else {
+            log.warn("[getPedagogOptions] Nuk u gjet asnjë User në tabelën USERS për userId={}, email='{}'", userId, email);
+        }
+
+        // 2. Gjejmë Professor në DB
         Professor professor = null;
         if (user != null) {
-            professor = professorRepo.findByUserUserId(user.getUserId()).orElse(null);
+            final Integer targetUserId = user.getUserId();
+            professor = professorRepo.findProfessorByUserId(targetUserId)
+                    .orElseGet(() -> professorRepo.findByUserUserId(targetUserId).orElse(null));
         }
         if (professor == null && email != null && !email.isBlank()) {
-            professor = professorRepo.findByUserEmailIgnoreCase(email.trim()).orElse(null);
+            final String cleanEmail = email.trim().toLowerCase();
+            professor = professorRepo.findProfessorByUserEmail(cleanEmail)
+                    .orElseGet(() -> professorRepo.findByUserEmailIgnoreCase(cleanEmail).orElse(null));
         }
-        if (professor == null && email != null && !email.isBlank()) {
-            String search = email.trim().toLowerCase();
-            List<Professor> profs = professorRepo.findAll();
-            for (Professor p : profs) {
+
+
+        // Kërkim fallback në tabelën PROFESSORS duke krahasuar çdo rekord
+        if (professor == null) {
+            List<Professor> allProfessors = professorRepo.findAll();
+            for (Professor p : allProfessors) {
                 if (p.getUser() != null) {
-                    String full = ((p.getUser().getEmri() != null ? p.getUser().getEmri() : "") + " "
-                            + (p.getUser().getMbiemri() != null ? p.getUser().getMbiemri() : "")).toLowerCase();
-                    if (full.contains(search) || (p.getUser().getEmail() != null && p.getUser().getEmail().toLowerCase().contains(search))) {
+                    if (user != null && p.getUser().getUserId() != null && p.getUser().getUserId().equals(user.getUserId())) {
+                        professor = p;
+                        break;
+                    }
+                    if (email != null && p.getUser().getEmail() != null && p.getUser().getEmail().equalsIgnoreCase(email.trim())) {
                         professor = p;
                         break;
                     }
                 }
             }
         }
+        if (professor == null && user != null) {
+            log.info("[getPedagogOptions] Po krijohet automatikisht rekordi në PROFESSORS për User: ID={}, Email='{}'",
+                    user.getUserId(), user.getEmail());
+            Department defaultDept = departmentRepo.findAll().stream().findFirst().orElse(null);
+            professor = Professor.builder()
+                    .user(user)
+                    .status("A")
+                    .department(defaultDept)
+                    .build();
+            professor = professorRepo.save(professor);
+            log.info("[getPedagogOptions] U krijua me sukses rekordi në PROFESSORS me ID={} për User ID={}",
+                    professor.getProfessorId(), user.getUserId());
+        }
 
+        if (professor != null) {
+            log.info("[getPedagogOptions] U gjet/krijua Professor: ID={}, User_ID={}",
+                    professor.getProfessorId(), professor.getUser() != null ? professor.getUser().getUserId() : "null");
+        } else {
+            log.error("[getPedagogOptions] GABIM: Nuk u gjet asnjë User dhe asnjë Professor për email='{}', userId={}", email, userId);
+        }
+
+        // 3. Përcaktojmë emrin dhe email-in e pedagogut
         String profName = "";
         String profEmail = "";
+
         if (user != null) {
-            profName = ((user.getEmri() != null ? user.getEmri() : "") + " "
-                    + (user.getMbiemri() != null ? user.getMbiemri() : "")).trim();
-            profEmail = user.getEmail() != null ? user.getEmail() : "";
+            profName = formatProfFullName(user.getEmri(), user.getMbiemri(), user.getEmail());
+            profEmail = user.getEmail() != null ? user.getEmail().trim() : "";
         }
-        if (profName.isEmpty() && professor != null && professor.getUser() != null) {
-            profName = ((professor.getUser().getEmri() != null ? professor.getUser().getEmri() : "") + " "
-                    + (professor.getUser().getMbiemri() != null ? professor.getUser().getMbiemri() : "")).trim();
-            profEmail = professor.getUser().getEmail() != null ? professor.getUser().getEmail() : "";
+        if ((profName.isEmpty() || "Profesor".equals(profName)) && professor != null && professor.getUser() != null) {
+            profName = formatProfFullName(professor.getUser().getEmri(), professor.getUser().getMbiemri(), professor.getUser().getEmail());
+            profEmail = professor.getUser().getEmail() != null ? professor.getUser().getEmail().trim() : "";
         }
-        // Fallback: nese emri eshte bosh, perdor email-in si identifikues
-        if (profName.isEmpty() && !profEmail.isEmpty()) {
-            profName = profEmail.contains("@") ? profEmail.substring(0, profEmail.indexOf('@')) : profEmail;
-        }
-        if (profName.isEmpty() && email != null && !email.isBlank()) {
-            profName = email.contains("@") ? email.substring(0, email.indexOf('@')) : email;
+        if ((profName.isEmpty() || "Profesor".equals(profName)) && email != null && !email.isBlank()) {
+            profName = formatProfFullName(null, null, email);
         }
         if (profName.isEmpty()) {
             profName = "Profesor";
         }
-        log.info("getPedagogOptions: userId={}, email={}, profName='{}', professor={}", 
-                  userId, email, profName, professor != null ? professor.getProfessorId() : "null");
 
+        log.info("[getPedagogOptions] Emri përfundimtar i pedagogut: '{}' (email: '{}')", profName, profEmail);
+
+        // 4. Marrim VETËM lëndët e caktuara për këtë pedagog nga TEACHING_COURSES
         List<TeachingCourse> teachingCourses = Collections.emptyList();
         if (professor != null) {
-            teachingCourses = teachingCourseRepo.findByProfessorProfessorId(professor.getProfessorId());
+            try {
+                teachingCourses = teachingCourseRepo.findTeachingCoursesByProfessorId(professor.getProfessorId());
+            } catch (Exception ex) {
+                teachingCourses = teachingCourseRepo.findByProfessorProfessorId(professor.getProfessorId());
+            }
+            log.info("[getPedagogOptions] Pedagogu ID={} ka gjithsej {} lëndë/orë në TEACHING_COURSES",
+                    professor.getProfessorId(), teachingCourses.size());
         }
 
+        // Vitet akademike
         List<String> academicYears = courseScheduleRepo.findDistinctAcademicYears();
         if (academicYears == null || academicYears.isEmpty()) {
             int currentYear = LocalDate.now().getMonthValue() >= 9
@@ -124,28 +169,21 @@ public class PedagogService {
         boolean isLektor = false;
         boolean hasRegistry = false;
 
-        if (professor != null && !teachingCourses.isEmpty()) {
+        // Mbushim VETËM të dhënat e këtij pedagogu
+        if (!teachingCourses.isEmpty()) {
             for (TeachingCourse tc : teachingCourses) {
                 String role = tc.getRoleType() != null ? tc.getRoleType().trim().toUpperCase() : "";
-                if ("LEKSION".equals(role) || "LEKTOR".equals(role)) {
+
+                if (role.contains("LEK") || role.contains("LEKTOR")) {
                     isLektor = true;
                 }
-                if ("SEMINAR".equals(role)) {
+                if (role.contains("SEM")) {
                     typesSet.add("Seminar");
                     hasRegistry = true;
                 }
-                if ("LABORATOR".equals(role) || "LAB".equals(role)) {
+                if (role.contains("LAB")) {
                     typesSet.add("Laborator");
                     hasRegistry = true;
-                }
-                if (!tc.getClasses().isEmpty() && typesSet.isEmpty()) {
-                    if (role.contains("SEM")) {
-                        typesSet.add("Seminar");
-                        hasRegistry = true;
-                    } else if (role.contains("LAB")) {
-                        typesSet.add("Laborator");
-                        hasRegistry = true;
-                    }
                 }
 
                 if (tc.getCourse() != null) {
@@ -184,9 +222,11 @@ public class PedagogService {
                     }
                 }
             }
+        } else {
+            log.warn("[getPedagogOptions] Pedagogu '{}' nuk ka asnjë lëndë të caktuar në tabelën TEACHING_COURSES.", profName);
         }
 
-        // If department is null on course, check professor department
+        // Nëse departamenti mungon nga kurset por profesori ka departament të caktuar
         if (departmentOptions.isEmpty() && professor != null && professor.getDepartment() != null) {
             Department d = professor.getDepartment();
             if (d.getDepartmentId() != null && !seenDeptIds.contains(d.getDepartmentId())) {
@@ -195,61 +235,17 @@ public class PedagogService {
             }
         }
 
-        // GJITHMONE: Nese kurset/departamentet/klasat jane bosh (pedagog pa TeachingCourse ose pa lidhje),
-        // ngarkohen te gjitha nga DB qe regjistri dhe dropdown-et te funksionojne 100%
-        if (courseOptions.isEmpty()) {
-            hasRegistry = true;
-            isLektor = true;
-            List<Course> allCourses = courseRepo.findAll();
-            for (Course c : allCourses) {
-                if (c.getCourseId() != null && !seenCourseIds.contains(c.getCourseId())) {
-                    seenCourseIds.add(c.getCourseId());
-                    courseOptions.add(pedagogMapper.buildCourseOption(c));
-                    Department dept = (c.getProgram() != null) ? c.getProgram().getDepartment() : null;
-                    if (dept != null && dept.getDepartmentId() != null && !seenDeptIds.contains(dept.getDepartmentId())) {
-                        seenDeptIds.add(dept.getDepartmentId());
-                        departmentOptions.add(pedagogMapper.buildDepartmentOption(dept));
-                    }
-                }
-            }
-        }
-
-        if (departmentOptions.isEmpty()) {
-            List<Department> allDepts = departmentRepo.findAll();
-            for (Department d : allDepts) {
-                if (d.getDepartmentId() != null && !seenDeptIds.contains(d.getDepartmentId())) {
-                    seenDeptIds.add(d.getDepartmentId());
-                    departmentOptions.add(pedagogMapper.buildDepartmentOption(d));
-                }
-            }
-        }
-
-        if (classOptions.isEmpty()) {
-            List<Classes> allClasses = classesRepo.findAll();
-            for (Classes cl : allClasses) {
-                if (cl.getClassId() != null) {
-                    String classKey = cl.getClassId() + "_all";
-                    if (!seenClassKeys.contains(classKey)) {
-                        seenClassKeys.add(classKey);
-                        classOptions.add(pedagogMapper.buildClassOption(cl, null));
-                    }
-                }
-            }
-        }
-
-        if (typesSet.isEmpty()) {
-            typesSet.add("Seminar");
-            typesSet.add("Laborator");
-            hasRegistry = true;
-        }
-
         List<String> typesList = new ArrayList<>(typesSet);
 
+        // Programet e fakultetit
         List<PedagogOptionsDto.ProgramOptionDto> programOptions = new ArrayList<>();
         List<Program> allPrograms = programRepo.findAll();
         for (Program p : allPrograms) {
             programOptions.add(pedagogMapper.buildProgramOption(p));
         }
+
+        log.info("[getPedagogOptions] Përfundoi: Kurse={}, Tipa={}, Departamente={}, Klasa={}, isLektor={}, hasRegistry={}",
+                courseOptions.size(), typesList, departmentOptions.size(), classOptions.size(), isLektor, hasRegistry);
 
         return PedagogOptionsDto.builder()
                 .professorName(profName)
@@ -268,275 +264,264 @@ public class PedagogService {
     @Transactional(readOnly = true)
     public PedagogRegisterDto getRegisterData(Integer courseId, Integer classId, String academicYear, String roleType) {
         Course course = courseId != null ? courseRepo.findById(courseId).orElse(null) : null;
-                Classes classes = classId != null ? classesRepo.findById(classId).orElse(null) : null;
+        Classes classes = classId != null ? classesRepo.findById(classId).orElse(null) : null;
 
-                List<Student> students = new ArrayList<>();
-                if (classId != null) {
-                    students = studentRepo.findByClasses_ClassId(classId);
-                }
-                if (students.isEmpty() && course != null && course.getProgram() != null) {
-                    students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
-                }
-                if (students.isEmpty()) {
-                    students = studentRepo.findAll();
-                    if (students.size() > 15) {
-                        students = students.subList(0, 15);
+        List<Student> students = new ArrayList<>();
+        if (classId != null) {
+            students = studentRepo.findByClasses_ClassId(classId);
+        }
+        if (students.isEmpty() && course != null && course.getProgram() != null) {
+            students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+        }
+        if (students.isEmpty()) {
+            students = studentRepo.findAll();
+            if (students.size() > 15) {
+                students = students.subList(0, 15);
+            }
+        }
+
+        // Attendance columns derived dynamically from the Topics of this course
+        List<Topic> courseTopics = (courseId != null)
+                ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(courseId)
+                : Collections.emptyList();
+
+        List<PedagogRegisterDto.AttendanceColumnDto> columns = new ArrayList<>();
+        for (Topic t : courseTopics) {
+            String dStr = t.getTopicDate() != null ? t.getTopicDate().toString() : "";
+            String title = "Jave " + (t.getWeekNumber() != null ? t.getWeekNumber() : "");
+            if (!dStr.isEmpty()) {
+                title += " (" + dStr + ")";
+            }
+            columns.add(PedagogRegisterDto.AttendanceColumnDto.builder()
+                    .key("topic_" + t.getTopicId())
+                    .title(title)
+                    .date(dStr)
+                    .build());
+        }
+
+        List<Attendance> existingAttendances = (courseId != null)
+                ? attendanceRepo.findByTeachingCourse_Course_CourseId(courseId)
+                : Collections.emptyList();
+
+        Map<String, Attendance> attMapByKey = new HashMap<>();
+        for (Attendance a : existingAttendances) {
+            if (a.getStudent() != null && a.getDataAttendance() != null) {
+                String key = a.getStudent().getStudentId() + "_" + a.getDataAttendance().toString();
+                attMapByKey.put(key, a);
+            }
+        }
+
+        List<Grade> existingGrades = (courseId != null)
+                ? gradeRepo.findByTeachingCourse_Course_CourseId(courseId)
+                : Collections.emptyList();
+
+        Map<Integer, Grade> gradeByStudentId = new HashMap<>();
+        for (Grade g : existingGrades) {
+            if (g.getStudent() != null) {
+                gradeByStudentId.put(g.getStudent().getStudentId(), g);
+            }
+        }
+
+        List<PedagogRegisterDto.StudentRowDto> studentRows = new ArrayList<>();
+        List<BigDecimal> allGradeValues = new ArrayList<>();
+
+        for (Student s : students) {
+            String fullName = (s.getUser() != null)
+                    ? ((s.getUser().getEmri() != null ? s.getUser().getEmri() : "") + " "
+                            + (s.getUser().getMbiemri() != null ? s.getUser().getMbiemri() : "")).trim()
+                    : "Student #" + s.getStudentId();
+
+            if (fullName.isBlank()) {
+                fullName = "Student " + s.getStudentId();
+            }
+
+            Grade g = gradeByStudentId.get(s.getStudentId());
+            BigDecimal gradeVal = (g != null && g.getGrade() != null) ? g.getGrade() : null;
+
+            if (gradeVal != null) {
+                allGradeValues.add(gradeVal);
+            }
+
+            String status = "-";
+            boolean isPermiresim = (g != null && "IMPROVED".equalsIgnoreCase(g.getStatus()));
+            if (isPermiresim) {
+                status = "P";
+            } else if (gradeVal != null && gradeVal.compareTo(new BigDecimal("5.0")) < 0) {
+                status = "N";
+            }
+
+            Map<String, Boolean> attMap = new HashMap<>();
+            for (Topic t : courseTopics) {
+                String colKey = "topic_" + t.getTopicId();
+                if (t.getTopicDate() != null) {
+                    String matchKey = s.getStudentId() + "_" + t.getTopicDate().toString();
+                    Attendance att = attMapByKey.get(matchKey);
+                    if (att != null) {
+                        attMap.put(colKey, att.getStatus() != null && att.getStatus() == 1);
+                    } else {
+                        attMap.put(colKey, true); // default present
                     }
+                } else {
+                    attMap.put(colKey, true);
                 }
+            }
 
-                // Attendance columns derived dynamically from the Topics of this course
-                List<Topic> courseTopics = (courseId != null)
-                        ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(courseId)
-                        : Collections.emptyList();
+            studentRows.add(PedagogRegisterDto.StudentRowDto.builder()
+                    .studentId(s.getStudentId())
+                    .emri(fullName)
+                    .nrMatrikulimit(s.getNrMatrikulimit() != null ? s.getNrMatrikulimit() : "IK-" + (3000 + s.getStudentId()))
+                    .grade(gradeVal)
+                    .status(status)
+                    .isPermiresim(isPermiresim)
+                    .attendance(attMap)
+                    .build());
+        }
 
-                List<PedagogRegisterDto.AttendanceColumnDto> columns = new ArrayList<>();
-                for (Topic t : courseTopics) {
-                    String dStr = t.getTopicDate() != null ? t.getTopicDate().toString() : "";
-                    String title = "Jave " + (t.getWeekNumber() != null ? t.getWeekNumber() : "");
-                    if (!dStr.isEmpty()) {
-                        title += " (" + dStr + ")";
-                    }
-                    columns.add(PedagogRegisterDto.AttendanceColumnDto.builder()
-                            .key("topic_" + t.getTopicId())
-                            .title(title)
-                            .date(dStr)
-                            .build());
-                }
+        // Renditja alfabetike e studenteve
+        studentRows.sort(Comparator.comparing(
+                PedagogRegisterDto.StudentRowDto::getEmri,
+                String.CASE_INSENSITIVE_ORDER
+        ));
 
-                List<Attendance> existingAttendances = (courseId != null)
-                        ? attendanceRepo.findByTeachingCourse_Course_CourseId(courseId)
-                        : Collections.emptyList();
+        // Calculate statistics
+        PedagogRegisterDto.RegisterStatsDto stats = pedagogMapper.calculateStats(allGradeValues, students.size());
 
-                Map<String, Attendance> attMapByKey = new HashMap<>();
-                for (Attendance a : existingAttendances) {
-                    if (a.getStudent() != null && a.getDataAttendance() != null) {
-                        String key = a.getStudent().getStudentId() + "_" + a.getDataAttendance().toString();
-                        attMapByKey.put(key, a);
-                    }
-                }
+        String deptName = "";
+        if (course != null && course.getProgram() != null && course.getProgram().getDepartment() != null) {
+            deptName = course.getProgram().getDepartment().getEmerDepartamenti();
+        } else if (classes != null && classes.getProgram() != null && classes.getProgram().getDepartment() != null) {
+            deptName = classes.getProgram().getDepartment().getEmerDepartamenti();
+        }
 
-                List<Grade> existingGrades = (courseId != null)
-                        ? gradeRepo.findByTeachingCourse_Course_CourseId(courseId)
-                        : Collections.emptyList();
+        return PedagogRegisterDto.builder()
+                .courseId(courseId)
+                .courseName(course != null ? course.getEmriCourse() : "Lenda")
+                .classId(classId)
+                .className(classes != null ? pedagogMapper.formatClassName(classes, classes.getVitStudimit()) : "Grupi A")
+                .departmentName(deptName)
+                .academicYear(academicYear != null ? academicYear : "2025-2026")
+                .roleType(roleType != null ? roleType : "Seminar")
+                .students(studentRows)
+                .attendanceColumns(columns)
+                .stats(stats)
+                .build();
+    }
 
-                Map<Integer, Grade> gradeByStudentId = new HashMap<>();
-                for (Grade g : existingGrades) {
-                    if (g.getStudent() != null) {
-                        gradeByStudentId.put(g.getStudent().getStudentId(), g);
-                    }
-                }
+    @Transactional
+    public void saveGrades(SaveGradesRequest req) {
+        if (req == null || req.getGrades() == null) {
+            return;
+        }
 
-                List<PedagogRegisterDto.StudentRowDto> studentRows = new ArrayList<>();
-                List<BigDecimal> allGradeValues = new ArrayList<>();
+        TeachingCourse tc = null;
+        if (req.getCourseId() != null) {
+            List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(req.getCourseId());
+            if (!tcs.isEmpty()) {
+                tc = tcs.get(0);
+            }
+        }
 
-                for (Student s : students) {
-                    String fullName = (s.getUser() != null)
-                            ? ((s.getUser().getEmri() != null ? s.getUser().getEmri() : "") + " "
-                                    + (s.getUser().getMbiemri() != null ? s.getUser().getMbiemri() : "")).trim()
-                            : "Student #" + s.getStudentId();
+        for (SaveGradesRequest.StudentGradeEntry entry : req.getGrades()) {
+            if (entry.getStudentId() == null) {
+                continue;
+            }
 
-                    if (fullName.isBlank()) {
-                        fullName = "Student " + s.getStudentId();
-                    }
+            Student student = studentRepo.findById(entry.getStudentId()).orElse(null);
+            if (student == null) {
+                continue;
+            }
 
-                    Grade g = gradeByStudentId.get(s.getStudentId());
-                    BigDecimal gradeVal = (g != null && g.getGrade() != null) ? g.getGrade() : null;
+            Grade grade = null;
+            if (req.getCourseId() != null) {
+                grade = gradeRepo.findByStudent_StudentIdAndTeachingCourse_Course_CourseId(entry.getStudentId(), req.getCourseId()).orElse(null);
+            }
 
-                    if (gradeVal != null) {
-                        allGradeValues.add(gradeVal);
-                    }
-
-                    String status = "-";
-                    boolean isPermiresim = (g != null && "IMPROVED".equalsIgnoreCase(g.getStatus()));
-                    if (isPermiresim) {
-                        status = "P";
-                    } else if (gradeVal != null && gradeVal.compareTo(new BigDecimal("5.0")) < 0) {
-                        status = "N";
-                    }
-
-                    Map<String, Boolean> attMap = new HashMap<>();
-                    for (Topic t : courseTopics) {
-                        String colKey = "topic_" + t.getTopicId();
-                        if (t.getTopicDate() != null) {
-                            String matchKey = s.getStudentId() + "_" + t.getTopicDate().toString();
-                            Attendance att = attMapByKey.get(matchKey);
-                            if (att != null) {
-                                attMap.put(colKey, att.getStatus() != null && att.getStatus() == 1);
-                            } else {
-                                attMap.put(colKey, true); // default present
-                            }
-                        } else {
-                            attMap.put(colKey, true);
-                        }
-                    }
-
-                    studentRows.add(PedagogRegisterDto.StudentRowDto.builder()
-                            .studentId(s.getStudentId())
-                            .emri(fullName)
-                            .nrMatrikulimit(s.getNrMatrikulimit() != null ? s.getNrMatrikulimit() : "IK-" + (3000 + s.getStudentId()))
-                            .grade(gradeVal)
-                            .status(status)
-                            .isPermiresim(isPermiresim)
-                            .attendance(attMap)
-                            .build());
-                }
-
-                // Renditja alfabetike e studenteve
-                studentRows.sort(Comparator.comparing(
-                        PedagogRegisterDto.StudentRowDto::getEmri,
-                        String.CASE_INSENSITIVE_ORDER
-                ));
-
-                // Calculate statistics
-                PedagogRegisterDto.RegisterStatsDto stats = pedagogMapper.calculateStats(allGradeValues, students.size());
-
-                String deptName = "";
-                if (course != null && course.getProgram() != null && course.getProgram().getDepartment() != null) {
-                    deptName = course.getProgram().getDepartment().getEmerDepartamenti();
-                } else if (classes != null && classes.getProgram() != null && classes.getProgram().getDepartment() != null) {
-                    deptName = classes.getProgram().getDepartment().getEmerDepartamenti();
-                }
-
-                return PedagogRegisterDto.builder()
-                        .courseId(courseId)
-                        .courseName(course != null ? course.getEmriCourse() : "Lenda")
-                        .classId(classId)
-                        .className(classes != null ? pedagogMapper.formatClassName(classes, classes.getVitStudimit()) : "Grupi A")
-                        .departmentName(deptName)
-                        .academicYear(academicYear != null ? academicYear : "2025-2026")
-                        .roleType(roleType != null ? roleType : "Seminar")
-                        .students(studentRows)
-                        .attendanceColumns(columns)
-                        .stats(stats)
+            if (grade == null) {
+                grade = Grade.builder()
+                        .student(student)
+                        .teachingCourse(tc)
+                        .dateGiven(LocalDate.now())
                         .build();
             }
 
-            @Transactional
-            public void saveGrades
-            (SaveGradesRequest req
-                
-            ) {
-        if (req == null || req.getGrades() == null) {
-                    return;
-                }
-
-                TeachingCourse tc = null;
-                if (req.getCourseId() != null) {
-                    List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(req.getCourseId());
-                    if (!tcs.isEmpty()) {
-                        tc = tcs.get(0);
-                    }
-                }
-
-                for (SaveGradesRequest.StudentGradeEntry entry : req.getGrades()) {
-                    if (entry.getStudentId() == null) {
-                        continue;
-                    }
-
-                    Student student = studentRepo.findById(entry.getStudentId()).orElse(null);
-                    if (student == null) {
-                        continue;
-                    }
-
-                    Grade grade = null;
-                    if (req.getCourseId() != null) {
-                        grade = gradeRepo.findByStudent_StudentIdAndTeachingCourse_Course_CourseId(entry.getStudentId(), req.getCourseId()).orElse(null);
-                    }
-
-                    if (grade == null) {
-                        grade = Grade.builder()
-                                .student(student)
-                                .teachingCourse(tc)
-                                .dateGiven(LocalDate.now())
-                                .build();
-                    }
-
-                    grade.setGrade(entry.getGrade());
-                    if ("P".equalsIgnoreCase(entry.getStatus())) {
-                        grade.setStatus("IMPROVED");
-                    } else if (entry.getGrade() != null && entry.getGrade().compareTo(new BigDecimal("5.0")) < 0) {
-                        grade.setStatus("FAILED");
-                    } else {
-                        grade.setStatus("PASSED");
-                    }
-                    gradeRepo.save(grade);
-                }
+            grade.setGrade(entry.getGrade());
+            if ("P".equalsIgnoreCase(entry.getStatus())) {
+                grade.setStatus("IMPROVED");
+            } else if (entry.getGrade() != null && entry.getGrade().compareTo(new BigDecimal("5.0")) < 0) {
+                grade.setStatus("FAILED");
+            } else {
+                grade.setStatus("PASSED");
             }
+            gradeRepo.save(grade);
+        }
+    }
 
-            @Transactional
-            public void saveAttendance
-            (SaveAttendanceRequest req
-                
-            ) {
+    @Transactional
+    public void saveAttendance(SaveAttendanceRequest req) {
         if (req == null || req.getAttendances() == null) {
-                    return;
-                }
+            return;
+        }
 
-                TeachingCourse tc = null;
-                if (req.getCourseId() != null) {
-                    List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(req.getCourseId());
-                    if (!tcs.isEmpty()) {
-                        tc = tcs.get(0);
-                    }
-                }
+        TeachingCourse tc = null;
+        if (req.getCourseId() != null) {
+            List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(req.getCourseId());
+            if (!tcs.isEmpty()) {
+                tc = tcs.get(0);
+            }
+        }
 
-                List<Topic> courseTopics = (req.getCourseId() != null)
-                        ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(req.getCourseId())
-                        : Collections.emptyList();
+        List<Topic> courseTopics = (req.getCourseId() != null)
+                ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(req.getCourseId())
+                : Collections.emptyList();
 
-                Map<String, LocalDate> topicDateByKey = new HashMap<>();
-                for (Topic t : courseTopics) {
-                    if (t.getTopicDate() != null) {
-                        topicDateByKey.put("topic_" + t.getTopicId(), t.getTopicDate());
-                    }
-                }
+        Map<String, LocalDate> topicDateByKey = new HashMap<>();
+        for (Topic t : courseTopics) {
+            if (t.getTopicDate() != null) {
+                topicDateByKey.put("topic_" + t.getTopicId(), t.getTopicDate());
+            }
+        }
 
-                for (SaveAttendanceRequest.StudentAttendanceEntry entry : req.getAttendances()) {
-                    if (entry.getStudentId() == null) {
-                        continue;
-                    }
-                    Student student = studentRepo.findById(entry.getStudentId()).orElse(null);
-                    if (student == null) {
-                        continue;
-                    }
-
-                    if (entry.getAttendance() != null) {
-                        for (Map.Entry<String, Boolean> att : entry.getAttendance().entrySet()) {
-                            LocalDate attDate = topicDateByKey.get(att.getKey());
-                            if (attDate == null) {
-                                attDate = LocalDate.now();
-                            }
-
-                            Optional<Attendance> existingAtt = (tc != null)
-                                    ? attendanceRepo.findByStudent_StudentIdAndTeachingCourse_TeachingCourseIdAndDataAttendance(student.getStudentId(), tc.getTeachingCourseId(), attDate)
-                                    : Optional.empty();
-
-                            final TeachingCourse finalTc = tc;
-                            final LocalDate finalAttDate = attDate;
-                            Attendance attendance = existingAtt.orElseGet(() -> Attendance.builder()
-                                    .student(student)
-                                    .teachingCourse(finalTc)
-                                    .dataAttendance(finalAttDate)
-                                    .build());
-
-                            attendance.setStatus(Boolean.TRUE.equals(att.getValue()) ? 1 : 0);
-                            attendance.setDataAttendance(attDate);
-                            if (tc != null) {
-                                attendance.setTeachingCourse(tc);
-                            }
-                            attendanceRepo.save(attendance);
-                        }
-                    }
-                }
+        for (SaveAttendanceRequest.StudentAttendanceEntry entry : req.getAttendances()) {
+            if (entry.getStudentId() == null) {
+                continue;
+            }
+            Student student = studentRepo.findById(entry.getStudentId()).orElse(null);
+            if (student == null) {
+                continue;
             }
 
-            @Transactional(readOnly = true)
-            public BranchStatsDto getBranchStats
-            (Integer courseId, String courseName
-            , String academicYear, String dega
-            , Integer departmentId
-                
-            ) {
+            if (entry.getAttendance() != null) {
+                for (Map.Entry<String, Boolean> att : entry.getAttendance().entrySet()) {
+                    LocalDate attDate = topicDateByKey.get(att.getKey());
+                    if (attDate == null) {
+                        attDate = LocalDate.now();
+                    }
+
+                    Optional<Attendance> existingAtt = (tc != null)
+                            ? attendanceRepo.findByStudent_StudentIdAndTeachingCourse_TeachingCourseIdAndDataAttendance(student.getStudentId(), tc.getTeachingCourseId(), attDate)
+                            : Optional.empty();
+
+                    final TeachingCourse finalTc = tc;
+                    final LocalDate finalAttDate = attDate;
+                    Attendance attendance = existingAtt.orElseGet(() -> Attendance.builder()
+                            .student(student)
+                            .teachingCourse(finalTc)
+                            .dataAttendance(finalAttDate)
+                            .build());
+
+                    attendance.setStatus(Boolean.TRUE.equals(att.getValue()) ? 1 : 0);
+                    attendance.setDataAttendance(attDate);
+                    if (tc != null) {
+                        attendance.setTeachingCourse(tc);
+                    }
+                    attendanceRepo.save(attendance);
+                }
+            }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public BranchStatsDto getBranchStats(Integer courseId, String courseName, String academicYear, String dega, Integer departmentId) {
         Course course = null;
                 if (courseId != null) {
                     course = courseRepo.findById(courseId).orElse(null);
@@ -787,4 +772,30 @@ public class PedagogService {
                         .students(studentExportList)
                         .build();
             }
+
+    private String formatProfFullName(String emri, String mbiemri, String email) {
+        String e = emri != null ? emri.trim() : "";
+        String m = mbiemri != null ? mbiemri.trim() : "";
+        String full = (e + " " + m).trim();
+        if (full.isEmpty() && email != null && !email.isBlank()) {
+            String clean = email.trim();
+            String prefix = clean.contains("@") ? clean.substring(0, clean.indexOf('@')) : clean;
+            full = prefix.replace('.', ' ').replace('_', ' ');
         }
+        if (full.isEmpty()) {
+            return "Profesor";
+        }
+        String[] words = full.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (!w.isEmpty()) {
+                if (sb.length() > 0) sb.append(" ");
+                sb.append(Character.toUpperCase(w.charAt(0)));
+                if (w.length() > 1) {
+                    sb.append(w.substring(1));
+                }
+            }
+        }
+        return sb.toString();
+    }
+}

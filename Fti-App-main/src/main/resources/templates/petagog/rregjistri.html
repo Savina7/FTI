@@ -119,26 +119,34 @@
                                     <!-- 3. Departamenti -->
                                     <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectDepartamenti" required>
-                                            <option value="Departamenti i Inxhinierise Kompjuterike" data-dept-id="1" selected>Departamenti i Inxhinierise Kompjuterike</option>
-                                            <option value="Departamenti i Elektronikes dhe Telekomunikacionit" data-dept-id="2">Departamenti i Elektronikes dhe Telekomunikacionit</option>
+                                            <option value="Departamenti i Inxhinierise Kompjuterike" data-dept-id="1"
+                                                selected>Departamenti i Inxhinierise Kompjuterike</option>
+                                            <option value="Departamenti i Elektronikes dhe Telekomunikacionit"
+                                                data-dept-id="2">Departamenti i Elektronikes dhe Telekomunikacionit
+                                            </option>
                                         </select>
                                     </div>
 
                                     <!-- 4. Lenda -->
                                     <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectLenda" required>
-                                            <option value="Programim ne Web" data-course-id="1" selected>Programim ne Web</option>
+                                            <option value="Programim ne Web" data-course-id="1" selected>Programim ne
+                                                Web</option>
                                             <option value="Baza te Dhenash" data-course-id="2">Baza te Dhenash</option>
-                                            <option value="Struktura te Dhenash" data-course-id="3">Struktura te Dhenash</option>
+                                            <option value="Struktura te Dhenash" data-course-id="3">Struktura te Dhenash
+                                            </option>
                                         </select>
                                     </div>
 
                                     <!-- 5. Grupi / Klasa -->
                                     <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectKlasa" required>
-                                            <option value="Inxhinieri Informatike - Grupi A" data-class-id="1" selected>Inxhinieri Informatike - Grupi A</option>
-                                            <option value="Inxhinieri Informatike - Grupi B" data-class-id="2">Inxhinieri Informatike - Grupi B</option>
-                                            <option value="Inxhinieri Informatike - Grupi C" data-class-id="3">Inxhinieri Informatike - Grupi C</option>
+                                            <option value="Inxhinieri Informatike - Grupi A" data-class-id="1" selected>
+                                                Inxhinieri Informatike - Grupi A</option>
+                                            <option value="Inxhinieri Informatike - Grupi B" data-class-id="2">
+                                                Inxhinieri Informatike - Grupi B</option>
+                                            <option value="Inxhinieri Informatike - Grupi C" data-class-id="3">
+                                                Inxhinieri Informatike - Grupi C</option>
                                         </select>
                                     </div>
 
@@ -1284,6 +1292,13 @@
                         if (!matchedExcelKeys.has(key) && entry.grades.length > 0) {
                             notFoundInGroup.push({ name: entry.originalName, grades: entry.grades.join(', ') });
                         }
+                    }
+
+                    if (typeof showExcelImportReport === 'function') {
+                        showExcelImportReport(updatedCount, duplicatesHandled, untouchedStudents, notFoundInGroup, invalidGrades);
+                    } else {
+                        alert(`U përditësuan ${updatedCount} nota me sukses nga Excel.`);
+                    }
                 } catch (err) {
                     console.error("Gabim leximi Excel:", err);
                     alert("Gabim gjatë leximit të skedarit Excel: " + err.message);
@@ -1294,107 +1309,107 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 6. PDF EXPORT
-        async function shkarkoStatistikatPDF() {
-            const btn = document.getElementById('btnShkarkoPDF');
-            const element = document.getElementById('statistikatPrintArea');
+            // 6. PDF EXPORT
+            async function shkarkoStatistikatPDF() {
+                const btn = document.getElementById('btnShkarkoPDF');
+                const element = document.getElementById('statistikatPrintArea');
 
-            if (!element) { alert('Elementi nuk u gjet!'); return; }
+                if (!element) { alert('Elementi nuk u gjet!'); return; }
 
-            const originalHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Po gjenerohet...';
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Po gjenerohet...';
 
-            const clone = element.cloneNode(true);
-            const cloneHeader = clone.querySelector('.pdf-only-header');
-            if (cloneHeader) cloneHeader.classList.remove('d-none');
+                const clone = element.cloneNode(true);
+                const cloneHeader = clone.querySelector('.pdf-only-header');
+                if (cloneHeader) cloneHeader.classList.remove('d-none');
 
-            clone.style.position = 'fixed';
-            clone.style.top = '0';
-            clone.style.left = '-9999px';
-            clone.style.width = '1100px';
-            clone.style.background = '#ffffff';
-            clone.style.zIndex = '-1';
-            clone.style.padding = '24px';
-            document.body.appendChild(clone);
+                clone.style.position = 'fixed';
+                clone.style.top = '0';
+                clone.style.left = '-9999px';
+                clone.style.width = '1100px';
+                clone.style.background = '#ffffff';
+                clone.style.zIndex = '-1';
+                clone.style.padding = '24px';
+                document.body.appendChild(clone);
 
-            try {
-                const canvas = await html2canvas(clone, {
-                    scale: 1.5,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff',
-                    width: clone.scrollWidth,
-                    height: clone.scrollHeight,
-                    windowWidth: 1100
-                });
+                try {
+                    const canvas = await html2canvas(clone, {
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        width: clone.scrollWidth,
+                        height: clone.scrollHeight,
+                        windowWidth: 1100
+                    });
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.92);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
-                const pgW = pdf.internal.pageSize.getWidth();
-                const pgH = pdf.internal.pageSize.getHeight();
-                const margin = 8;
-                const imgW = pgW - margin * 2;
-                const imgH = (canvas.height * imgW) / canvas.width;
+                    const pgW = pdf.internal.pageSize.getWidth();
+                    const pgH = pdf.internal.pageSize.getHeight();
+                    const margin = 8;
+                    const imgW = pgW - margin * 2;
+                    const imgH = (canvas.height * imgW) / canvas.width;
 
-                let yOff = 0;
-                while (yOff < imgH) {
-                    if (yOff > 0) pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', margin, margin - yOff, imgW, imgH);
-                    yOff += pgH - margin * 2;
+                    let yOff = 0;
+                    while (yOff < imgH) {
+                        if (yOff > 0) pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', margin, margin - yOff, imgW, imgH);
+                        yOff += pgH - margin * 2;
+                    }
+
+                    pdf.save('Statistikat_Rregjistri.pdf');
+                } catch (err) {
+                    console.error('Gabim PDF:', err);
+                    alert('Gabim gjate gjenerimit te PDF: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                    if (clone && clone.parentNode) {
+                        clone.parentNode.removeChild(clone);
+                    }
+                }
+            }
+
+            // 7. TEMAT API (TOPICS)
+            async function ngarkoTemat(courseId) {
+                if (!courseId) {
+                    const selectLenda = document.getElementById('selectLenda');
+                    const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
+                    courseId = selectedOpt && selectedOpt.dataset ? selectedOpt.dataset.courseId : null;
                 }
 
-                pdf.save('Statistikat_Rregjistri.pdf');
-            } catch (err) {
-                console.error('Gabim PDF:', err);
-                alert('Gabim gjate gjenerimit te PDF: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalHTML;
-                if (clone && clone.parentNode) {
-                    clone.parentNode.removeChild(clone);
+                let url = '/api/topics';
+                if (courseId) url += '?courseId=' + courseId;
+
+                try {
+                    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                    if (res.ok) {
+                        meksTemat = await res.json();
+                        renditTematTabeles(meksTemat);
+                    }
+                } catch (e) {
+                    console.error("Gabim te ngarkimi i temave:", e);
                 }
             }
-        }
 
-        // 7. TEMAT API (TOPICS)
-        async function ngarkoTemat(courseId) {
-            if (!courseId) {
-                const selectLenda = document.getElementById('selectLenda');
-                const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
-                courseId = selectedOpt && selectedOpt.dataset ? selectedOpt.dataset.courseId : null;
-            }
+            function renditTematTabeles(temat) {
+                const tbody = document.getElementById('tematTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
 
-            let url = '/api/topics';
-            if (courseId) url += '?courseId=' + courseId;
-
-            try {
-                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
-                if (res.ok) {
-                    meksTemat = await res.json();
-                    renditTematTabeles(meksTemat);
+                if (!temat || temat.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Nuk ka tema te regjistruara per kete lende. Shtoni temat me datat perkatese me poshte.</td></tr>';
+                    return;
                 }
-            } catch (e) {
-                console.error("Gabim te ngarkimi i temave:", e);
-            }
-        }
 
-        function renditTematTabeles(temat) {
-            const tbody = document.getElementById('tematTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (!temat || temat.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Nuk ka tema te regjistruara per kete lende. Shtoni temat me datat perkatese me poshte.</td></tr>';
-                return;
-            }
-
-            temat.forEach(t => {
-                const dataText = t.topicDate || t.formattedDate || '-';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+                temat.forEach(t => {
+                    const dataText = t.topicDate || t.formattedDate || '-';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                     <td class="fw-bold jave-cell text-dark">${t.weekNumber || 1}</td>
                     <td class="text-dark">${dataText}</td>
                     <td class="tema-titull fw-semibold">${t.title || ''}</td>
@@ -1408,125 +1423,125 @@
                         </button>
                     </td>
                 `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function hapModalShtoTema() {
-            document.getElementById('modalTemaTitle').textContent = 'Shto teme';
-            document.getElementById('temaId').value = '';
-            document.getElementById('temaJava').value = (meksTemat.length + 1);
-            document.getElementById('temaData').value = new Date().toISOString().split('T')[0];
-            document.getElementById('temaTitulli').value = '';
-            document.getElementById('temaPershkrimi').value = '';
-
-            const modalEl = document.getElementById('modalTema');
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-
-        function hapModalEditTema(topicId) {
-            const t = meksTemat.find(item => item.topicId === topicId);
-            if (!t) return;
-
-            document.getElementById('modalTemaTitle').textContent = 'Perditeso Temen';
-            document.getElementById('temaId').value = t.topicId;
-            document.getElementById('temaJava').value = t.weekNumber || 1;
-            document.getElementById('temaData').value = t.topicDate || t.formattedDate || '';
-            document.getElementById('temaTitulli').value = t.title || '';
-            document.getElementById('temaPershkrimi').value = t.description || '';
-
-            const modalEl = document.getElementById('modalTema');
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-
-        async function ruajTemen(event) {
-            event.preventDefault();
-
-            const topicId = document.getElementById('temaId').value;
-            const weekNumber = parseInt(document.getElementById('temaJava').value);
-            const topicDate = document.getElementById('temaData').value;
-            const title = document.getElementById('temaTitulli').value.trim();
-            const description = document.getElementById('temaPershkrimi').value.trim();
-
-            const selectLenda = document.getElementById('selectLenda');
-            const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
-            const courseId = selectedOpt && selectedOpt.dataset ? parseInt(selectedOpt.dataset.courseId) : null;
-
-            const selectKlasa = document.getElementById('selectKlasa');
-            const classOpt = selectKlasa ? selectKlasa.options[selectKlasa.selectedIndex] : null;
-            const classId = classOpt && classOpt.dataset ? parseInt(classOpt.dataset.classId) : null;
-
-            const selectViti = document.getElementById('selectVitiAkademik');
-            const academicYear = selectViti ? selectViti.value : "2025-2026";
-            const selectTipi = document.getElementById('selectTipiOres');
-            const roleType = selectTipi ? selectTipi.value : "Seminar";
-
-            const payload = { weekNumber, topicDate, title, description, courseId };
-
-            try {
-                let res;
-                if (topicId) {
-                    res = await fetch('/api/topics/' + topicId, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                } else {
-                    res = await fetch('/api/topics', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                }
-
-                if (res.ok) {
-                    const modalEl = document.getElementById('modalTema');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
-
-                    await Promise.all([
-                        ngarkoTemat(courseId),
-                        ngarkoRegjistrin(courseId, classId, academicYear, roleType)
-                    ]);
-                } else {
-                    const errData = await res.json();
-                    alert(errData.message || 'Gabim gjate ruajtjes se temes.');
-                }
-            } catch (e) {
-                console.error("Gabim te ruajtja e temes:", e);
+                    tbody.appendChild(tr);
+                });
             }
-        }
 
-        async function fshijTemen(topicId) {
-            if (!confirm("A jeni i sigurt qe deshironi ta fshini kete teme?")) return;
+            function hapModalShtoTema() {
+                document.getElementById('modalTemaTitle').textContent = 'Shto teme';
+                document.getElementById('temaId').value = '';
+                document.getElementById('temaJava').value = (meksTemat.length + 1);
+                document.getElementById('temaData').value = new Date().toISOString().split('T')[0];
+                document.getElementById('temaTitulli').value = '';
+                document.getElementById('temaPershkrimi').value = '';
 
-            try {
-                const res = await fetch('/api/topics/' + topicId, { method: 'DELETE' });
-                if (res.ok) {
-                    const selectLenda = document.getElementById('selectLenda');
-                    const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
-                    const courseId = selectedOpt && selectedOpt.dataset ? parseInt(selectedOpt.dataset.courseId) : null;
-
-                    const selectKlasa = document.getElementById('selectKlasa');
-                    const classOpt = selectKlasa ? selectKlasa.options[selectKlasa.selectedIndex] : null;
-                    const classId = classOpt && classOpt.dataset ? parseInt(classOpt.dataset.classId) : null;
-
-                    const selectViti = document.getElementById('selectVitiAkademik');
-                    const academicYear = selectViti ? selectViti.value : "2025-2026";
-                    const selectTipi = document.getElementById('selectTipiOres');
-                    const roleType = selectTipi ? selectTipi.value : "Seminar";
-
-                    await Promise.all([
-                        ngarkoTemat(courseId),
-                        ngarkoRegjistrin(courseId, classId, academicYear, roleType)
-                    ]);
-                }
-            } catch (e) {
-                console.error("Gabim te fshirja e temes:", e);
+                const modalEl = document.getElementById('modalTema');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
             }
-        }
+
+            function hapModalEditTema(topicId) {
+                const t = meksTemat.find(item => item.topicId === topicId);
+                if (!t) return;
+
+                document.getElementById('modalTemaTitle').textContent = 'Perditeso Temen';
+                document.getElementById('temaId').value = t.topicId;
+                document.getElementById('temaJava').value = t.weekNumber || 1;
+                document.getElementById('temaData').value = t.topicDate || t.formattedDate || '';
+                document.getElementById('temaTitulli').value = t.title || '';
+                document.getElementById('temaPershkrimi').value = t.description || '';
+
+                const modalEl = document.getElementById('modalTema');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+
+            async function ruajTemen(event) {
+                event.preventDefault();
+
+                const topicId = document.getElementById('temaId').value;
+                const weekNumber = parseInt(document.getElementById('temaJava').value);
+                const topicDate = document.getElementById('temaData').value;
+                const title = document.getElementById('temaTitulli').value.trim();
+                const description = document.getElementById('temaPershkrimi').value.trim();
+
+                const selectLenda = document.getElementById('selectLenda');
+                const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
+                const courseId = selectedOpt && selectedOpt.dataset ? parseInt(selectedOpt.dataset.courseId) : null;
+
+                const selectKlasa = document.getElementById('selectKlasa');
+                const classOpt = selectKlasa ? selectKlasa.options[selectKlasa.selectedIndex] : null;
+                const classId = classOpt && classOpt.dataset ? parseInt(classOpt.dataset.classId) : null;
+
+                const selectViti = document.getElementById('selectVitiAkademik');
+                const academicYear = selectViti ? selectViti.value : "2025-2026";
+                const selectTipi = document.getElementById('selectTipiOres');
+                const roleType = selectTipi ? selectTipi.value : "Seminar";
+
+                const payload = { weekNumber, topicDate, title, description, courseId };
+
+                try {
+                    let res;
+                    if (topicId) {
+                        res = await fetch('/api/topics/' + topicId, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    } else {
+                        res = await fetch('/api/topics', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    }
+
+                    if (res.ok) {
+                        const modalEl = document.getElementById('modalTema');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) modal.hide();
+
+                        await Promise.all([
+                            ngarkoTemat(courseId),
+                            ngarkoRegjistrin(courseId, classId, academicYear, roleType)
+                        ]);
+                    } else {
+                        const errData = await res.json();
+                        alert(errData.message || 'Gabim gjate ruajtjes se temes.');
+                    }
+                } catch (e) {
+                    console.error("Gabim te ruajtja e temes:", e);
+                }
+            }
+
+            async function fshijTemen(topicId) {
+                if (!confirm("A jeni i sigurt qe deshironi ta fshini kete teme?")) return;
+
+                try {
+                    const res = await fetch('/api/topics/' + topicId, { method: 'DELETE' });
+                    if (res.ok) {
+                        const selectLenda = document.getElementById('selectLenda');
+                        const selectedOpt = selectLenda ? selectLenda.options[selectLenda.selectedIndex] : null;
+                        const courseId = selectedOpt && selectedOpt.dataset ? parseInt(selectedOpt.dataset.courseId) : null;
+
+                        const selectKlasa = document.getElementById('selectKlasa');
+                        const classOpt = selectKlasa ? selectKlasa.options[selectKlasa.selectedIndex] : null;
+                        const classId = classOpt && classOpt.dataset ? parseInt(classOpt.dataset.classId) : null;
+
+                        const selectViti = document.getElementById('selectVitiAkademik');
+                        const academicYear = selectViti ? selectViti.value : "2025-2026";
+                        const selectTipi = document.getElementById('selectTipiOres');
+                        const roleType = selectTipi ? selectTipi.value : "Seminar";
+
+                        await Promise.all([
+                            ngarkoTemat(courseId),
+                            ngarkoRegjistrin(courseId, classId, academicYear, roleType)
+                        ]);
+                    }
+                } catch (e) {
+                    console.error("Gabim te fshirja e temes:", e);
+                }
+            }
     </script>
 
     <!-- MODAL SHTO / EDIT TEMA -->
