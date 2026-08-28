@@ -43,6 +43,7 @@ public class PedagogOptionsDto {
         private Integer departmentId;
         private List<Integer> departmentIds;
         private String programName;
+        private List<String> branches;
     }
 
     @Data

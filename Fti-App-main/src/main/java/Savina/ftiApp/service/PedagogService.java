@@ -170,6 +170,9 @@ public class PedagogService {
         boolean hasRegistry = false;
 
         // Mbushim VETËM të dhënat e këtij pedagogu
+        Map<Integer, Set<String>> courseBranchesMap = new HashMap<>();
+        Map<Integer, Set<Program>> courseProgramsMap = new HashMap<>();
+
         if (!teachingCourses.isEmpty()) {
             for (TeachingCourse tc : teachingCourses) {
                 String role = tc.getRoleType() != null ? tc.getRoleType().trim().toUpperCase() : "";
@@ -202,13 +205,27 @@ public class PedagogService {
                         departmentOptions.add(pedagogMapper.buildDepartmentOption(dept));
                     }
 
+                    if (c.getProgram() != null) {
+                        courseProgramsMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(c.getProgram());
+                        if (c.getProgram().getSpecializimi() != null) {
+                            courseBranchesMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(c.getProgram().getSpecializimi().trim());
+                        }
+                    }
+
                     if (c.getCourseId() != null && !seenCourseIds.contains(c.getCourseId())) {
                         seenCourseIds.add(c.getCourseId());
-                        courseOptions.add(pedagogMapper.buildCourseOption(c));
+                        PedagogOptionsDto.CourseOptionDto cDto = pedagogMapper.buildCourseOption(c);
+                        courseOptions.add(cDto);
                     }
 
                     if (tc.getClasses() != null && !tc.getClasses().isEmpty()) {
                         for (Classes cl : tc.getClasses()) {
+                            if (cl.getProgram() != null) {
+                                courseProgramsMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram());
+                                if (cl.getProgram().getSpecializimi() != null) {
+                                    courseBranchesMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram().getSpecializimi().trim());
+                                }
+                            }
                             if (cl.getClassId() != null) {
                                 String classKey = cl.getClassId() + "_" + c.getCourseId() + "_" + role;
                                 if (!seenClassKeys.contains(classKey)) {
@@ -220,6 +237,19 @@ public class PedagogService {
                             }
                         }
                     }
+                }
+            }
+
+            // Vendosim branches reale ne cdo CourseOptionDto
+            for (PedagogOptionsDto.CourseOptionDto cDto : courseOptions) {
+                Set<String> brs = courseBranchesMap.get(cDto.getId());
+                if (brs != null && !brs.isEmpty()) {
+                    cDto.setBranches(new ArrayList<>(brs));
+                    if (cDto.getProgramName() == null || cDto.getProgramName().isBlank()) {
+                        cDto.setProgramName(brs.iterator().next());
+                    }
+                } else if (cDto.getProgramName() != null && !cDto.getProgramName().isBlank()) {
+                    cDto.setBranches(List.of(cDto.getProgramName()));
                 }
             }
         } else {
@@ -237,11 +267,22 @@ public class PedagogService {
 
         List<String> typesList = new ArrayList<>(typesSet);
 
-        // Programet e fakultetit
+        // Programet reale të këtij pedagogu
         List<PedagogOptionsDto.ProgramOptionDto> programOptions = new ArrayList<>();
-        List<Program> allPrograms = programRepo.findAll();
-        for (Program p : allPrograms) {
-            programOptions.add(pedagogMapper.buildProgramOption(p));
+        Set<Integer> seenProgIds = new HashSet<>();
+        for (Set<Program> progs : courseProgramsMap.values()) {
+            for (Program p : progs) {
+                if (p.getProgramId() != null && !seenProgIds.contains(p.getProgramId())) {
+                    seenProgIds.add(p.getProgramId());
+                    programOptions.add(pedagogMapper.buildProgramOption(p));
+                }
+            }
+        }
+        if (programOptions.isEmpty()) {
+            List<Program> allPrograms = programRepo.findAll();
+            for (Program p : allPrograms) {
+                programOptions.add(pedagogMapper.buildProgramOption(p));
+            }
         }
 
         log.info("[getPedagogOptions] Përfundoi: Kurse={}, Tipa={}, Departamente={}, Klasa={}, isLektor={}, hasRegistry={}",
@@ -558,10 +599,10 @@ public class PedagogService {
                         ? dept.getEmerDepartamenti()
                         : "Departamenti i Inxhinierise Kompjuterike";
 
-                // 1. Merr të gjithë studentët realë të lidhur me këtë lëndë nga DB
-                Map<Integer, Student> targetStudentsMap = new LinkedHashMap<>();
+                // 1. Përcakto Viti i Studimit të lëndës (p.sh. Viti 3 për Sistemet Operative)
+                Integer courseStudyYear = (course != null && course.getStudyYear() != null) ? course.getStudyYear() : null;
 
-                // A) Studentët e klasave të lidhura me lëndën (TeachingCourse)
+                // 2. Merr klasat e lidhura me lëndën (TeachingCourse)
                 List<TeachingCourse> tcs = (course != null) ? teachingCourseRepo.findByCourseCourseId(course.getCourseId()) : Collections.emptyList();
                 Set<Integer> classIds = new HashSet<>();
                 for (TeachingCourse tc : tcs) {
@@ -569,10 +610,18 @@ public class PedagogService {
                         for (Classes cl : tc.getClasses()) {
                             if (cl != null && cl.getClassId() != null) {
                                 classIds.add(cl.getClassId());
+                                if (courseStudyYear == null && cl.getVitStudimit() != null) {
+                                    courseStudyYear = cl.getVitStudimit();
+                                }
                             }
                         }
                     }
                 }
+
+                // 3. Merr studentët realë të lidhur me këtë lëndë nga DB
+                Map<Integer, Student> targetStudentsMap = new LinkedHashMap<>();
+
+                // A) Studentët nga klasat e TeachingCourses të kësaj lënde
                 if (!classIds.isEmpty()) {
                     List<Student> studentsInClasses = studentRepo.findByClasses_ClassIdIn(classIds);
                     for (Student s : studentsInClasses) {
@@ -582,7 +631,7 @@ public class PedagogService {
                     }
                 }
 
-                // B) Nëse kursi i përket një programi, merr studentët e atij programi
+                // B) Nëse nuk ka klasa të lidhura në teaching_courses, merr studentët e programit
                 if (targetStudentsMap.isEmpty() && course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
                     List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
                     for (Student s : progStudents) {
@@ -602,29 +651,40 @@ public class PedagogService {
                     }
                 }
 
-                if (targetStudentsMap.isEmpty()) {
-                    for (Student s : studentRepo.findAll()) {
-                        if (s.getStudentId() != null) {
-                            targetStudentsMap.put(s.getStudentId(), s);
-                        }
-                    }
-                }
-
-                // 2. Filtro sipas Degës (nëse është përzgjedhur një degë specifike)
+                // 4. Filtro studentët sipas Degës DHE Vitit të Studimit të lëndës
                 List<Student> finalStudents = new ArrayList<>();
-                if (dega != null && !dega.isBlank() && !dega.toLowerCase().contains("gjith")) {
-                    String degaLower = dega.trim().toLowerCase();
-                    for (Student s : targetStudentsMap.values()) {
-                        boolean matchProg = (s.getProgram() != null && s.getProgram().getSpecializimi() != null && s.getProgram().getSpecializimi().toLowerCase().contains(degaLower));
-                        boolean matchClassProg = (s.getClasses() != null && s.getClasses().getProgram() != null && s.getClasses().getProgram().getSpecializimi() != null && s.getClasses().getProgram().getSpecializimi().toLowerCase().contains(degaLower));
-                        boolean matchClassName = (s.getClasses() != null && s.getClasses().getEmriClass() != null && s.getClasses().getEmriClass().toLowerCase().contains(degaLower));
-                        if (matchProg || matchClassProg || matchClassName) {
-                            finalStudents.add(s);
+                String degaLower = (dega != null && !dega.isBlank() && !dega.toLowerCase().contains("gjith"))
+                        ? dega.trim().toLowerCase()
+                        : null;
+
+                for (Student s : targetStudentsMap.values()) {
+                    // A) Verifikimi i Degës
+                    boolean matchDega = true;
+                    if (degaLower != null) {
+                        boolean matchProg = (s.getProgram() != null && s.getProgram().getSpecializimi() != null
+                                && (s.getProgram().getSpecializimi().toLowerCase().contains(degaLower) || degaLower.contains(s.getProgram().getSpecializimi().toLowerCase())));
+                        boolean matchClassProg = (s.getClasses() != null && s.getClasses().getProgram() != null && s.getClasses().getProgram().getSpecializimi() != null
+                                && (s.getClasses().getProgram().getSpecializimi().toLowerCase().contains(degaLower) || degaLower.contains(s.getClasses().getProgram().getSpecializimi().toLowerCase())));
+                        boolean matchClassName = (s.getClasses() != null && s.getClasses().getEmriClass() != null
+                                && (s.getClasses().getEmriClass().toLowerCase().contains(degaLower) || degaLower.contains(s.getClasses().getEmriClass().toLowerCase())));
+                        matchDega = (matchProg || matchClassProg || matchClassName);
+                    }
+
+                    // B) Verifikimi i Vitit të Studimit (p.sh. Lënda e vitit 3 merr VETËM studentët e vitit 3)
+                    boolean matchYear = true;
+                    if (courseStudyYear != null) {
+                        Integer sYear = s.getVitStudimit();
+                        if (sYear == null && s.getClasses() != null) {
+                            sYear = s.getClasses().getVitStudimit();
+                        }
+                        if (sYear != null) {
+                            matchYear = sYear.equals(courseStudyYear);
                         }
                     }
-                }
-                if (finalStudents.isEmpty()) {
-                    finalStudents.addAll(targetStudentsMap.values());
+
+                    if (matchDega && matchYear) {
+                        finalStudents.add(s);
+                    }
                 }
 
                 List<BranchStatsDto.StudentExportItem> studentExportList = new ArrayList<>();
@@ -707,8 +767,9 @@ public class PedagogService {
                         ? BigDecimal.valueOf(sumPassing / passing).setScale(2, RoundingMode.HALF_UP).doubleValue()
                         : (allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(allGradesList.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
 
-                double kalueshmeria = (totalStudents > 0)
-                        ? BigDecimal.valueOf(((double) passing / totalStudents) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
+                // Kalueshmëria = % e studentëve që kanë marrë një notë dhe e kanë mbi 4 (>= 5)
+                double kalueshmeria = (!allGradesList.isEmpty())
+                        ? BigDecimal.valueOf(((double) passing / allGradesList.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
                         : 0.0;
 
                 double pjesemarrja = totalStudents == 0 ? 0.0 : BigDecimal.valueOf(((double) allGradesList.size() / totalStudents) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
@@ -751,8 +812,8 @@ public class PedagogService {
                     double grpAvg = (grpPassing > 0)
                             ? BigDecimal.valueOf(grpSumPassing / grpPassing).setScale(2, RoundingMode.HALF_UP).doubleValue()
                             : (grpGrades.isEmpty() ? 0.0 : BigDecimal.valueOf(grpGrades.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
-                    double grpPassRate = (grpTotal > 0)
-                            ? BigDecimal.valueOf(((double) grpPassing / grpTotal) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
+                    double grpPassRate = (!grpGrades.isEmpty())
+                            ? BigDecimal.valueOf(((double) grpPassing / grpGrades.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
                             : 0.0;
                     double grpPart = grpTotal == 0 ? 0.0 : BigDecimal.valueOf(((double) grpGrades.size() / grpTotal) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
 

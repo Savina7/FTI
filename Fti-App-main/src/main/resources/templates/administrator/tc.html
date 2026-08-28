@@ -4,7 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alokimi i Mesimdhenies</title>
+    <title>FTI</title>
+
+    <!-- Favicon UPT SVG -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -86,9 +89,9 @@
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h4 class="fw-bold mb-1">Menaxhimi i mesimdhenies</h4>
+                        <h4 class="fw-bold mb-1"></h4>
                         <p class="text-muted small mb-0">
-                            </p>
+                        </p>
                     </div>
                     <button class="btn btn-dark btn-sm px-3" onclick="openCreateModal()">
                         <i class="bi bi-plus-lg me-1"></i>Shto
@@ -119,7 +122,7 @@
                                     </button>
                                     <button type="button" id="btnRefreshTable"
                                         class="btn btn-outline-secondary btn-sm flex-fill fw-semibold">
-                                         Refresh
+                                        Refresh
                                     </button>
                                 </div>
                             </div>
@@ -161,7 +164,8 @@
 
                         <div class="modal-header border-bottom py-2">
                             <h6 class="modal-title fw-bold text-dark" id="modalTitle"></h6>
-                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
 
                         <div class="modal-body p-4">
@@ -221,12 +225,12 @@
                                     <div class="col-6">
                                         <label class="form-label small fw-bold text-dark">Kohezgjatja (Jave)</label>
                                         <input type="number" class="form-control form-control-sm" id="inputKohezgjatja"
-                                             required>
+                                            required>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label small fw-bold text-dark">Ore</label>
                                         <input type="number" class="form-control form-control-sm" id="inputOreGjithsej"
-                                             required>
+                                            required>
                                     </div>
                                 </div>
 
@@ -246,7 +250,8 @@
                                 <div class="mb-3">
                                     <div
                                         class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
-                                        <label class="form-label small fw-bold text-dark mb-0">Petagogu i seminarit</label>
+                                        <label class="form-label small fw-bold text-dark mb-0">Petagogu i
+                                            seminarit</label>
                                         <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-7"
                                             onclick="addSeminarRow()">+ Shto pedagog</button>
                                     </div>
@@ -298,7 +303,7 @@
             <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
             <script>
-        const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
+                const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
                 let modalTeaching;
                 let tableTeaching = null;
                 let allProfessors = [];

@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Pedagogu - Statistikat e Deges</title>
+    <title>FTI</title>
+
+    <!-- Favicon UPT SVG -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -163,46 +166,11 @@
                                 </h6>
 
                                 <div class="d-flex align-items-center gap-2">
-                                    <!-- DROPDOWN SHKARKIM EXCELI PER TE GJITHE DEGEN -->
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-amber-light btn-sm fw-semibold dropdown-toggle"
-                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-file-earmark-excel me-1"></i> Excel Dege
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                                            <li>
-                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
-                                                    onclick="shkarkoExcelDega('ngelasa'); return false;">
-                                                    <i class="bi bi-file-earmark-x text-danger me-2"></i>
-                                                    Shkarko Gjithe Ngelsat (A, B, C)
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
-                                                    onclick="shkarkoExcelDega('permiresime'); return false;">
-                                                    <i class="bi bi-file-earmark-check text-warning me-2"></i>
-                                                    Shkarko Gjithe Permiresimet
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
-                                                    onclick="shkarkoExcelDega('ngelasa_permiresime'); return false;">
-                                                    <i class="bi bi-file-earmark-arrow-down me-2"></i> Ngelsa +
-                                                    Permiresime (Gjithe Dega)
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item small text-dark fw-semibold" href="#"
-                                                    onclick="shkarkoExcelDega('gjitha'); return false;">
-                                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i> Te gjithe
-                                                    Studentet e Deges
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    <!-- BUTONI SHKARKIM EXCELI PER TE GJITHE DEGEN -->
+                                    <button class="btn btn-outline-amber-light btn-sm fw-semibold"
+                                        onclick="shkarkoExcelDega('gjitha'); return false;">
+                                        <i class="bi bi-file-earmark-excel me-1"></i> Shkarko Excel
+                                    </button>
 
                                     <!-- BUTONI SHKARKO PDF -->
                                     <button id="btnShkarkoPDF" class="btn btn-outline-amber-light btn-sm fw-semibold"
@@ -262,19 +230,11 @@
                                                 </div>
 
                                                 <div
-                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5 border-bottom">
+                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5">
                                                     <span class="text-secondary small fw-medium">Nota me e larte / me e
                                                         ulet</span>
                                                     <span class="fw-bold text-dark small" id="detailMinMax">10 /
                                                         4</span>
-                                                </div>
-
-                                                <div
-                                                    class="stat-item d-flex justify-content-between align-items-center py-2.5">
-                                                    <span class="text-secondary small fw-medium">Pjesemarrja ne sezon te
-                                                        rregullt</span>
-                                                    <span class="fw-bold text-dark small"
-                                                        id="detailPjesemarrja">86.2%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -549,6 +509,7 @@
                 opt.dataset.studyYear = c.studyYear || '';
                 opt.dataset.deptId = c.departmentId || '';
                 opt.dataset.programName = c.programName || '';
+                opt.dataset.branches = JSON.stringify(c.branches || []);
                 opt.textContent = c.name;
                 if (idx === 0) opt.selected = true;
                 selectLenda.appendChild(opt);
@@ -561,37 +522,40 @@
             filterBranchesBySelectedCourse();
         }
 
-        // 4. FILTRIMI I DEGEVE (E GJITHE DEGA / PROGRAMI - PA NDARJE ME KLASA)
+        // 4. FILTRIMI I DEGEVE (VETEM DEGET REALE KU LEKTORI JEP KETE LENDE - NGA API)
         function filterBranchesBySelectedCourse() {
             const selectLenda = document.getElementById('selectLenda');
-            const selectDept = document.getElementById('selectDepartamenti');
             const selectedCourseOpt = selectLenda && selectLenda.selectedIndex >= 0 ? selectLenda.options[selectLenda.selectedIndex] : null;
-            const selectedDeptOpt = selectDept && selectDept.selectedIndex >= 0 ? selectDept.options[selectDept.selectedIndex] : null;
 
             let branches = [];
             let defaultBranch = "";
 
-            if (selectedCourseOpt && selectedCourseOpt.dataset && selectedCourseOpt.dataset.programName) {
-                defaultBranch = selectedCourseOpt.dataset.programName.trim();
-                if (defaultBranch) branches.push(defaultBranch);
+            if (selectedCourseOpt && selectedCourseOpt.dataset) {
+                if (selectedCourseOpt.dataset.branches) {
+                    try {
+                        const parsed = JSON.parse(selectedCourseOpt.dataset.branches);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            branches = parsed.filter(b => b && b.trim().length > 0);
+                        }
+                    } catch (e) {
+                        console.warn("Gabim ne leximin e branches:", e);
+                    }
+                }
+                if (branches.length === 0 && selectedCourseOpt.dataset.programName) {
+                    const pn = selectedCourseOpt.dataset.programName.trim();
+                    if (pn) branches = [pn];
+                }
+                defaultBranch = branches.length > 0 ? branches[0] : "";
             }
 
-            const deptId = selectedDeptOpt && selectedDeptOpt.dataset && selectedDeptOpt.dataset.deptId
-                ? parseInt(selectedDeptOpt.dataset.deptId)
-                : null;
-
-            if (pedagogOptionsData && pedagogOptionsData.programs && pedagogOptionsData.programs.length > 0) {
+            // Nese kursi nuk specifikon dot deget por lektori ka programe ne options
+            if (branches.length === 0 && pedagogOptionsData && pedagogOptionsData.programs && pedagogOptionsData.programs.length > 0) {
                 pedagogOptionsData.programs.forEach(p => {
-                    if (!deptId || !p.departmentId || p.departmentId === deptId) {
-                        if (p.name && !branches.includes(p.name.trim())) {
-                            branches.push(p.name.trim());
-                        }
+                    if (p.name && !branches.includes(p.name.trim())) {
+                        branches.push(p.name.trim());
                     }
                 });
-            }
-
-            if (branches.length === 0) {
-                branches = ["Inxhinieri Informatike", "Inxhinieri Kompjuterike", "Inxhinieri Telekomunikacioni"];
+                defaultBranch = branches.length > 0 ? branches[0] : "";
             }
 
             populateBranches(branches, defaultBranch);
@@ -602,6 +566,14 @@
             if (!selectDega) return;
 
             selectDega.innerHTML = '';
+
+            if (!branchList || branchList.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "Nuk ka dege per kete lende";
+                selectDega.appendChild(opt);
+                return;
+            }
 
             branchList.forEach((b, idx) => {
                 const opt = document.createElement('option');
@@ -693,7 +665,6 @@
             document.getElementById('detailKalueshmeria').innerText = (stats.kalueshmeria ? Number(stats.kalueshmeria).toFixed(1) : "0.0") + "%";
             document.getElementById('detailModa').innerText = stats.moda || "-";
             document.getElementById('detailMinMax').innerText = stats.notaLarteUlet || "- / -";
-            document.getElementById('detailPjesemarrja').innerText = (stats.pjesemarrja ? Number(stats.pjesemarrja).toFixed(1) : "0.0") + "%";
 
             // Perditeso Tabelen e Shperndarjes se Notave
             const tbodyDist = document.getElementById('distributionTableBody');
@@ -782,29 +753,19 @@
             const dega = document.getElementById('selectDega').value || "Dega";
             const viti = document.getElementById('selectViti').value || "Viti";
 
-            const teDhenatStudentet = (currentBranchStudents && currentBranchStudents.length > 0)
-                ? currentBranchStudents
-                : [
-                    { emri: "Savina Shimi", matrikulli: "IK-3042", grupi: "Grupi A", nota: 9, statusi: "Permiresim" },
-                    { emri: "Bora Hoxha", matrikulli: "IK-3011", grupi: "Grupi A", nota: 4, statusi: "Ngeles" },
-                    { emri: "Altea Prifti", matrikulli: "IK-3088", grupi: "Grupi A", nota: 10, statusi: "Kaluar" },
-                    { emri: "Albi Rama", matrikulli: "IK-3091", grupi: "Grupi B", nota: 4, statusi: "Ngeles" },
-                    { emri: "Ervis Meta", matrikulli: "IK-3015", grupi: "Grupi B", nota: 8, statusi: "Permiresim" },
-                    { emri: "Klaudio Zeka", matrikulli: "IK-3077", grupi: "Grupi C", nota: 4, statusi: "Ngeles" },
-                    { emri: "Sara Berisha", matrikulli: "IK-3022", grupi: "Grupi C", nota: 9, statusi: "Permiresim" }
-                ];
+            const teDhenatStudentet = currentBranchStudents || [];
 
             let meFiltruar = [];
             let emriSkedarit = "";
 
             if (tipi === 'ngelasa') {
-                meFiltruar = teDhenatStudentet.filter(s => (s.nota && s.nota <= 4) || (s.statusi && s.statusi.toLowerCase().includes("ngel")));
+                meFiltruar = teDhenatStudentet.filter(s => s.nota == null || s.nota <= 4 || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("nuk ka"))));
                 emriSkedarit = `Ngelsat_${dega}_${viti}.xlsx`;
             } else if (tipi === 'permiresime') {
                 meFiltruar = teDhenatStudentet.filter(s => s.statusi && s.statusi.toLowerCase().includes("permiresim"));
                 emriSkedarit = `Permiresimet_${dega}_${viti}.xlsx`;
             } else if (tipi === 'ngelasa_permiresime') {
-                meFiltruar = teDhenatStudentet.filter(s => (s.nota && s.nota <= 4) || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("permiresim"))));
+                meFiltruar = teDhenatStudentet.filter(s => s.nota == null || s.nota <= 4 || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("nuk ka") || s.statusi.toLowerCase().includes("permiresim"))));
                 emriSkedarit = `Ngelsa_Permiresime_${dega}_${viti}.xlsx`;
             } else {
                 meFiltruar = teDhenatStudentet;

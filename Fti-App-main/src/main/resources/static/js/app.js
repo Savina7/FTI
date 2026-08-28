@@ -1,11 +1,30 @@
 /**
- * app.js – Centralizimi i Auth per FTI App
- *
- * Rrjedha:
- *   Login → token ne localStorage → çdo faqe e tjeter e ngarkone app.js
- *   → app.js mer token nga localStorage → e dergon si 'Authorization: Bearer <token>'
- *   ne çdo kerkese HTTP (fetch + XMLHttpRequest/jQuery)
+ * app.js – Centralizimi i Auth & Global Settings per FTI App
  */
+
+// ── Injektimi Automatik i Favicon në çdo faqe (pa pasur nevojë në çdo HTML) ──
+(function injectFaviconGlobally() {
+    function addFavicon() {
+        if (!document.querySelector("link[rel*='icon']")) {
+            var linkSvg = document.createElement('link');
+            linkSvg.rel = 'icon';
+            linkSvg.type = 'image/svg+xml';
+            linkSvg.href = '/favicon.svg';
+            document.head.appendChild(linkSvg);
+
+            var linkPng = document.createElement('link');
+            linkPng.rel = 'alternate icon';
+            linkPng.type = 'image/png';
+            linkPng.href = '/images/ftilogo.png';
+            document.head.appendChild(linkPng);
+        }
+    }
+    if (document.head) {
+        addFavicon();
+    } else {
+        document.addEventListener('DOMContentLoaded', addFavicon);
+    }
+})();
 
 // ── Funksion ndihmës global për headers ──────────────────────────────────────
 window.getAuthHeaders = function () {
