@@ -308,4 +308,54 @@ public class StudentService {
 
         return dtoList;
     }
+
+    @Transactional
+    public void toggleImprovementRequest(Integer userId, String email, Integer courseId, boolean isImprovement) {
+        Student student = null;
+        if (userId != null) {
+            student = studentRepo.findByUserUserId(userId).orElse(null);
+        }
+        if (student == null && email != null && !email.isBlank()) {
+            student = studentRepo.findByUserEmailIgnoreCase(email.trim()).orElse(null);
+        }
+        if (student == null) {
+            student = studentRepo.findAll().stream().findFirst().orElse(null);
+        }
+        if (student == null) {
+            throw new IllegalArgumentException("Studenti nuk u gjet.");
+        }
+
+        List<Grade> studentGrades = gradeRepo.findByStudentStudentId(student.getStudentId());
+
+        if (isImprovement) {
+            long currentImprovements = studentGrades.stream()
+                    .filter(g -> "IMPROVED".equalsIgnoreCase(g.getStatus()) || "PERMIRESIM".equalsIgnoreCase(g.getStatus()) || "P".equalsIgnoreCase(g.getStatus()))
+                    .count();
+            if (currentImprovements >= 2) {
+                throw new IllegalArgumentException("Keni arritur limitin maksimal prej 2 lëndësh për përmirësim.");
+            }
+        }
+
+        Grade targetGrade = studentGrades.stream()
+                .filter(g -> g.getTeachingCourse() != null && g.getTeachingCourse().getCourse() != null && g.getTeachingCourse().getCourse().getCourseId().equals(courseId))
+                .findFirst()
+                .orElse(null);
+
+        if (targetGrade == null && courseId != null) {
+            targetGrade = gradeRepo.findByStudent_StudentIdAndTeachingCourse_Course_CourseId(student.getStudentId(), courseId).orElse(null);
+        }
+
+        if (targetGrade != null) {
+            if (isImprovement) {
+                if (targetGrade.getGrade() != null && targetGrade.getGrade().doubleValue() < 5.0) {
+                    throw new IllegalArgumentException("Nuk lejohet përmirësimi për notën ngelëse.");
+                }
+                targetGrade.setStatus("IMPROVED");
+            } else {
+                targetGrade.setStatus("PASSED");
+            }
+            gradeRepo.save(targetGrade);
+            log.info("Student ID={} ndryshoi statusin e permiresimit per lenden ID={} ne {}", student.getStudentId(), courseId, isImprovement);
+        }
+    }
 }

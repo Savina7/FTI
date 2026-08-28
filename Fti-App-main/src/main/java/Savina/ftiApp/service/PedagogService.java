@@ -558,85 +558,81 @@ public class PedagogService {
                         ? dept.getEmerDepartamenti()
                         : "Departamenti i Inxhinierise Kompjuterike";
 
-                // Find relevant classes for this course
-                List<Classes> relevantClasses = new ArrayList<>();
-                if (course != null) {
-                    List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(course.getCourseId());
-                    for (TeachingCourse tc : tcs) {
-                        if (tc.getClasses() != null) {
-                            relevantClasses.addAll(tc.getClasses());
-                        }
-                    }
-                    if (relevantClasses.isEmpty() && course.getProgram() != null && course.getProgram().getProgramId() != null) {
-                        List<Classes> progClasses = classesRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
-                        if (progClasses != null) {
-                            relevantClasses.addAll(progClasses);
-                        }
-                    }
-                }
-                if (relevantClasses.isEmpty()) {
-                    relevantClasses = classesRepo.findAll();
-                }
+                // 1. Merr të gjithë studentët realë të lidhur me këtë lëndë nga DB
+                Map<Integer, Student> targetStudentsMap = new LinkedHashMap<>();
 
-                // Deduplicate classes
-                Map<Integer, Classes> uniqueClasses = new LinkedHashMap<>();
-                for (Classes cl : relevantClasses) {
-                    if (cl.getClassId() != null) {
-                        uniqueClasses.put(cl.getClassId(), cl);
-                    }
-                }
-
-                // Filter by dega/program (e.g. Inxhinieri Informatike - perfshin te gjitha grupet A, B, C te deges)
-                List<Classes> targetClasses = new ArrayList<>();
-                if (dega != null && !dega.isBlank()) {
-                    String degaLower = dega.trim().toLowerCase();
-                    for (Classes cl : uniqueClasses.values()) {
-                        boolean matchesProgram = (cl.getProgram() != null && cl.getProgram().getSpecializimi() != null
-                                && (cl.getProgram().getSpecializimi().toLowerCase().contains(degaLower) || degaLower.contains(cl.getProgram().getSpecializimi().toLowerCase())));
-                        boolean matchesClassName = (cl.getEmriClass() != null
-                                && (cl.getEmriClass().toLowerCase().contains(degaLower) || degaLower.contains(cl.getEmriClass().toLowerCase())));
-                        if (matchesProgram || matchesClassName) {
-                            targetClasses.add(cl);
+                // A) Studentët e klasave të lidhura me lëndën (TeachingCourse)
+                List<TeachingCourse> tcs = (course != null) ? teachingCourseRepo.findByCourseCourseId(course.getCourseId()) : Collections.emptyList();
+                Set<Integer> classIds = new HashSet<>();
+                for (TeachingCourse tc : tcs) {
+                    if (tc.getClasses() != null) {
+                        for (Classes cl : tc.getClasses()) {
+                            if (cl != null && cl.getClassId() != null) {
+                                classIds.add(cl.getClassId());
+                            }
                         }
                     }
                 }
-                if (targetClasses.isEmpty()) {
-                    targetClasses.addAll(uniqueClasses.values());
+                if (!classIds.isEmpty()) {
+                    List<Student> studentsInClasses = studentRepo.findByClasses_ClassIdIn(classIds);
+                    for (Student s : studentsInClasses) {
+                        if (s.getStudentId() != null) {
+                            targetStudentsMap.put(s.getStudentId(), s);
+                        }
+                    }
                 }
 
-                // Fetch students in these classes
-                List<Student> students = new ArrayList<>();
-                if (!targetClasses.isEmpty()) {
-                    Set<Integer> classIds = targetClasses.stream().map(Classes::getClassId).collect(Collectors.toSet());
-                    students = studentRepo.findByClasses_ClassIdIn(classIds);
+                // B) Nëse kursi i përket një programi, merr studentët e atij programi
+                if (targetStudentsMap.isEmpty() && course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
+                    List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+                    for (Student s : progStudents) {
+                        if (s.getStudentId() != null) {
+                            targetStudentsMap.put(s.getStudentId(), s);
+                        }
+                    }
                 }
 
-                // Fetch grades for this course
-                List<Grade> grades = Collections.emptyList();
-                if (course != null) {
-                    grades = gradeRepo.findByTeachingCourse_Course_CourseId(course.getCourseId());
-                }
-
+                // C) Merr notat reale të regjistruara për këtë lëndë
+                List<Grade> grades = (course != null) ? gradeRepo.findByTeachingCourse_Course_CourseId(course.getCourseId()) : Collections.emptyList();
                 Map<Integer, Grade> gradeByStudentId = new HashMap<>();
                 for (Grade g : grades) {
                     if (g.getStudent() != null && g.getStudent().getStudentId() != null) {
                         gradeByStudentId.put(g.getStudent().getStudentId(), g);
+                        targetStudentsMap.putIfAbsent(g.getStudent().getStudentId(), g.getStudent());
                     }
+                }
+
+                if (targetStudentsMap.isEmpty()) {
+                    for (Student s : studentRepo.findAll()) {
+                        if (s.getStudentId() != null) {
+                            targetStudentsMap.put(s.getStudentId(), s);
+                        }
+                    }
+                }
+
+                // 2. Filtro sipas Degës (nëse është përzgjedhur një degë specifike)
+                List<Student> finalStudents = new ArrayList<>();
+                if (dega != null && !dega.isBlank() && !dega.toLowerCase().contains("gjith")) {
+                    String degaLower = dega.trim().toLowerCase();
+                    for (Student s : targetStudentsMap.values()) {
+                        boolean matchProg = (s.getProgram() != null && s.getProgram().getSpecializimi() != null && s.getProgram().getSpecializimi().toLowerCase().contains(degaLower));
+                        boolean matchClassProg = (s.getClasses() != null && s.getClasses().getProgram() != null && s.getClasses().getProgram().getSpecializimi() != null && s.getClasses().getProgram().getSpecializimi().toLowerCase().contains(degaLower));
+                        boolean matchClassName = (s.getClasses() != null && s.getClasses().getEmriClass() != null && s.getClasses().getEmriClass().toLowerCase().contains(degaLower));
+                        if (matchProg || matchClassProg || matchClassName) {
+                            finalStudents.add(s);
+                        }
+                    }
+                }
+                if (finalStudents.isEmpty()) {
+                    finalStudents.addAll(targetStudentsMap.values());
                 }
 
                 List<BranchStatsDto.StudentExportItem> studentExportList = new ArrayList<>();
                 List<BigDecimal> allGradesList = new ArrayList<>();
-
                 Map<String, List<BigDecimal>> groupGradesMap = new LinkedHashMap<>();
                 Map<String, Integer> groupStudentCountMap = new LinkedHashMap<>();
 
-                for (Classes cl : targetClasses) {
-                    String grpName = cl.getEmriClass() != null ? cl.getEmriClass() : ("Klasa " + cl.getClassId());
-                    groupGradesMap.putIfAbsent(grpName, new ArrayList<>());
-                    groupStudentCountMap.putIfAbsent(grpName, 0);
-                }
-
-                for (Student s : students) {
+                for (Student s : finalStudents) {
                     String sName = (s.getUser() != null)
                             ? ((s.getUser().getEmri() != null ? s.getUser().getEmri() : "") + " " + (s.getUser().getMbiemri() != null ? s.getUser().getMbiemri() : "")).trim()
                             : ("Student " + s.getStudentId());
@@ -676,14 +672,15 @@ public class PedagogService {
                         String.CASE_INSENSITIVE_ORDER
                 ));
 
+                int totalStudents = finalStudents.size();
+
                 // If there is no real student/grade data in the DB yet, return honest
                 // zero/empty statistics instead of fabricated sample data.
                 if (studentExportList.isEmpty() || allGradesList.isEmpty()) {
-                    return pedagogMapper.buildEmptyBranchStats(actualCourseName, deptName, actualDega, actualYear, students.size(), studentExportList, groupGradesMap.keySet());
+                    return pedagogMapper.buildEmptyBranchStats(actualCourseName, deptName, actualDega, actualYear, totalStudents, studentExportList, groupGradesMap.keySet());
                 }
 
-                int totalStudents = students.size();
-                double sum = 0;
+                double sumPassing = 0.0;
                 int passing = 0;
                 int max = 0;
                 int min = 10;
@@ -691,8 +688,9 @@ public class PedagogService {
 
                 for (BigDecimal g : allGradesList) {
                     int intVal = g.intValue();
-                    sum += g.doubleValue();
+                    double dVal = g.doubleValue();
                     if (intVal >= 5) {
+                        sumPassing += dVal;
                         passing++;
                     }
                     if (intVal > max) {
@@ -704,11 +702,18 @@ public class PedagogService {
                     countByIntGrade.put(intVal, countByIntGrade.getOrDefault(intVal, 0L) + 1);
                 }
 
-                double mesatarja = allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(sum / allGradesList.size()).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                double kalueshmeria = allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(((double) passing / allGradesList.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
+                // Mesatarja reale = Shuma e notave kaluese (>=5) pjesetuar me numrin e studenteve qe kane marre note kaluese
+                double mesatarja = (passing > 0)
+                        ? BigDecimal.valueOf(sumPassing / passing).setScale(2, RoundingMode.HALF_UP).doubleValue()
+                        : (allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(allGradesList.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
+
+                double kalueshmeria = (totalStudents > 0)
+                        ? BigDecimal.valueOf(((double) passing / totalStudents) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
+                        : 0.0;
+
                 double pjesemarrja = totalStudents == 0 ? 0.0 : BigDecimal.valueOf(((double) allGradesList.size() / totalStudents) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
 
-                int modeGrade = allGradesList.isEmpty() ? 8 : allGradesList.get(0).intValue();
+                int modeGrade = allGradesList.isEmpty() ? 0 : allGradesList.get(0).intValue();
                 long maxFreq = 0;
                 for (Map.Entry<Integer, Long> e : countByIntGrade.entrySet()) {
                     if (e.getValue() > maxFreq) {
@@ -734,17 +739,21 @@ public class PedagogService {
                         grpTotal = grpGrades.size();
                     }
 
-                    double grpSum = 0;
+                    double grpSumPassing = 0.0;
                     int grpPassing = 0;
                     for (BigDecimal bg : grpGrades) {
-                        grpSum += bg.doubleValue();
-                        if (bg.intValue() >= 5) {
+                        if (bg != null && bg.intValue() >= 5) {
+                            grpSumPassing += bg.doubleValue();
                             grpPassing++;
                         }
                     }
 
-                    double grpAvg = grpGrades.isEmpty() ? 0.0 : BigDecimal.valueOf(grpSum / grpGrades.size()).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                    double grpPassRate = grpGrades.isEmpty() ? 0.0 : BigDecimal.valueOf(((double) grpPassing / grpGrades.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
+                    double grpAvg = (grpPassing > 0)
+                            ? BigDecimal.valueOf(grpSumPassing / grpPassing).setScale(2, RoundingMode.HALF_UP).doubleValue()
+                            : (grpGrades.isEmpty() ? 0.0 : BigDecimal.valueOf(grpGrades.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
+                    double grpPassRate = (grpTotal > 0)
+                            ? BigDecimal.valueOf(((double) grpPassing / grpTotal) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
+                            : 0.0;
                     double grpPart = grpTotal == 0 ? 0.0 : BigDecimal.valueOf(((double) grpGrades.size() / grpTotal) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue();
 
                     groupItems.add(BranchStatsDto.GroupComparisonItem.builder()

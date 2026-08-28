@@ -40,4 +40,24 @@ public class StudentController {
         List<StudentAttendanceDto> attendances = studentService.getStudentAttendances(userId, email);
         return ResponseEntity.ok(attendances);
     }
+
+    @PostMapping("/improvement")
+    public ResponseEntity<?> updateImprovement(
+            @RequestParam(required = false) Integer userId,
+            @RequestParam(required = false) String email,
+            @RequestBody java.util.Map<String, Object> payload) {
+        Integer courseId = payload.get("courseId") != null ? Integer.valueOf(payload.get("courseId").toString()) : null;
+        boolean isImprovement = payload.get("isImprovement") != null && Boolean.parseBoolean(payload.get("isImprovement").toString());
+
+        if (courseId == null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Mungon ID e lëndës."));
+        }
+
+        try {
+            studentService.toggleImprovementRequest(userId, email, courseId, isImprovement);
+            return ResponseEntity.ok(java.util.Map.of("success", true, "message", isImprovement ? "Kërkesa për përmirësim u dërgua me sukses." : "Kërkesa u anulua."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
 }

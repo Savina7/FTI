@@ -904,6 +904,50 @@
         }
 
         // 4. RUAJTJA E NOTAVE & MUNGESAVE ME API
+        function showSuccessSticker(title = 'Notat u ruajtën me sukses!') {
+            let modal = document.getElementById('successStickerModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'successStickerModal';
+                modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.4); backdrop-filter:blur(4px); z-index:99999; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s ease;';
+                modal.innerHTML = `
+                    <div id="stickerCard" style="background:#ffffff; border-radius:24px; padding:32px 40px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.22); transform:scale(0.7); transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-width:360px; width:90%; border:1px solid #bbf7d0;">
+                        <div style="width:84px; height:84px; background:#dcfce7; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px; box-shadow:0 0 0 8px #f0fdf4;">
+                            <i class="bi bi-check-lg" style="font-size:3.3rem; color:#16a34a; line-height:1; font-weight:900;"></i>
+                        </div>
+                        <h4 style="font-weight:700; color:#0f172a; margin-bottom:0;" id="stickerTitle">Notat u ruajtën me sukses!</h4>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                modal.addEventListener('click', () => hideSuccessSticker());
+            }
+
+            const titleEl = modal.querySelector('#stickerTitle');
+            if (titleEl) titleEl.textContent = title;
+
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => {
+                modal.style.opacity = '1';
+                const card = modal.querySelector('#stickerCard');
+                if (card) card.style.transform = 'scale(1)';
+            });
+
+            setTimeout(() => {
+                hideSuccessSticker();
+            }, 1800);
+        }
+
+        function hideSuccessSticker() {
+            const modal = document.getElementById('successStickerModal');
+            if (!modal || modal.style.display === 'none') return;
+            modal.style.opacity = '0';
+            const card = modal.querySelector('#stickerCard');
+            if (card) card.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 250);
+        }
+
         function showStatusMessage(containerId, message, isSuccess) {
             const el = document.getElementById(containerId);
             if (!el) return;
@@ -977,7 +1021,7 @@
                 });
 
                 if (res.ok) {
-                    showStatusMessage('statusNotatMsg', 'Notat u ruajten me sukses!', true);
+                    showSuccessSticker('Notat u ruajtën me sukses!');
                 } else {
                     let errMsg = 'Gabim gjatë ruajtjes së notave.';
                     try { const err = await res.json(); if (err.message) errMsg = err.message; } catch (_) { }
@@ -1033,7 +1077,7 @@
                 });
 
                 if (res.ok) {
-                    showStatusMessage('statusMungesatMsg', 'Mungesat u ruajten me sukses!', true);
+                    showSuccessSticker('Mungesat u ruajtën me sukses!');
                 } else {
                     let errMsg = 'Gabim gjatë ruajtjes së mungesave.';
                     try {
@@ -1055,11 +1099,13 @@
 
             const isVetEmri = (filterType === 'permiresime' || filterType === 'ngelasa' || filterType === 'ngelasa_permiresime');
 
-            // Header i qarte me emertim standard
-            if (isVetEmri) {
-                data.push(["Nr.", "Emri dhe Mbiemri", "Nr. Matrikullimit", "Statusi"]);
+            // Header sipas tipit te shkarkimit
+            if (filterType === 'gjitha') {
+                data.push(["Student", "Nota"]);
+            } else if (isVetEmri) {
+                data.push(["Student"]);
             } else {
-                data.push(["Nr.", "Emri dhe Mbiemri", "Nr. Matrikullimit", "Nota", "Statusi"]);
+                data.push(["Nr.", "Student", "Nr. Matrikullimit", "Nota", "Statusi"]);
             }
 
             let idxCount = 1;
@@ -1078,8 +1124,10 @@
                 else if (filterType === 'ngelasa_permiresime' && (isNgeles || isPermiresim)) include = true;
 
                 if (include) {
-                    if (isVetEmri) {
-                        data.push([idxCount++, emri, amza, status]);
+                    if (filterType === 'gjitha') {
+                        data.push([emri, nota !== '' ? Number(nota) : '']);
+                    } else if (isVetEmri) {
+                        data.push([emri]);
                     } else {
                         data.push([idxCount++, emri, amza, nota !== '' ? Number(nota) : '', status]);
                     }
@@ -1153,29 +1201,27 @@
                         return;
                     }
 
-                    // 1. Përcakto nëse rreshti i parë është Header apo të dhëna direkt
+                    // 1. FORMAT FIKS: Kolona e 1-rë (0) = Studenti, Kolona e 2-të (1) = Nota
+                    const colEmri = 0;
+                    const colNota = 1;
                     let startRow = 0;
-                    let colEmri = 0;
-                    let colNota = 1;
 
-                    const firstRowText = jsonData[0].map(c => (c || '').toString().trim().toLowerCase());
-                    const isHeader = firstRowText.some(t => t.includes('emer') || t.includes('emër') || t.includes('student') || t.includes('not') || t.includes('grade'));
+                    const firstCellText = (jsonData[0][0] || '').toString().trim().toLowerCase();
+                    const secondCellText = (jsonData[0][1] || '').toString().trim().toLowerCase();
+                    const secondCellNum = parseFloat(secondCellText.replace(',', '.'));
+
+                    // Nese rreshti i pare eshte Header (p.sh. shkruan 'Student', 'Emri', ose nota nuk eshte numer 4-10)
+                    const isHeader = firstCellText.includes('student') ||
+                                     firstCellText.includes('emer') ||
+                                     firstCellText.includes('emër') ||
+                                     secondCellText.includes('not') ||
+                                     secondCellText.includes('grade') ||
+                                     (isNaN(secondCellNum) || secondCellNum < 4 || secondCellNum > 10);
 
                     if (isHeader) {
                         startRow = 1;
-                        firstRowText.forEach((h, idx) => {
-                            if (h.includes('emer') || h.includes('emër') || h.includes('student') || h.includes('name')) {
-                                colEmri = idx;
-                            } else if (h.includes('not') || h.includes('grade') || h.includes('pik')) {
-                                colNota = idx;
-                            }
-                        });
                     } else {
                         startRow = 0;
-                        if (jsonData[0].length >= 2) {
-                            colEmri = 0;
-                            colNota = 1;
-                        }
                     }
 
                     // 2. Mblidh të gjitha notat nga Excel dhe grupoji sipas studentit
@@ -1257,24 +1303,17 @@
                                 finalGrade = Math.max(existingVal, excelBestGrade);
                             }
 
+                            // Nese nota e vjeter dhe e re eshte e njejte, nuk bejme asnje ndryshim
+                            if (existingVal !== null && existingVal === finalGrade) {
+                                untouchedStudents.push(trEmri);
+                                return;
+                            }
+
                             // Nëse ka pasur notë ngelëse (<5) dhe tani ka marrë notë kaluese (>=5), shënohet si Përmirësim 'P'
                             const hadFail = (existingVal !== null && existingVal < 5) || gradesList.some(g => g < 5);
                             const hasPass = finalGrade >= 5;
                             if (hadFail && hasPass) {
                                 tr.dataset.permiresim = "true";
-                            }
-
-                            // Regjistro në raport nëse ka pasur krahasim notash / përsëritje
-                            if (gradesList.length > 1 || (existingVal !== null && existingVal !== finalGrade)) {
-                                let noteInfo = `Excel: [${gradesList.join(', ')}]`;
-                                if (existingVal !== null) {
-                                    noteInfo = `Notë ekzistuese: ${existingVal}, Excel: [${gradesList.join(', ')}]`;
-                                }
-                                duplicatesHandled.push({
-                                    name: trEmri,
-                                    allGrades: noteInfo,
-                                    chosen: finalGrade
-                                });
                             }
 
                             inputNota.value = finalGrade;
@@ -1294,14 +1333,9 @@
                         }
                     }
 
-                    if (typeof showExcelImportReport === 'function') {
-                        showExcelImportReport(updatedCount, duplicatesHandled, untouchedStudents, notFoundInGroup, invalidGrades);
-                    } else {
-                        alert(`U përditësuan ${updatedCount} nota me sukses nga Excel.`);
-                    }
+                    console.log(`[Excel Import] U përditësuan ${updatedCount} nota.`);
                 } catch (err) {
                     console.error("Gabim leximi Excel:", err);
-                    alert("Gabim gjatë leximit të skedarit Excel: " + err.message);
                 } finally {
                     event.target.value = '';
                 }

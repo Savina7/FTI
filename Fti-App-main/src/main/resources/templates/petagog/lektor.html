@@ -670,35 +670,15 @@
 
         function renderBranchStats(lenda, dega, viti, deptName) {
             const stats = currentBranchStats || {
-                numriStudenteve: 124,
-                mesatarja: 7.45,
-                kalueshmeria: 89.5,
-                moda: "8",
-                notaLarteUlet: "10 / 4",
-                pjesemarrja: 86.2,
-                gradeDistribution: [
-                    { nota: 10, count: 22, percentage: 17.7 },
-                    { nota: 9, count: 54, percentage: 43.5 },
-                    { nota: 8, count: 54, percentage: 43.5 },
-                    { nota: 7, count: 35, percentage: 28.2 },
-                    { nota: 6, count: 35, percentage: 28.2 },
-                    { nota: 5, count: 13, percentage: 10.5 },
-                    { nota: 4, count: 13, percentage: 10.5 }
-                ],
-                groups: [
-                    { groupName: "Grupi A", studentCount: 42, kalueshmeria: 92.0, pjesemarrja: 88.0, mesatarja: 7.8 },
-                    { groupName: "Grupi B", studentCount: 39, kalueshmeria: 87.0, pjesemarrja: 84.0, mesatarja: 7.2 },
-                    { groupName: "Grupi C", studentCount: 43, kalueshmeria: 89.0, pjesemarrja: 86.0, mesatarja: 7.3 }
-                ],
-                students: [
-                    { emri: "Savina Shimi", matrikulli: "IK-3042", grupi: "Grupi A", nota: 9, statusi: "Permiresim" },
-                    { emri: "Bora Hoxha", matrikulli: "IK-3011", grupi: "Grupi A", nota: 4, statusi: "Ngeles" },
-                    { emri: "Altea Prifti", matrikulli: "IK-3088", grupi: "Grupi A", nota: 10, statusi: "Kaluar" },
-                    { emri: "Albi Rama", matrikulli: "IK-3091", grupi: "Grupi B", nota: 4, statusi: "Ngeles" },
-                    { emri: "Ervis Meta", matrikulli: "IK-3015", grupi: "Grupi B", nota: 8, statusi: "Permiresim" },
-                    { emri: "Klaudio Zeka", matrikulli: "IK-3077", grupi: "Grupi C", nota: 4, statusi: "Ngeles" },
-                    { emri: "Sara Berisha", matrikulli: "IK-3022", grupi: "Grupi C", nota: 9, statusi: "Permiresim" }
-                ]
+                numriStudenteve: 0,
+                mesatarja: 0.00,
+                kalueshmeria: 0.0,
+                moda: "-",
+                notaLarteUlet: "- / -",
+                pjesemarrja: 0.0,
+                gradeDistribution: [],
+                groups: [],
+                students: []
             };
 
             currentBranchStudents = stats.students || [];
@@ -836,16 +816,16 @@
                 return;
             }
 
-            // Formatimi per kolonat e Excel-it (Per ngelsat dhe permiresimet VETEM Emri dhe Mbiemri)
+            // Formatimi per kolonat e Excel-it (Per ngelsat dhe permiresimet VETEM Student)
             const isVetEmri = (tipi === 'permiresime' || tipi === 'ngelasa' || tipi === 'ngelasa_permiresime');
             const rowsForExcel = meFiltruar.map(s => {
                 if (isVetEmri) {
                     return {
-                        "Emri dhe Mbiemri": s.emri || ""
+                        "Student": s.emri || ""
                     };
                 }
                 return {
-                    "Emri dhe Mbiemri": s.emri || "",
+                    "Student": s.emri || "",
                     "Nota": s.nota != null ? s.nota : ""
                 };
             });

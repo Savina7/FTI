@@ -245,11 +245,30 @@
                                 yearKrediteFituara += kredite;
                                 yearWeightedSum += (gradeNum * kredite);
                             }
-                            notaCellContent = `
-                            <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}')">
-                                ${g.nota}
-                            </span>
-                        `;
+
+                            const isImprovedInDb = (g.status === 'IMPROVED' || g.status === 'PERMIRESIM' || g.status === 'P');
+
+                            if (isImprovedInDb) {
+                                improvementRequestedSubjects.add(g.emriLende);
+                                notaCellContent = `
+                                    <div class="grade-cell-content">
+                                        <span class="fw-bold">${g.nota}</span>
+                                        <button type="button" class="btn-cancel-link" onclick="hapModalAnulimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}', ${g.courseId})">
+                                            Anulo kerkesen
+                                        </button>
+                                    </div>
+                                `;
+                            } else if (gradeNum >= 5 && gradeNum < 10) {
+                                notaCellContent = `
+                                    <span class="grade-clickable" title="Kliko për të kërkuar përmirësim" onclick="hapModalPermiresimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}', ${g.courseId})">
+                                        ${g.nota}
+                                    </span>
+                                `;
+                            } else if (gradeNum < 5) {
+                                notaCellContent = `<span class="fw-bold text-danger" title="Notë ngelëse (Nuk lejohet përmirësim)">${g.nota}</span>`;
+                            } else {
+                                notaCellContent = `<span class="fw-bold">${g.nota}</span>`;
+                            }
                         } else {
                             notaCellContent = `<span class="grade-pending">X</span>`;
                         }
@@ -303,52 +322,156 @@
             }
         }
 
+        const improvementRequestedSubjects = new Set();
+        let currentCourseId = null;
+
+        function showLimitToast(msg, isError = true) {
+            let toastEl = document.getElementById('improvementLimitToast');
+            if (!toastEl) {
+                toastEl = document.createElement('div');
+                toastEl.id = 'improvementLimitToast';
+                toastEl.style.cssText = 'position:fixed; bottom:25px; right:25px; padding:12px 20px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:99999; font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px; opacity:0; transition:opacity 0.3s ease; color:white;';
+                document.body.appendChild(toastEl);
+            }
+            toastEl.style.background = isError ? '#ef4444' : '#16a34a';
+            toastEl.innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'}"></i> <span>${msg}</span>`;
+            toastEl.style.display = 'flex';
+            requestAnimationFrame(() => toastEl.style.opacity = '1');
+            setTimeout(() => {
+                toastEl.style.opacity = '0';
+                setTimeout(() => toastEl.style.display = 'none', 300);
+            }, 3000);
+        }
+
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
         }
 
-        function hapModalPermiresimi(subjectName, cellId, grade) {
+        function hapModalPermiresimi(subjectName, cellId, grade, courseId) {
+            const num = parseFloat(grade);
+            if (isNaN(num) || num < 5 || num >= 10) {
+                return;
+            }
+
+            // Kontrolli i limitit: Maksimumi 2 lëndë për përmirësim
+            if (improvementRequestedSubjects.size >= 2) {
+                showLimitToast("Mund të zgjidhni maksimumi 2 lëndë për përmirësim!");
+                return;
+            }
+
             currentSubject = subjectName;
             currentCellId = cellId;
             currentGrade = grade;
+            currentCourseId = courseId;
             document.getElementById('modalSubjectTitle').innerText = subjectName;
             bsPermiresimModal = new bootstrap.Modal(document.getElementById('permiresimModal'));
             bsPermiresimModal.show();
         }
 
-        function konfirmoPermiresimin() {
-            if (currentCellId) {
-                const cell = document.getElementById(currentCellId);
-                cell.innerHTML = `
-                <div class="grade-cell-content">
-                    <span class="fw-bold">${currentGrade}</span>
-                    <button type="button" class="btn-cancel-link" onclick="hapModalAnulimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}')">
-                        Anulo kerkesen
-                    </button>
-                </div>
-            `;
+        async function konfirmoPermiresimin() {
+            if (currentCellId && currentSubject) {
+                const userId = localStorage.getItem('userId');
+                const userEmail = localStorage.getItem('userEmail');
+                const token = localStorage.getItem('jwtToken');
+
+                let url = '/api/student/improvement';
+                const params = [];
+                if (userId) params.push('userId=' + encodeURIComponent(userId));
+                if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+                if (params.length > 0) url += '?' + params.join('&');
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + (token || '')
+                        },
+                        body: JSON.stringify({
+                            courseId: currentCourseId,
+                            isImprovement: true
+                        })
+                    });
+
+                    if (res.ok) {
+                        improvementRequestedSubjects.add(currentSubject);
+                        const cell = document.getElementById(currentCellId);
+                        const cId = currentCourseId;
+                        cell.innerHTML = `
+                            <div class="grade-cell-content">
+                                <span class="fw-bold">${currentGrade}</span>
+                                <button type="button" class="btn-cancel-link" onclick="hapModalAnulimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}', ${cId})">
+                                    Anulo kerkesen
+                                </button>
+                            </div>
+                        `;
+                        showLimitToast("Kërkesa për përmirësim u regjistrua me sukses!", false);
+                    } else {
+                        const err = await res.json();
+                        showLimitToast(err.message || "Gabim gjatë dërgimit të kërkesës.");
+                    }
+                } catch (e) {
+                    console.error("Gabim permiresimi:", e);
+                    showLimitToast("Gabim lidhjeje me serverin.");
+                }
             }
             if (bsPermiresimModal) bsPermiresimModal.hide();
         }
 
-        function hapModalAnulimi(subjectName, cellId, grade) {
+        function hapModalAnulimi(subjectName, cellId, grade, courseId) {
             currentSubject = subjectName;
             currentCellId = cellId;
             currentGrade = grade;
+            currentCourseId = courseId;
             document.getElementById('modalAnuloSubjectTitle').innerText = subjectName;
             bsAnuloModal = new bootstrap.Modal(document.getElementById('anuloModal'));
             bsAnuloModal.show();
         }
 
-        function konfirmoAnulimin() {
-            if (currentCellId) {
-                const cell = document.getElementById(currentCellId);
-                cell.innerHTML = `
-                <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}')">
-                    ${currentGrade}
-                </span>
-            `;
+        async function konfirmoAnulimin() {
+            if (currentCellId && currentSubject) {
+                const userId = localStorage.getItem('userId');
+                const userEmail = localStorage.getItem('userEmail');
+                const token = localStorage.getItem('jwtToken');
+
+                let url = '/api/student/improvement';
+                const params = [];
+                if (userId) params.push('userId=' + encodeURIComponent(userId));
+                if (userEmail) params.push('email=' + encodeURIComponent(userEmail));
+                if (params.length > 0) url += '?' + params.join('&');
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + (token || '')
+                        },
+                        body: JSON.stringify({
+                            courseId: currentCourseId,
+                            isImprovement: false
+                        })
+                    });
+
+                    if (res.ok) {
+                        improvementRequestedSubjects.delete(currentSubject);
+                        const cell = document.getElementById(currentCellId);
+                        const cId = currentCourseId;
+                        cell.innerHTML = `
+                            <span class="grade-clickable" title="Kliko për të kërkuar përmirësim" onclick="hapModalPermiresimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}', ${cId})">
+                                ${currentGrade}
+                            </span>
+                        `;
+                        showLimitToast("Kërkesa u anulua me sukses.", false);
+                    } else {
+                        const err = await res.json();
+                        showLimitToast(err.message || "Gabim gjatë anulimit të kërkesës.");
+                    }
+                } catch (e) {
+                    console.error("Gabim anulimi:", e);
+                    showLimitToast("Gabim lidhjeje me serverin.");
+                }
             }
             if (bsAnuloModal) bsAnuloModal.hide();
         }
