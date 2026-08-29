@@ -27,11 +27,11 @@ public class CourseSchedule {
     @Column(name = "DAY_OF_WEEK", length = 10, nullable = false)
     private String dayOfWeek;
 
-    @Column(name = "START_TIME", nullable = false)
-    private LocalDateTime startTime;
+    @Column(name = "START_TIME", length = 10, nullable = false)
+    private String startTime;
 
-    @Column(name = "END_TIME", nullable = false)
-    private LocalDateTime endTime;
+    @Column(name = "END_TIME", length = 10, nullable = false)
+    private String endTime;
 
     @Column(name = "SEMESTER", length = 10)
     private String semester;

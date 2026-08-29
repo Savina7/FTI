@@ -332,7 +332,7 @@ public class StudentService {
                     .filter(g -> "IMPROVED".equalsIgnoreCase(g.getStatus()) || "PERMIRESIM".equalsIgnoreCase(g.getStatus()) || "P".equalsIgnoreCase(g.getStatus()))
                     .count();
             if (currentImprovements >= 2) {
-                throw new IllegalArgumentException("Keni arritur limitin maksimal prej 2 lëndësh për përmirësim.");
+                throw new IllegalArgumentException("Keni arritur limitin maksimal prej 2 lendesh per permiresim.");
             }
         }
 
@@ -348,7 +348,7 @@ public class StudentService {
         if (targetGrade != null) {
             if (isImprovement) {
                 if (targetGrade.getGrade() != null && targetGrade.getGrade().doubleValue() < 5.0) {
-                    throw new IllegalArgumentException("Nuk lejohet përmirësimi për notën ngelëse.");
+                    throw new IllegalArgumentException("Nuk lejohet permiresimi per noten ngelese.");
                 }
                 targetGrade.setStatus("IMPROVED");
             } else {

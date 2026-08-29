@@ -79,7 +79,6 @@
                 <div class="d-flex align-items-center gap-3">
                     <div class="text-end d-none d-sm-block">
                         <span class="d-block fw-bold small text-dark">Administrator</span>
-                        <span class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</span>
                     </div>
                 </div>
             </header>
@@ -157,102 +156,102 @@
 
             </div>
 
-            <!-- MODAL SHTO / EDITO -->
+            <!-- MODAL SHTO / EDITO (VERTIKAL DHE KOMPAKT) -->
             <div class="modal fade" id="modalTeaching" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-md modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered" style="max-width: 410px;">
                     <div class="modal-content border-0 shadow">
 
-                        <div class="modal-header border-bottom py-2">
-                            <h6 class="modal-title fw-bold text-dark" id="modalTitle"></h6>
+                        <div class="modal-header border-bottom-0 pb-0 pt-2 px-3">
+                            <h6 class="modal-title d-none" id="modalTitle"></h6>
                             <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
 
-                        <div class="modal-body p-4">
-                            <div id="modalTcAlert" class="alert alert-danger small d-none mb-3"></div>
+                        <div class="modal-body px-3 py-2" style="max-height: 84vh; overflow-y: auto;">
+                            <div id="modalTcAlert" class="alert alert-danger small d-none py-1 px-2 mb-2"></div>
                             <form id="formTeaching">
 
                                 <!-- 1. DEPARTAMENTI -->
-                                <div class="mb-3" id="groupDepartamenti">
-                                    <label class="form-label small fw-bold text-dark">Departamenti</label>
-                                    <select class="form-select form-select-sm" id="selectDepartamenti">
+                                <div class="mb-2" id="groupDepartamenti">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Departamenti</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectDepartamenti">
                                     </select>
                                 </div>
 
                                 <!-- 2. NIVELI -->
-                                <div class="mb-3" id="groupNiveli">
-                                    <label class="form-label small fw-bold text-dark">Niveli</label>
-                                    <select class="form-select form-select-sm" id="selectNiveli" required>
+                                <div class="mb-2" id="groupNiveli">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Niveli</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectNiveli" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
 
                                 <!-- 3. DEGA / PROGRAMI -->
-                                <div class="mb-3" id="groupProgrami">
-                                    <label class="form-label small fw-bold text-dark">Dega</label>
-                                    <select class="form-select form-select-sm" id="selectProgrami" required>
+                                <div class="mb-2" id="groupProgrami">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Dega</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectProgrami" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
 
                                 <!-- 4. VITI I STUDIMIT -->
-                                <div class="mb-3" id="groupViti">
-                                    <label class="form-label small fw-bold text-dark">Viti</label>
-                                    <select class="form-select form-select-sm" id="selectViti" required>
+                                <div class="mb-2" id="groupViti">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Viti</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectViti" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
 
                                 <!-- 5. SEMESTRI -->
-                                <div class="mb-3" id="groupSemestri">
-                                    <label class="form-label small fw-bold text-dark">Semestri</label>
-                                    <select class="form-select form-select-sm" id="selectSemestri" required>
+                                <div class="mb-2" id="groupSemestri">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Semestri</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectSemestri" required>
                                         <option value="1">Semestri 1</option>
                                         <option value="2">Semestri 2</option>
                                     </select>
                                 </div>
 
                                 <!-- 6. LENDA -->
-                                <div class="mb-3" id="groupLenda">
-                                    <label class="form-label small fw-bold text-dark">Lenda</label>
-                                    <select class="form-select form-select-sm" id="selectLenda" required>
+                                <div class="mb-2" id="groupLenda">
+                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Lenda</label>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectLenda" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
 
                                 <!-- 7. KOHEZGJATJA & ORET -->
-                                <div class="row g-2 mb-3">
+                                <div class="row g-2 mb-2">
                                     <div class="col-6">
-                                        <label class="form-label small fw-bold text-dark">Kohezgjatja (Jave)</label>
-                                        <input type="number" class="form-control form-control-sm" id="inputKohezgjatja"
+                                        <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Kohezgjatja (Jave)</label>
+                                        <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputKohezgjatja"
                                             required>
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label small fw-bold text-dark">Ore</label>
-                                        <input type="number" class="form-control form-control-sm" id="inputOreGjithsej"
+                                        <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Ore</label>
+                                        <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputOreGjithsej"
                                             required>
                                     </div>
                                 </div>
 
-                                <div class="border-top my-3"></div>
+                                <div class="border-top my-2"></div>
 
                                 <!-- 8. SEKSIONI LEKSION -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label
-                                        class="form-label small fw-bold text-dark d-block border-bottom pb-1 mb-2">Pedagogu
+                                        class="form-label small fw-semibold text-dark d-block border-bottom pb-1 mb-1" style="font-size: 0.74rem;">Pedagogu
                                         i leksionit</label>
-                                    <select class="form-select form-select-sm" id="selectLeksionProf" required>
+                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectLeksionProf" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
 
                                 <!-- 9. SEKSIONI SEMINAR -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div
-                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
-                                        <label class="form-label small fw-bold text-dark mb-0">Petagogu i
+                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
+                                        <label class="form-label small fw-semibold text-dark mb-0" style="font-size: 0.74rem;">Pedagogu i
                                             seminarit</label>
-                                        <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-7"
+                                        <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2" style="font-size: 0.70rem;"
                                             onclick="addSeminarRow()">+ Shto pedagog</button>
                                     </div>
                                     <div id="seminarContainer">
@@ -261,22 +260,22 @@
                                 </div>
 
                                 <!-- 10. SEKSIONI LABORATOR -->
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <div
-                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
+                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
                                         <div class="form-check form-switch mb-0">
                                             <input class="form-check-input" type="checkbox" id="hasLabSwitch"
                                                 onchange="toggleLabSection()">
-                                            <label class="form-check-label small fw-bold text-dark"
+                                            <label class="form-check-label small fw-semibold text-dark" style="font-size: 0.74rem;"
                                                 for="hasLabSwitch">Kjo lende ka laborator</label>
                                         </div>
                                     </div>
 
-                                    <div id="labSection" class="d-none mt-2">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div id="labSection" class="d-none mt-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="small text-muted fw-bold"></span>
-                                            <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-7"
-                                                onclick="addLabRow()">+ Shto petagog laboratori</button>
+                                            <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2" style="font-size: 0.70rem;"
+                                                onclick="addLabRow()">+ Shto pedagog laboratori</button>
                                         </div>
                                         <div id="labContainer">
                                             <!-- Dynamic Lab Rows -->
@@ -284,10 +283,10 @@
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
-                                    <button type="button" class="btn btn-sm btn-light"
+                                <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+                                    <button type="button" class="btn btn-sm btn-light py-1 px-3" style="font-size: 0.8rem;"
                                         data-bs-dismiss="modal">Anulo</button>
-                                    <button type="submit" class="btn btn-sm btn-dark px-4 fw-semibold">Ruaj</button>
+                                    <button type="submit" class="btn btn-sm btn-dark py-1 px-4 fw-semibold" style="font-size: 0.8rem;">Ruaj</button>
                                 </div>
 
                             </form>
@@ -613,9 +612,10 @@
                                 let popoverContent = '';
                                 if (item.lectureProfessor) {
                                     popoverContent += `
-                                        <div class='item-teaching border-leksion mb-1'>
-                                            <span class='badge bg-secondary mb-1'>Leksion</span>
-                                            <div><strong>Pedagogu:</strong> ${item.lectureProfessor.professorName}<br><span class='text-muted'><strong>Klasat:</strong> Te gjitha</span></div>
+                                        <div class='mb-2' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                            <div class='fw-bold'>Leksion</div>
+                                            <div>Pedagogu: ${item.lectureProfessor.professorName}</div>
+                                            <div>Klasat: Te gjitha</div>
                                         </div>
                                     `;
                                 }
@@ -624,11 +624,11 @@
                                         let grp = (s.classNames && s.classNames.length > 0)
                                             ? [...new Set(s.classNames)].join(', ')
                                             : (s.classGroup ? [...new Set(s.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A');
-                                        return `<div>• <strong>${s.professorName}</strong> &rarr; ${grp}</div>`;
+                                        return `<div>${s.professorName} &rarr; ${grp}</div>`;
                                     }).join('');
                                     popoverContent += `
-                                        <div class='item-teaching border-seminar mb-1'>
-                                            <span class='badge bg-secondary mb-1'>Seminar</span>
+                                        <div class='mb-2' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                            <div class='fw-bold'>Seminar</div>
                                             <div>${semRows}</div>
                                         </div>
                                     `;
@@ -638,27 +638,26 @@
                                         let grp = (l.classNames && l.classNames.length > 0)
                                             ? [...new Set(l.classNames)].join(', ')
                                             : (l.classGroup ? [...new Set(l.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A & B');
-                                        return `<div>• <strong>${l.professorName}</strong> &rarr; ${grp}</div>`;
+                                        return `<div>${l.professorName} &rarr; ${grp}</div>`;
                                     }).join('');
                                     popoverContent += `
-                                        <div class='item-teaching border-lab mb-1'>
-                                            <span class='badge bg-secondary mb-1'>Lab</span>
+                                        <div class='mb-1' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                            <div class='fw-bold'>Laborator</div>
                                             <div>${labRows}</div>
                                         </div>
                                     `;
                                 }
                                 if (!popoverContent) {
-                                    popoverContent = `<div class='text-muted small'>Pa pedagoge te caktuar.</div>`;
+                                    popoverContent = `<div style='font-size: 13px; color: #1e293b;'>Pa pedagoge te caktuar.</div>`;
                                 }
 
                                 const popoverBtn = `
                                     <button type="button"
-                                            class="btn btn-sm btn-light text-primary border-0 btn-eye-popover"
+                                            class="btn btn-sm btn-light text-dark border-0 btn-eye-popover"
                                             data-bs-toggle="popover"
                                             data-bs-trigger="focus"
                                             data-bs-placement="left"
                                             data-bs-html="true"
-                                            title="<div class='fw-bold small'>Detajet e Mesimdhenies</div>"
                                             data-bs-content="${popoverContent.replace(/"/g, '&quot;')}">
                                         <i class="bi bi-eye-fill fs-5"></i>
                                     </button>
@@ -666,13 +665,13 @@
 
                                 const row = `
                                     <tr>
-                                        <td class="text-center font-monospace fw-bold">${rowId}</td>
-                                        <td><span class="badge badge-status-secondary">${deptName}</span></td>
-                                        <td class="fw-bold">${courseName}</td>
-                                        <td class="text-center"><span class="badge bg-light text-dark border">${viti}</span></td>
-                                        <td class="text-center"><span class="badge bg-light text-dark border">${sem}</span></td>
-                                        <td class="text-center">${duration}</td>
-                                        <td class="text-center fw-bold text-primary-orange">${totalHours}</td>
+                                        <td class="text-center font-monospace">${rowId}</td>
+                                        <td><span class="text-dark">${deptName}</span></td>
+                                        <td class="text-dark">${courseName}</td>
+                                        <td class="text-center text-dark">${viti}</td>
+                                        <td class="text-center text-dark">${sem}</td>
+                                        <td class="text-center text-dark">${duration}</td>
+                                        <td class="text-center text-dark">${totalHours}</td>
                                         <td class="text-center">${popoverBtn}</td>
                                         <td class="text-end text-nowrap">
                                             <button class="btn btn-sm btn-outline-dark me-1" title="Edito" onclick="openEditModal(${item.courseId})"><i class="bi bi-pencil"></i></button>
@@ -712,7 +711,7 @@
 
                 function openCreateModal() {
                     currentEditingCourseId = null;
-                    $('#modalTitle').text("Shto Alokim te Ri");
+                    $('#modalTitle').text("");
                     $('#formTeaching')[0].reset();
 
                     // Hiq modalitetin edit: aktivizo te gjitha fushat
@@ -751,7 +750,7 @@
 
                 async function openEditModal(courseId) {
                     currentEditingCourseId = courseId;
-                    $('#modalTitle').text("Edito Alokimin");
+                    $('#modalTitle').text("");
                     $('#formTeaching')[0].reset();
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();

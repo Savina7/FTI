@@ -16,48 +16,318 @@
   <!-- SheetJS per Importimin e Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+  <!-- jsPDF + html2canvas per shkarkimin direkt ne PDF -->
+  <script src="/js/html2canvas.min.js"></script>
+  <script src="/js/jspdf.umd.min.js"></script>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/styleadm.css" />
   <!-- Auth Interceptor -->
   <script src="/js/auth-interceptor.js"></script>
+
+  <style>
+    /* ==========================================================================
+       STILI ZYRTAR I ORARIT FTI (KOMPAKT & I ZVOGELUAR)
+       ========================================================================== */
+    .fti-schedule-header {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px 6px 0 0;
+      padding: 6px 12px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .fti-schedule-header h5 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      margin-bottom: 1px;
+      text-transform: uppercase;
+    }
+
+    .fti-schedule-header .sub-header {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 1px;
+    }
+
+    .fti-schedule-header .schedule-title {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #1e293b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .fti-table-container {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      overflow: auto;
+      max-height: 78vh;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .fti-timetable {
+      width: 100%;
+      border-collapse: collapse !important;
+      font-size: 0.70rem;
+      text-align: center;
+      vertical-align: middle;
+      table-layout: fixed;
+      margin-bottom: 0;
+    }
+
+    .fti-timetable th,
+    .fti-timetable td {
+      border: 1px solid #cbd5e1 !important;
+      padding: 2px 2px !important;
+      vertical-align: middle;
+    }
+
+    /* VITI 1, 2, 3 dhe ORA ne krye (Tonalitet i verdhe i hapur) */
+    .fti-th-head {
+      background-color: #fef08a !important;
+      color: #713f12 !important;
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding: 5px 2px !important;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border: 1px solid #facc15 !important;
+      border-bottom: 2px solid #eab308 !important;
+    }
+
+    /* Grupet (Grupi A, B, C, D) - E BARDHE */
+    .fti-th-sub {
+      background-color: #ffffff !important;
+      color: #1e293b !important;
+      font-weight: 700;
+      font-size: 0.68rem;
+      border: 1px solid #cbd5e1 !important;
+      border-bottom: 2px solid #94a3b8 !important;
+    }
+
+    /* DITET E JAVES (E Hene, E Marte...) - ME TE VERDHE */
+    .fti-th-dita {
+      width: 26px !important;
+      background-color: #fef08a !important;
+      color: #713f12 !important;
+      font-weight: 800;
+      font-size: 0.72rem;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-right: 2px solid #eab308 !important;
+      border-bottom: 2px solid #eab308 !important;
+      padding: 2px !important;
+    }
+
+    .fti-th-ora {
+      width: 48px !important;
+      background-color: #ffffff !important;
+      color: #475569 !important;
+      font-weight: 700;
+      font-size: 0.68rem;
+      white-space: nowrap;
+      padding: 1px 2px !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+
+    .fti-cell-empty {
+      background-color: #ffffff;
+      height: 28px !important;
+    }
+
+    /* Qeliza Leksion (Tonalitet i hapur i verdhe pastel / Cream Yellow) */
+    .fti-cell-leksion {
+      background-color: #fefce8 !important;
+      border: 1px solid #fef08a !important;
+      padding: 2px 3px !important;
+      line-height: 1.15;
+      position: relative;
+    }
+
+    .fti-cell-leksion .course-name {
+      font-weight: 700;
+      color: #854d0e;
+      font-size: 0.71rem;
+    }
+
+    .fti-cell-leksion .prof-name {
+      color: #a16207;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    .fti-cell-leksion .room-badge {
+      background: #ffffff;
+      color: #854d0e;
+      border: 1px solid #fde047;
+      border-radius: 2px;
+      padding: 0 2px;
+      font-weight: 700;
+      font-size: 0.62rem;
+    }
+
+    /* Qeliza Seminar (Tonalitet pak me i ngrohte pastel / Soft Honey) */
+    .fti-cell-seminar {
+      background-color: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      padding: 2px 3px !important;
+      line-height: 1.15;
+      position: relative;
+    }
+
+    .fti-cell-seminar .course-name {
+      font-weight: 700;
+      color: #92400e;
+      font-size: 0.70rem;
+    }
+
+    .fti-cell-seminar .prof-name {
+      color: #b45309;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    .fti-cell-seminar .room-badge {
+      background: #ffffff;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      border-radius: 2px;
+      padding: 0 2px;
+      font-weight: 700;
+      font-size: 0.62rem;
+    }
+
+    .btn-delete-cell {
+      position: absolute;
+      top: 1px;
+      right: 2px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      cursor: pointer;
+      color: #ef4444;
+      background: transparent;
+      border: none;
+      padding: 0;
+      font-size: 0.75rem;
+    }
+
+    .fti-cell-leksion:hover .btn-delete-cell,
+    .fti-cell-seminar:hover .btn-delete-cell {
+      opacity: 1;
+    }
+
+    /* Lista e Lendeve brenda Modalit: Minimaliste me ngjyra te verdha te hapura (Amber) */
+    .modal-course-item {
+      padding: 7px 8px;
+      border: none;
+      border-bottom: 1px solid #f1f5f9;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .modal-course-item:hover {
+      background: #fffbeb;
+    }
+
+    .modal-course-item.active {
+      background-color: #fef3c7 !important;
+      border-bottom: 1px solid #fef3c7 !important;
+    }
+
+    .modal-course-item.active span {
+      color: #92400e !important;
+      font-weight: 600 !important;
+    }
+
+    /* Butonat Leksion / Seminar me tone te verdha te hapura */
+    .btn-group-amber .btn-check:checked+.btn {
+      background-color: #fef3c7 !important;
+      color: #92400e !important;
+      border-color: #f59e0b !important;
+      font-weight: 600 !important;
+    }
+
+    .btn-group-amber .btn {
+      border: 1px solid #fde68a !important;
+      color: #78350f !important;
+      background-color: #ffffff;
+    }
+
+    .btn-group-amber .btn:hover {
+      background-color: #fffbeb !important;
+      color: #92400e !important;
+    }
+
+    /* Butoni kryesor Amber */
+    .btn-amber-action {
+      background-color: #f59e0b !important;
+      border-color: #d97706 !important;
+      color: #ffffff !important;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .btn-amber-action:hover {
+      background-color: #d97706 !important;
+      border-color: #b45309 !important;
+      color: #ffffff !important;
+    }
+
+    .btn-amber-soft {
+      background-color: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      color: #92400e !important;
+    }
+
+    .btn-amber-soft:hover {
+      background-color: #fef3c7 !important;
+      color: #78350f !important;
+    }
+
+    #modalShtoOrar .form-select:focus,
+    #modalShtoOrar .form-control:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 0.15rem rgba(245, 158, 11, 0.2);
+    }
+  </style>
 </head>
 
 <body>
   <div id="wrapper">
-    <!-- ================= SIDEBAR ================= -->
+    <!-- ================= SIDEBAR NAV ================= -->
     <aside id="sidebar-wrapper">
       <div>
-        <!-- Logo -->
         <div class="sidebar-heading px-3 py-3 border-bottom text-center">
           <a href="/dashboard_reports" class="d-block text-decoration-none">
             <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo" />
           </a>
         </div>
 
-        <!-- Menyte -->
         <div class="list-group list-group-flush py-2">
-          <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4 py-3">
-            Dashboard
-          </a>
-          <a href="/std" class="list-group-item list-group-item-action px-4 py-3">
-            Studentet
-          </a>
-          <a href="/adm" class="list-group-item list-group-item-action px-4 py-3">
-            Pedagoget
-          </a>
-          <a href="/lende" class="list-group-item list-group-item-action px-4 py-3">
-            Lendet
-          </a>
-          <a href="/tc" class="list-group-item list-group-item-action px-4 py-3">
-            Alokimi
-          </a>
-          <a href="/course_schedule" class="list-group-item list-group-item-action px-4 py-3 active">
-            Orare
-          </a>
+          <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4 py-3">Dashboard</a>
+          <a href="/std" class="list-group-item list-group-item-action px-4 py-3">Studentet</a>
+          <a href="/adm" class="list-group-item list-group-item-action px-4 py-3">Pedagoget</a>
+          <a href="/lende" class="list-group-item list-group-item-action px-4 py-3">Lendet</a>
+          <a href="/tc" class="list-group-item list-group-item-action px-4 py-3">Alokimi</a>
+          <a href="/course_schedule" class="list-group-item list-group-item-action px-4 py-3 active">Orare</a>
         </div>
       </div>
 
-      <!-- Logout -->
       <div class="p-3 border-top">
         <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
           <i class="bi bi-box-arrow-right"></i>
@@ -68,408 +338,252 @@
 
     <!-- ================= MAIN CONTENT ================= -->
     <div id="page-content-wrapper">
-      <!-- Header Top Bar -->
       <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
-        <h6 class="mb-0 fw-bold text-dark">Paneli i Administratorit</h6>
+        <h6 class="mb-0 fw-bold text-dark"></h6>
         <div class="d-flex align-items-center gap-3">
           <div class="text-end d-none d-sm-block">
             <span class="d-block fw-bold small text-dark">Administrator</span>
-            <span class="d-block admin-subtitle">FTI - Fakulteti Teknologjise Informacionit</span>
           </div>
         </div>
       </header>
 
-      <div id="page-wrapper">
-        <!-- Header & Action Buttons -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+      <div id="page-wrapper" class="p-3">
+        <!-- Veprimet lart -->
+        <div class="d-flex justify-content-between align-items-center mb-3 action-buttons-bar">
           <div>
-            <h4 class="fw-bold mb-1">Perpilimi i Orarit Akademik</h4>
+            <h4 class="fw-bold mb-1"></h4>
             <p class="text-muted small mb-0">
-              Menaxhimi i leksioneve, ushtrimeve dhe testeve akademike.
+
             </p>
           </div>
           <div class="d-flex gap-2">
-            <!-- INPUT I FSHEHUR PER EXCEL -->
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none"
-              onchange="importoExcel(event)" />
-
-            <!-- BUTONI I IMPORTIT TE EXCEL -->
-            <button class="btn btn-outline-primary btn-sm fw-semibold"
-              onclick="document.getElementById('excelFileInput').click()">
-              <i class="bi bi-file-earmark-excel me-1"></i> Import Excel
+            <button class="btn btn-outline-secondary btn-sm fw-semibold" id="btnShkarkoPdf"
+              onclick="shkarkoOrarinPdf()">
+              <i class="bi bi-file-earmark-pdf me-1 text-danger"></i> Shkarko Orarin
             </button>
-
-            <button class="btn btn-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalShtoOrar">
-              <i class="bi bi-plus-circle me-1"></i> Shto ne Orar
+            <button class="btn btn-primary btn-sm fw-semibold px-3" onclick="openModalShtoOrar()">
+              <i class="bi bi-plus-circle me-1"></i> Shto orar
             </button>
           </div>
         </div>
 
-        <!-- TAB-ET E ZGJEDHJES SE TIPIT TE ORARIT -->
-        <div class="mb-3">
-          <ul class="nav nav-pills" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active btn-sm fw-bold px-3 py-1.5 me-2" id="pills-mesim-tab" data-bs-toggle="pill"
-                data-bs-target="#pills-mesim" type="button" role="tab" onclick="ndryshoTipinOrarit('MESIM')">
-                <i class="bi bi-journal-text me-1"></i> Orari Mesimor
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link btn-sm fw-bold px-3 py-1.5" id="pills-teste-tab" data-bs-toggle="pill"
-                data-bs-target="#pills-teste" type="button" role="tab" onclick="ndryshoTipinOrarit('TEST')">
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Orari i
-                Testeve / Provimeve
-              </button>
-            </li>
-          </ul>
-        </div>
 
-        <!-- PANELI I FILTRIMIT -->
-        <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
-          <div class="card-body p-3">
-            <div class="row g-3 align-items-center">
-              <div class="col-md-4">
-                <label class="form-label small fw-bold mb-1">1. Cikli i Studimit</label>
-                <select class="form-select form-select-sm" id="cikliSelect" onchange="ndryshoCiklin()">
-                  <option value="bachelor" selected>Bachelor</option>
-                  <option value="master">Master Shkencor / Prof.</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold mb-1">2. Programi / Dega</label>
-                <select class="form-select form-select-sm" id="programiSelect">
-                  <option value="IK">Inxhinieri Kompjuterike</option>
-                  <option value="INF">Inxhinieri Informatike</option>
-                  <option value="IE">Inxhinieri Elektronike</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold mb-1">3. Viti Akademik</label>
-                <select class="form-select form-select-sm" id="vitiSelect">
-                  <option value="1" selected>Viti I (Semestri 1)</option>
-                  <option value="2">Viti II (Semestri 1)</option>
-                  <option value="3">Viti III (Semestri 1)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- TAB-ET E PERMBAJTJES SE TABELAVE -->
-        <div class="tab-content" id="pills-tabContent">
-          <!-- TAB 1: ORARI MESIMOR STANDARD -->
-          <div class="tab-pane fade show active" id="pills-mesim" role="tabpanel">
-            <div class="card border-0 shadow-sm rounded-3 bg-white">
-              <div class="card-header bg-white py-3 border-bottom">
-                <span class="fw-bold small text-primary-orange" id="labelOrari">
-                  <i class="bi bi-calendar3 me-1"></i>Orari Mesimor: Bachelor
-                  - Inxhinieri Informatike (Viti I)
-                </span>
-              </div>
-
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-bordered text-center align-middle timetable-upt mb-0">
-                    <thead>
-                      <tr class="table-head-upt">
-                        <th style="width: 14%">ORA</th>
-                        <th>I-A-INF</th>
-                        <th>I-B-INF</th>
-                        <th>I-C-INF</th>
-                        <th>I-D-INF</th>
-                        <th>Inxh. Komp I</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="time-col">08:00 - 09:00</td>
-                        <td rowspan="3" colspan="4" class="cell-leksion">
-                          <div class="fw-bold text-dark">(L) Fizike 2</div>
-                          <div class="text-dark">
-                            A. Gjevori <span class="text-orange">(205)</span>
-                          </div>
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">09:00 - 10:00</td>
-                        <td rowspan="2" class="cell-seminar">
-                          <div class="fw-bold text-orange">
-                            (S) Teknikat e prog.
-                          </div>
-                          <div class="text-dark">
-                            A. Merdani <span class="text-orange">304</span>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">10:00 - 11:00</td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">11:00 - 12:00</td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Fizika 2</div>
-                          <div class="text-dark">
-                            A. Gjevori <span class="text-orange">201</span>
-                          </div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">
-                            (S) Elektroteknika 1
-                          </div>
-                          <div class="text-dark">
-                            L.Dhamo <span class="text-orange">115</span>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">12:00 - 13:00</td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Fizika 2</div>
-                          <div class="text-dark">
-                            A. Gjevori
-                            <span class="text-orange">201 çift</span>
-                          </div>
-                        </td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Fizika 2</div>
-                          <div class="text-dark">
-                            A. Gjevori
-                            <span class="text-orange">201 tek</span>
-                          </div>
-                        </td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">
-                            (S) Elektroteknika 1
-                          </div>
-                          <div class="text-dark">
-                            L.Dhamo <span class="text-orange">115</span>
-                          </div>
-                        </td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Analize 3</div>
-                          <div class="text-dark">
-                            A. Shasivari <span class="text-orange">206</span>
-                          </div>
-                        </td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">
-                            (S) Elektroteknika 1
-                          </div>
-                          <div class="text-dark">
-                            L.Dhamo <span class="text-orange">109</span>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">13:00 - 14:00</td>
-                        <td></td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Fizika 2</div>
-                          <div class="text-dark">
-                            A. Gjevori <span class="text-orange">201</span>
-                          </div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td class="cell-seminar">
-                          <div class="fw-bold text-orange">(S) Analize 3</div>
-                          <div class="text-dark">
-                            A. Shasivari <span class="text-orange">206</span>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="time-col">14:00 - 15:00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+        <!-- ================= ORARI ZYRTAR ME FORMATIN E PLOTE TE FTI ================= -->
+        <div class="mb-4" id="ftiScheduleExportArea">
+          <div class="fti-schedule-header">
+            <h5></h5>
+            <div class="sub-header"></div>
+            <div class="schedule-title" id="ftiScheduleTitle">
+              INXHINIERI INFORMATIKE
             </div>
           </div>
 
-          <!-- TAB 2: ORARI I TESTEVE / PROVIMEVE -->
-          <div class="tab-pane fade" id="pills-teste" role="tabpanel">
-            <div class="card border-0 shadow-sm rounded-3 bg-white">
-              <div class="card-header bg-white py-3 border-bottom">
-                <span class="fw-bold text-primary-orange small" id="labelOrariTest">
-                  <i class="bi bi-file-earmark-text me-1"></i>Kalendari i
-                  Testeve / Provimeve (Viti I)
-                </span>
-              </div>
-
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-bordered text-center align-middle timetable-upt mb-0">
-                    <thead>
-                      <tr class="table-head-upt-test">
-                        <th style="width: 14%">ORA</th>
-                        <th>I-A-INF</th>
-                        <th>I-B-INF</th>
-                        <th>I-C-INF</th>
-                        <th>I-D-INF</th>
-                        <th>Inxh. Komp I</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="time-col-test">10:00 - 11:00</td>
-                        <td rowspan="2" class="cell-test">
-                          <div class="fw-bold text-dark">Fizike 2</div>
-                          <div class="text-muted">A. Gjevori</div>
-                          <div class="text-orange fw-bold">Salla 201</div>
-                        </td>
-                        <td rowspan="2" class="cell-test">
-                          <div class="fw-bold text-dark">Fizike 2</div>
-                          <div class="text-muted">A. Gjevori</div>
-                          <div class="text-orange fw-bold">Salla 202</div>
-                        </td>
-                        <td rowspan="2" class="cell-test">
-                          <div class="fw-bold text-dark">Fizike 2</div>
-                          <div class="text-muted">E. Kasa</div>
-                          <div class="text-orange fw-bold">Salla 205</div>
-                        </td>
-                        <td rowspan="2" class="cell-test">
-                          <div class="fw-bold text-dark">Fizike 2</div>
-                          <div class="text-muted">E. Kasa</div>
-                          <div class="text-orange fw-bold">Amfiteatri A1</div>
-                        </td>
-                        <td rowspan="2" class="cell-test">
-                          <div class="fw-bold text-dark">Fizike 2</div>
-                          <div class="text-muted">M. Hoxha</div>
-                          <div class="text-orange fw-bold">Amfiteatri A2</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="time-col-test">11:00 - 12:00</td>
-                      </tr>
-                      <tr>
-                        <td class="time-col-test">12:00 - 13:00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+          <div class="fti-table-container">
+            <table class="fti-timetable" id="ftiMainTable">
+              <thead id="ftiTableHead"></thead>
+              <tbody id="ftiTableBody"></tbody>
+            </table>
           </div>
         </div>
+
       </div>
-      <!-- /page-wrapper -->
     </div>
-    <!-- /page-content-wrapper -->
   </div>
-  <!-- /wrapper -->
 
-  <!-- MODALI I SHTIMIT TE ORARIT -->
+  <!-- ================= POPUP-I I SHTIMIT TE ORARIT (VERTIKALE, MINIMALISTE, SHKRIM I VOGEL) ================= -->
   <div class="modal fade" id="modalShtoOrar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header text-white py-2 bg-primary-orange">
-          <h6 class="modal-title fw-bold small" id="modalTitleText">
-            <i class="bi bi-clock me-1"></i>Shto Element ne Orar
-          </h6>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered modal-md" id="modalScheduleDialog">
+      <div class="modal-content border shadow-sm">
+        <div class="modal-header py-2 bg-white text-dark border-bottom-0 d-flex justify-content-end align-items-center">
+          <h6 class="modal-title d-none" id="modalTitleText"></h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <form id="formOrariCustom">
-          <div class="modal-body p-3">
-            <div class="row g-3">
-              <!-- 1. ZGJEDHJA E PEDAGOGUT -->
-              <div class="col-md-12">
-                <label class="form-label small fw-bold mb-1">Zgjidh Pedagogun / Lenden
-                  <span class="text-danger">*</span></label>
-                <select class="form-select form-select-sm" id="teachingSelect" onchange="updateFormBasedOnTeacher()"
-                  required>
-                  <option value="" selected disabled>
-                    -- Zgjidh Pedagogun --
-                  </option>
-                  <option value="1">
-                    Prof. A. Gjevori - Fizike 2 (Leksion)
-                  </option>
-                  <option value="2">
-                    Ass. A. Merdani - Teknikat e Programimit (Seminar)
-                  </option>
-                  <option value="3">
-                    Prof. A. Shasivari - Analize Matematike 3 (Leksion)
-                  </option>
-                  <option value="4">
-                    Ing. L. Dhamo - Elektroteknika 1 (Seminar)
-                  </option>
-                </select>
-              </div>
 
-              <!-- 2. DITA E JAVES -->
-              <div class="col-md-6">
-                <label class="form-label small fw-bold mb-1">Dita <span class="text-danger">*</span></label>
-                <select class="form-select form-select-sm" id="ditaSelect" required>
-                  <option value="Hene" selected>E Hene</option>
-                  <option value="Marte">E Marte</option>
-                  <option value="Merkure">E Merkure</option>
-                  <option value="Enjte">E Enjte</option>
-                  <option value="Premte">E Premte</option>
-                </select>
-              </div>
+        <!-- ================= HAPI 1: ZGJEDHJA E DEGES, VITIT, KLASES (VERTIKALE ONLY) ================= -->
+        <div id="modalStep1" class="p-3">
+          <div class="row g-2">
+            <!-- Departamenti -->
+            <div class="col-12">
+              <label class="form-label mb-1"
+                style="font-size: 0.82rem; font-weight: 600; color: #334155;">Departamenti</label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalDepartamenti"
+                onchange="onModalDepartmentChange()" required>
+                <option value="" selected disabled>-- Zgjidh Departamentin --</option>
+              </select>
+            </div>
 
-              <!-- 3. PERSERITJA -->
-              <div class="col-md-6">
-                <label class="form-label small fw-bold mb-1">Perseritja <span class="text-danger">*</span></label>
-                <select class="form-select form-select-sm" id="javetSelect" required>
-                  <option value="Cdo Jave" selected>Çdo jave</option>
-                  <option value="Jave Tek">Jave Tek</option>
-                  <option value="Jave Cift">Jave Çift</option>
-                </select>
-              </div>
+            <!-- Niveli -->
+            <div class="col-12">
+              <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Cikli
+              </label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalNiveli"
+                onchange="onModalNivelChange()" required disabled>
+                <option value="" selected disabled>-- Zgjidh Nivelin --</option>
+              </select>
+            </div>
 
-              <!-- 4. GRUPI / KLASA -->
-              <div class="col-md-12">
-                <label class="form-label small fw-bold mb-1">Grupi / Klasa <span class="text-danger">*</span></label>
-                <select class="form-select form-select-sm" id="grupiSelect" required disabled>
-                  <option value="">-- Zgjidh me pare Pedagogun --</option>
-                </select>
-              </div>
+            <!-- Semestri -->
+            <div class="col-12">
+              <label class="form-label mb-1"
+                style="font-size: 0.82rem; font-weight: 600; color: #334155;">Semestri</label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalSemestri" required>
+                <option value="1">Semestri 1</option>
+                <option value="2" selected>Semestri 2</option>
+              </select>
+            </div>
 
-              <!-- 5. KOHA -->
-              <div class="col-md-6">
-                <label class="form-label small fw-bold mb-1">Ora e Fillimit <span class="text-danger">*</span></label>
-                <input type="time" class="form-control form-control-sm" id="oraFillimit" value="08:00" required />
-              </div>
+            <!-- Dega -->
+            <div class="col-12">
+              <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Dega</label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalDega"
+                onchange="onModalDegaChange()" required disabled>
+                <option value="" selected disabled>-- Zgjidh Degen --</option>
+              </select>
+            </div>
 
-              <div class="col-md-6">
-                <label class="form-label small fw-bold mb-1">Ora e Mbarimit <span class="text-danger">*</span></label>
-                <input type="time" class="form-control form-control-sm" id="oraMbarimit" value="10:00" required />
-              </div>
+            <!-- Viti -->
+            <div class="col-12">
+              <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Viti</label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalViti"
+                onchange="onModalVitiChange()" required disabled>
+                <option value="" selected disabled>-- Viti --</option>
+              </select>
+            </div>
 
-              <!-- 6. SALLA -->
-              <div class="col-md-12">
-                <label class="form-label small fw-bold mb-1">Salla / Laboratori
-                  <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="sallaInput"
-                  placeholder="p.sh. Salla 201 ose Lab 3" required />
+            <!-- Grupi / Klasa -->
+            <div class="col-12">
+              <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Grupi
+              </label>
+              <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalKlasa" required
+                disabled>
+                <option value="" selected disabled>-- Zgjidh Grupin --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+            <button type="button" class="btn btn-outline-secondary btn-sm me-2 px-3" style="font-size: 0.80rem;"
+              data-bs-dismiss="modal">Anulo</button>
+            <button type="button" class="btn btn-amber-action btn-sm px-4" style="font-size: 0.80rem;"
+              onclick="goToModalStep2()">
+              Vazhdo
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= HAPI 2: SIDEBAR ME TE GJITHA LENDET (MAJTAS) + DETANET (DJATHTAS) ================= -->
+        <div id="modalStep2" class="p-3 d-none">
+          <div class="row g-2">
+            <!-- SIDEBAR ME LENDET NE TE MAJTE TE POPUP-IT (col-5) -->
+            <div class="col-5 border-end pe-2">
+              <!-- Lista e Lendeve -->
+              <div id="modalCoursesListContainer" class="d-flex flex-column gap-1"
+                style="max-height: 340px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- DETANET E LENDES SE PERZGJEDHUR (DJATHTAS col-7) -->
+            <div class="col-7 ps-2">
+              <div id="modalCourseConfigArea" class="px-1 py-1 bg-white">
+                <div id="modalAlertSaveError" class="alert alert-light border py-1 px-2 small d-none mb-2 text-danger">
+                </div>
+
+                <div class="row g-2">
+                  <!-- 1. NDARJA LEKSION / SEMINAR -->
+                  <div class="col-md-12 mb-1">
+                    <div class="btn-group btn-group-sm btn-group-amber" style="max-width: 210px; width: 100%;"
+                      role="group">
+                      <input type="radio" class="btn-check" name="modalRoleType" id="modalTypeLeksion" value="LEKSION"
+                        checked onchange="onModalTypeChange()">
+                      <label class="btn py-1" style="font-size: 0.76rem;" for="modalTypeLeksion">
+                        Leksion
+                      </label>
+
+                      <input type="radio" class="btn-check" name="modalRoleType" id="modalTypeSeminar" value="SEMINAR"
+                        onchange="onModalTypeChange()">
+                      <label class="btn py-1" style="font-size: 0.76rem;" for="modalTypeSeminar">
+                        Seminar
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 2. PEDAGOGU (READ ONLY NGA DB) -->
+                  <div class="col-md-12 mb-1">
+                    <label class="form-label d-block mb-1"
+                      style="font-size: 0.74rem; font-weight: 600; color: #475569;">
+                      Pedagogu
+                    </label>
+                    <input type="text" class="form-control form-control-sm bg-white"
+                      style="font-size: 0.78rem; padding: 3px 8px; height: 30px; max-width: 210px;"
+                      id="modalConfigPedagoguName" readonly placeholder="">
+                    <input type="hidden" id="modalConfigPedagogu" value="">
+                    <div id="modalConfigProfessorAlert" class="small fs-8 mt-1 d-none text-danger"
+                      style="max-width: 210px;"></div>
+                  </div>
+
+                  <!-- 3. DITA E JAVES -->
+                  <div class="col-md-4 mb-1">
+                    <label class="form-label d-block mb-1"
+                      style="font-size: 0.74rem; font-weight: 600; color: #475569;">Dita</label>
+                    <select class="form-select form-select-sm"
+                      style="font-size: 0.78rem; padding: 3px 4px; height: 30px;" id="modalConfigDita"
+                      onchange="triggerModalRoomCheck()">
+                      <option value="E Hene" selected>E Hene</option>
+                      <option value="E Marte">E Marte</option>
+                      <option value="E Merkure">E Merkure</option>
+                      <option value="E Enjte">E Enjte</option>
+                      <option value="E Premte">E Premte</option>
+                    </select>
+                  </div>
+
+                  <!-- 4. ORA E FILLIMIT DHE MBARIMIT (MAX 15:00 / 3 PM) -->
+                  <div class="col-md-4 mb-1">
+                    <label class="form-label d-block mb-1"
+                      style="font-size: 0.74rem; font-weight: 600; color: #475569;">Fillon</label>
+                    <input type="time" class="form-control form-control-sm"
+                      style="font-size: 0.76rem; padding: 3px 3px; height: 30px;" id="modalConfigOraFillimit"
+                      value="08:00" min="08:00" max="15:00" onchange="triggerModalRoomCheck()" required>
+                  </div>
+
+                  <div class="col-md-4 mb-1">
+                    <label class="form-label d-block mb-1"
+                      style="font-size: 0.74rem; font-weight: 600; color: #475569;">Mbaron</label>
+                    <input type="time" class="form-control form-control-sm"
+                      style="font-size: 0.76rem; padding: 3px 3px; height: 30px;" id="modalConfigOraMbarimit"
+                      value="10:00" min="08:00" max="15:00" onchange="triggerModalRoomCheck()" required>
+                  </div>
+
+                  <!-- 5. SALLA NGA DB ME KONTROLL LIVE -->
+                  <div class="col-md-12 mb-1">
+                    <label class="form-label d-block mb-1"
+                      style="font-size: 0.74rem; font-weight: 600; color: #475569;">
+                      Salla
+                    </label>
+                    <select class="form-select form-select-sm"
+                      style="font-size: 0.78rem; padding: 3px 8px; height: 30px; width: 95px;" id="modalConfigSalla"
+                      onchange="triggerModalRoomCheck()" required>
+                      <option value="" disabled selected></option>
+                    </select>
+
+                    <div id="modalConfigRoomAlert" class="small fs-8 mt-1 d-none text-danger"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer bg-light p-2">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
-              Anulo
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <button type="button" class="btn btn-amber-soft btn-sm" style="font-size: 0.78rem; padding: 4px 12px;"
+              onclick="goToModalStep1()">
+              Mbrapa
             </button>
-            <button type="submit" class="btn btn-sm btn-primary">
-              Ruaj ne Orar
+            <button type="button" class="btn btn-amber-action btn-sm px-3" id="btnModalSaveSchedule"
+              style="font-size: 0.78rem; padding: 4px 16px;" onclick="saveModalSchedule()">
+              Ruaj
             </button>
           </div>
-        </form>
+        </div>
+
       </div>
     </div>
   </div>
@@ -479,109 +593,750 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const teachersData = {
-      1: {
-        teacher: "Prof. A. Gjevori",
-        course: "Fizike 2",
-        isLecture: true,
-        allowedGroups: [{ id: "ALL", name: "Te gjitha Grupet (Kompakt)" }],
-      },
-      2: {
-        teacher: "Ass. A. Merdani",
-        course: "Teknikat e Programimit",
-        isLecture: false,
-        allowedGroups: [
-          { id: "I-A-INF", name: "I-A-INF" },
-          { id: "I-B-INF", name: "I-B-INF" },
-        ],
-      },
-      3: {
-        teacher: "Prof. A. Shasivari",
-        course: "Analize Matematike 3",
-        isLecture: true,
-        allowedGroups: [{ id: "ALL", name: "Te gjitha Grupet (Kompakt)" }],
-      },
-      4: {
-        teacher: "Ing. L. Dhamo",
-        course: "Elektroteknika 1",
-        isLecture: false,
-        allowedGroups: [
-          { id: "I-C-INF", name: "I-C-INF" },
-          { id: "I-D-INF", name: "I-D-INF" },
-          { id: "IK-1", name: "Inxhinieri Kompjuterike I" },
-        ],
-      },
-    };
+    const _jwt = localStorage.getItem('jwtToken');
+    const _headers = _jwt ? { 'Authorization': 'Bearer ' + _jwt, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 
-    function updateFormBasedOnTeacher() {
-      let selectedId = $("#teachingSelect").val();
-      let data = teachersData[selectedId];
+    let allRooms = [];
+    let cachedSchedules = [];
+    let cachedClasses = [];
+    let modalCoursesList = [];
+    let activeModalCourse = null;
+    let modalShtoOrarInstance = null;
 
-      if (data) {
-        let grupiSelect = $("#grupiSelect");
-        grupiSelect.empty().prop("disabled", false);
+    const DITET_E_JAVES = ["E HENE", "E MARTE", "E MERKURE", "E ENJTE", "E PREMTE"];
+    const ORET_STANDARD = [
+      { start: "08:00", end: "09:00", label: "08:00" },
+      { start: "09:00", end: "10:00", label: "09:00" },
+      { start: "10:00", end: "11:00", label: "10:00" },
+      { start: "11:00", end: "12:00", label: "11:00" },
+      { start: "12:00", end: "13:00", label: "12:00" },
+      { start: "13:00", end: "14:00", label: "13:00" },
+      { start: "14:00", end: "15:00", label: "14:00" }
+    ];
 
-        if (data.isLecture) {
-          grupiSelect.append(
-            '<option value="ALL" selected>Te gjitha Grupet (Kompakt)</option>',
-          );
-        } else {
-          grupiSelect.append(
-            '<option value="" disabled selected>-- Zgjidh Klasen / Grupin --</option>',
-          );
-          data.allowedGroups.forEach((g) => {
-            grupiSelect.append(`<option value="${g.id}">${g.name}</option>`);
+    $(document).ready(function () {
+      modalShtoOrarInstance = new bootstrap.Modal(document.getElementById('modalShtoOrar'));
+      loadMainScheduleData();
+      loadRoomsData();
+    });
+
+    let currentMainProgramId = null;
+
+    async function loadMainScheduleData() {
+      try {
+        const resBranches = await fetch('/api/admin/schedules/branches', { headers: _headers });
+        if (resBranches.ok) {
+          const branches = await resBranches.json();
+          const defaultBranch = branches.find(b => (b.name || '').toLowerCase().includes('informatik')) || branches[0];
+          if (defaultBranch) {
+            currentMainProgramId = defaultBranch.programId;
+            $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
+          }
+        }
+
+        let classesUrl = '/api/admin/schedules/classes';
+        if (currentMainProgramId) {
+          classesUrl += `?programId=${currentMainProgramId}`;
+        }
+        const res = await fetch(classesUrl, { headers: _headers });
+        if (res.ok) {
+          cachedClasses = await res.json();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      await loadSchedulesFromDb();
+    }
+
+    async function loadRoomsData() {
+      try {
+        const res = await fetch('/api/admin/schedules/rooms', { headers: _headers });
+        if (res.ok) {
+          allRooms = await res.json();
+          const modalSelect = $('#modalConfigSalla');
+          modalSelect.find('option:not(:first)').remove();
+          allRooms.forEach(r => {
+            modalSelect.append(new Option(r.roomName, r.roomId));
           });
         }
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    function ndryshoTipinOrarit(tipi) {
-      if (tipi === "TEST") {
-        $("#modalTitleText").html(
-          '<i class="bi bi-file-earmark-text me-1"></i>Shto Test / Provim ne Orar',
-        );
+    async function loadSchedulesFromDb() {
+      try {
+        let url = '/api/admin/schedules';
+        if (currentMainProgramId) {
+          url += `?programId=${currentMainProgramId}`;
+        }
+        const res = await fetch(url, { headers: _headers });
+        if (res.ok) {
+          cachedSchedules = await res.json();
+          renderFullFtiTimetable();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ==========================================================================
+    // 2. VIZATIMI I TABELES SE ORARIT ZYRTAR TE FTI-SE
+    // ==========================================================================
+    function renderFullFtiTimetable() {
+      const progText = $('#programiSelect option:selected').text() || 'INXHINIERI INFORMATIKE';
+      const vitiVal = $('#vitiSelect').val();
+
+      $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
+
+      let yearSections = [];
+
+      if (vitiVal) {
+        const yNum = parseInt(vitiVal);
+        let groupsForYear = cachedClasses.filter(c => (c.studyYear == yNum));
+        if (groupsForYear.length === 0) {
+          const prefix = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
+          groupsForYear = [
+            { classId: null, name: `${prefix}-A-INF`, studyYear: yNum },
+            { classId: null, name: `${prefix}-B-INF`, studyYear: yNum },
+            { classId: null, name: `${prefix}-C-INF`, studyYear: yNum },
+            { classId: null, name: `${prefix}-D-INF`, studyYear: yNum }
+          ];
+        }
+        yearSections.push({
+          year: yNum,
+          title: `VITI ${yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III')}`,
+          groups: groupsForYear
+        });
       } else {
-        $("#modalTitleText").html(
-          '<i class="bi bi-clock me-1"></i>Shto Mesim ne Orar',
-        );
+        [1, 2, 3].forEach(yNum => {
+          let groupsForYear = cachedClasses.filter(c => {
+            if (c.studyYear) return c.studyYear == yNum;
+            const name = (c.name || '').toUpperCase();
+            if (yNum == 1) return name.startsWith('I-') || name.endsWith(' I') || name.includes('VITI 1') || name.includes('VITI I');
+            if (yNum == 2) return name.startsWith('II-') || name.endsWith(' II') || name.includes('VITI 2') || name.includes('VITI II');
+            if (yNum == 3) return name.startsWith('III-') || name.endsWith(' III') || name.includes('VITI 3') || name.includes('VITI III');
+            return false;
+          });
+
+          if (groupsForYear.length === 0) {
+            const p = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
+            groupsForYear = [
+              { classId: null, name: `${p}-A-INF`, studyYear: yNum },
+              { classId: null, name: `${p}-B-INF`, studyYear: yNum },
+              { classId: null, name: `${p}-C-INF`, studyYear: yNum },
+              { classId: null, name: `${p}-D-INF`, studyYear: yNum }
+            ];
+            if (yNum == 1) {
+              groupsForYear.push({ classId: null, name: `Inxh. Komp I`, studyYear: 1 });
+            }
+          }
+
+          yearSections.push({
+            year: yNum,
+            title: `VITI ${yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III')}`,
+            groups: groupsForYear
+          });
+        });
+      }
+
+      let headRow1 = `<tr>
+        <th rowspan="2" class="fti-th-head" style="width: 26px;"></th>
+        <th rowspan="2" class="fti-th-head fti-th-ora">ORA</th>`;
+
+      yearSections.forEach(sec => {
+        headRow1 += `<th colspan="${sec.groups.length}" class="fti-th-head text-center border-end">${sec.title}</th>`;
+      });
+      headRow1 += `</tr>`;
+
+      let headRow2 = `<tr>`;
+      yearSections.forEach(sec => {
+        sec.groups.forEach(g => {
+          headRow2 += `<th class="fti-th-head fti-th-sub">${g.name}</th>`;
+        });
+      });
+      headRow2 += `</tr>`;
+
+      $('#ftiTableHead').html(headRow1 + headRow2);
+
+      let bodyHtml = '';
+
+      DITET_E_JAVES.forEach(dita => {
+        const totalHoursInDay = ORET_STANDARD.length;
+
+        ORET_STANDARD.forEach((slot, hourIndex) => {
+          bodyHtml += `<tr>`;
+
+          if (hourIndex === 0) {
+            bodyHtml += `<th rowspan="${totalHoursInDay}" class="fti-th-dita">${dita}</th>`;
+          }
+
+          bodyHtml += `<td class="fti-th-ora">${slot.label}</td>`;
+
+          yearSections.forEach(sec => {
+            const currentYear = sec.year;
+
+            const leksionSchedule = cachedSchedules.find(s => {
+              const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
+              const isLek = (s.roleType || '').toUpperCase() === 'LEKSION';
+              const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
+              const yearMatches = !s.studyYear || s.studyYear == currentYear;
+              const allGroupsInYear = !s.classId;
+              return dayMatches && isLek && timeMatches && yearMatches && allGroupsInYear;
+            });
+
+            if (leksionSchedule) {
+              const sallaFormatted = leksionSchedule.roomName ? `<span class="room-badge ms-1">${leksionSchedule.roomName}</span>` : '';
+              bodyHtml += `
+                <td colspan="${sec.groups.length}" class="fti-cell-leksion">
+                  <button type="button" class="btn-delete-cell" onclick="deleteScheduleItem(${leksionSchedule.scheduleId})" title="Fshi orarin">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                  <div class="course-name">(L) ${leksionSchedule.courseName || ''}</div>
+                  <div class="prof-name">${leksionSchedule.professorName || ''} ${sallaFormatted}</div>
+                </td>
+              `;
+            } else {
+              sec.groups.forEach(g => {
+                const matching = cachedSchedules.find(s => {
+                  const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
+                  const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
+                  const groupMatches = s.classId && g.classId && s.classId === g.classId;
+                  const nameMatches = (!s.classId || !g.classId) && s.className && s.className === g.name;
+                  return dayMatches && timeMatches && (groupMatches || nameMatches);
+                });
+
+                if (matching) {
+                  const isLek = (matching.roleType || '').toUpperCase() === 'LEKSION';
+                  const cellClass = isLek ? 'fti-cell-leksion' : 'fti-cell-seminar';
+                  const prefix = isLek ? '(L)' : '(S)';
+                  const sallaFormatted = matching.roomName ? `<span class="room-badge ms-1">${matching.roomName}</span>` : '';
+
+                  bodyHtml += `
+                    <td class="${cellClass}">
+                      <button type="button" class="btn-delete-cell" onclick="deleteScheduleItem(${matching.scheduleId})" title="Fshi orarin">
+                        <i class="bi bi-x-circle-fill"></i>
+                      </button>
+                      <div class="course-name">${prefix} ${matching.courseName || ''}</div>
+                      <div class="prof-name">${matching.professorName || ''} ${sallaFormatted}</div>
+                    </td>
+                  `;
+                } else {
+                  bodyHtml += `<td class="fti-cell-empty"></td>`;
+                }
+              });
+            }
+          });
+
+          bodyHtml += `</tr>`;
+        });
+      });
+
+      $('#ftiTableBody').html(bodyHtml);
+    }
+
+    // ==========================================================================
+    // 3. POPUP-I "SHTO NE ORAR" (HAPI 1 DHE HAPI 2 ME SIDEBAR LENDESH)
+    // ==========================================================================
+    async function openModalShtoOrar() {
+      goToModalStep1();
+
+      try {
+        const res = await fetch('/api/admin/schedules/departments', { headers: _headers });
+        if (res.ok) {
+          const depts = await res.json();
+          const select = $('#modalDepartamenti');
+          select.find('option:not(:first)').remove();
+          depts.forEach(d => select.append(new Option(d.name, d.id)));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      // Parambushim me filtrat e faqes nese ka
+      const curDep = $('#cikliSelect').val();
+      if (curDep) {
+        $('#modalDepartamenti').val(curDep);
+        await onModalDepartmentChange();
+      }
+
+      modalShtoOrarInstance.show();
+    }
+
+    function goToModalStep1() {
+      $('#modalScheduleDialog').removeClass('modal-xl modal-lg').addClass('modal-md').css('max-width', '');
+      $('#modalStep1').removeClass('d-none');
+      $('#modalStep2').addClass('d-none');
+      $('#modalTitleText').text('');
+    }
+
+    async function onModalDepartmentChange() {
+      const depId = $('#modalDepartamenti').val();
+      const nivel = $('#modalNiveli').val();
+      const selectNiveli = $('#modalNiveli');
+      const selectDega = $('#modalDega');
+      selectNiveli.find('option:not(:first)').remove();
+      selectDega.find('option:not(:first)').remove();
+
+      if (!depId) {
+        selectNiveli.prop('disabled', true);
+        selectDega.prop('disabled', true);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/schedules/levels?departmentId=${depId}`, { headers: _headers });
+        if (res.ok) {
+          const levels = await res.json();
+          levels.forEach(lvl => selectNiveli.append(new Option(lvl, lvl)));
+          selectNiveli.prop('disabled', false);
+
+          if (levels.length > 0) {
+            selectNiveli.val(levels[0]);
+            await onModalNivelChange();
+          }
+        }
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    function ndryshoCiklin() {
-      let cikli = $("#cikliSelect").val();
-      if (cikli === "master") {
-        $("#vitiSelect").html(`
-                    <option value="1">Master Viti I (Semestri 1)</option>
-                    <option value="2">Master Viti II (Semestri 1)</option>
-                `);
-      } else {
-        $("#vitiSelect").html(`
-                    <option value="1" selected>Viti I (Semestri 1)</option>
-                    <option value="2">Viti II (Semestri 1)</option>
-                    <option value="3">Viti III (Semestri 1)</option>
-                `);
+    async function onModalNivelChange() {
+      const depId = $('#modalDepartamenti').val();
+      const nivel = $('#modalNiveli').val();
+      const selectDega = $('#modalDega');
+      selectDega.find('option:not(:first)').remove();
+
+      if (!nivel) {
+        selectDega.prop('disabled', true);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/schedules/branches?departmentId=${depId}&nivel=${encodeURIComponent(nivel)}`, { headers: _headers });
+        if (res.ok) {
+          const branches = await res.json();
+          branches.forEach(b => selectDega.append(new Option(b.name, b.programId)));
+          selectDega.prop('disabled', false);
+
+          if (branches.length > 0) {
+            selectDega.val(branches[0].programId);
+            await onModalDegaChange();
+          }
+        }
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    // FUNKSIONI PER IMPORTIMIN E EXCEL
-    function importoExcel(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+    async function onModalDegaChange() {
+      const progId = $('#modalDega').val();
+      const selectViti = $('#modalViti');
+      selectViti.find('option:not(:first)').remove();
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      if (!progId) {
+        selectViti.prop('disabled', true);
+        return;
+      }
 
-        console.log("Te dhenat nga Excel:", excelData);
-        alert("Skedari Excel u ngarkua me sukses!");
+      try {
+        const res = await fetch(`/api/admin/schedules/years?programId=${progId}`, { headers: _headers });
+        if (res.ok) {
+          const years = await res.json();
+          years.forEach(y => selectViti.append(new Option(`Viti ${y}`, y)));
+          selectViti.prop('disabled', false);
+
+          if (years.length > 0) {
+            selectViti.val(years[0]);
+            await onModalVitiChange();
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function onModalVitiChange() {
+      const progId = $('#modalDega').val();
+      const studyYear = $('#modalViti').val();
+      const selectKlasa = $('#modalKlasa');
+      selectKlasa.empty().append(new Option("-- Zgjidh Grupin --", ""));
+      selectKlasa.find('option:first').prop('disabled', true);
+
+      if (!progId) {
+        selectKlasa.prop('disabled', true);
+        return;
+      }
+
+      try {
+        let url = `/api/admin/schedules/classes?programId=${progId}` + (studyYear ? `&studyYear=${studyYear}` : '');
+        const resCls = await fetch(url, { headers: _headers });
+        if (resCls.ok) {
+          const classes = await resCls.json();
+          classes.forEach(cl => selectKlasa.append(new Option(cl.name, cl.classId)));
+          selectKlasa.prop('disabled', false);
+          if (classes.length > 0) {
+            selectKlasa.val(classes[0].classId);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ==========================================================================
+    // KALIMI NE HAPIN 2 (NEXT) BRENDA POPUP-IT
+    // ==========================================================================
+    async function goToModalStep2() {
+      const progId = $('#modalDega').val();
+      const studyYear = $('#modalViti').val();
+      const classId = $('#modalKlasa').val();
+      const degaName = $('#modalDega option:selected').text();
+      const vitiText = $('#modalViti option:selected').text();
+      const klasaText = $('#modalKlasa option:selected').text();
+
+      if (!progId || !studyYear || !classId) {
+        alert("Ju lutem zgjidhni Degen, Vitin dhe Grupin ne Hapin 1.");
+        return;
+      }
+
+      const semestri = $('#modalSemestri').val() || '2';
+      $('#modalSummaryInfo').text(`${degaName} - ${vitiText} (${klasaText})`);
+
+      // Ngarkojme te gjitha lendet per ate dege dhe vit
+      try {
+        const res = await fetch(`/api/admin/schedules/courses?programId=${progId}&studyYear=${studyYear}`, { headers: _headers });
+        if (res.ok) {
+          modalCoursesList = await res.json();
+          renderModalCoursesSidebar(modalCoursesList);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      $('#modalScheduleDialog').removeClass('modal-md modal-xl modal-lg').css('max-width', '540px');
+      $('#modalStep1').addClass('d-none');
+      $('#modalStep2').removeClass('d-none');
+      $('#modalTitleText').text('');
+    }
+
+    function renderModalCoursesSidebar(courses) {
+      const container = $('#modalCoursesListContainer');
+      container.empty();
+      $('#modalCoursesBadge').text(`${courses.length} lende`);
+
+      if (courses.length === 0) {
+        container.html('<div class="text-muted fs-8 text-center py-4">Nuk ka lende te regjistruara per kete vit.</div>');
+        return;
+      }
+
+      courses.forEach(c => {
+        const item = $(`
+          <div class="modal-course-item" data-course-id="${c.courseId}" onclick="selectCourseInModal(${c.courseId})">
+            <span style="font-size: 0.78rem; font-weight: 500; color: #1e293b;">${c.name}</span>
+          </div>
+        `);
+        container.append(item);
+      });
+
+      if (courses.length > 0) {
+        selectCourseInModal(courses[0].courseId);
+      }
+    }
+
+    async function selectCourseInModal(courseId) {
+      activeModalCourse = modalCoursesList.find(c => c.courseId == courseId);
+      if (!activeModalCourse) return;
+
+      $('.modal-course-item').removeClass('active');
+      $(`.modal-course-item[data-course-id="${courseId}"]`).addClass('active');
+
+      $('#modalConfigCourseName').text(activeModalCourse.name);
+      $('#modalConfigCredits').text(`${activeModalCourse.credits || 0} Kredite`);
+      $('#modalAlertSaveSuccess').addClass('d-none').text('');
+      $('#modalAlertSaveError').addClass('d-none').text('');
+
+      await updateModalProfessorDefault();
+      triggerModalRoomCheck();
+    }
+
+    async function onModalTypeChange() {
+      await updateModalProfessorDefault();
+      triggerModalRoomCheck();
+    }
+
+    async function updateModalProfessorDefault() {
+      if (!activeModalCourse) return;
+      const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
+      const profNameInput = $('#modalConfigPedagoguName');
+      const profIdInput = $('#modalConfigPedagogu');
+
+      profNameInput.val('');
+      profIdInput.val('');
+
+      try {
+        const res = await fetch(`/api/admin/schedules/professors?courseId=${activeModalCourse.courseId}&roleType=${roleType}`, { headers: _headers });
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.professors || [];
+          const defaultProf = data.defaultProfessor;
+
+          if (defaultProf && defaultProf.professorId) {
+            profNameInput.val(defaultProf.name || '');
+            profIdInput.val(defaultProf.professorId);
+          } else if (list.length > 0) {
+            profNameInput.val(list[0].name || '');
+            profIdInput.val(list[0].professorId);
+          } else {
+            // Ne rast se nuk ka, lihet thjesht BOSH
+            profNameInput.val('');
+            profIdInput.val('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        profNameInput.val('');
+        profIdInput.val('');
+      }
+
+      // Nese lenda nuk ka pedagog, butoni "Ruaj ne Orar" çaktivizohet
+      const hasProf = !!profIdInput.val();
+      $('#btnModalSaveSchedule').prop('disabled', !hasProf).toggleClass('opacity-50', !hasProf);
+    }
+
+    let modalRoomCheckTimeout = null;
+    function triggerModalRoomCheck() {
+      clearTimeout(modalRoomCheckTimeout);
+      modalRoomCheckTimeout = setTimeout(async () => {
+        const roomId = $('#modalConfigSalla').val();
+        const profId = $('#modalConfigPedagogu').val();
+        const dita = $('#modalConfigDita').val();
+        const start = $('#modalConfigOraFillimit').val();
+        const end = $('#modalConfigOraMbarimit').val();
+        const roomAlert = $('#modalConfigRoomAlert');
+        const profAlert = $('#modalConfigProfessorAlert');
+        const saveBtn = $('#btnModalSaveSchedule');
+
+        if (!dita || !start || !end) {
+          roomAlert.addClass('d-none').text('');
+          profAlert.addClass('d-none').text('');
+          return;
+        }
+
+        let params = `dayOfWeek=${encodeURIComponent(dita)}&startTime=${encodeURIComponent(start)}&endTime=${encodeURIComponent(end)}`;
+        if (roomId) params += `&roomId=${roomId}`;
+        if (profId) params += `&professorId=${profId}`;
+
+        try {
+          const url = `/api/admin/schedules/check-room?${params}`;
+          const res = await fetch(url, { headers: _headers });
+          if (res.ok) {
+            const data = await res.json();
+
+            // 1. Kontrolli i Sallës - Shfaqet VETËM nëse salla është e zënë në atë ditë dhe orar
+            if (roomId && !data.roomAvailable && data.roomConflictMessage) {
+              roomAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.roomConflictMessage);
+            } else {
+              roomAlert.addClass('d-none').text('');
+            }
+
+            // 2. Kontrolli i Pedagogut - Shfaqet VETËM nëse pedagogu ka mësim në atë ditë dhe orar
+            if (profId && !data.professorAvailable && data.professorConflictMessage) {
+              profAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.professorConflictMessage);
+            } else {
+              profAlert.addClass('d-none').text('');
+            }
+
+            // 3. Butoni Ruaj aktivizohet vetëm nëse nuk ka konflikt dhe janë zgjedhur të dhënat
+            const isAvailable = data.available !== false;
+            const canSave = isAvailable && !!profId && !!roomId;
+            saveBtn.prop('disabled', !canSave).toggleClass('opacity-50', !canSave).css('cursor', canSave ? 'pointer' : 'not-allowed');
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }, 200);
+    }
+
+    async function saveModalSchedule() {
+      if (!activeModalCourse) return;
+
+      const profId = $('#modalConfigPedagogu').val();
+      const roomId = $('#modalConfigSalla').val();
+      const dita = $('#modalConfigDita').val();
+      const start = $('#modalConfigOraFillimit').val();
+      const end = $('#modalConfigOraMbarimit').val();
+      const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
+      const classIdVal = $('#modalKlasa').val() ? parseInt($('#modalKlasa').val()) : null;
+      const semestri = $('#modalSemestri').val() || '2';
+
+      const successAlert = $('#modalAlertSaveSuccess');
+      const errorAlert = $('#modalAlertSaveError');
+      successAlert.addClass('d-none').text('');
+      errorAlert.addClass('d-none').text('');
+
+      if (!profId) {
+        errorAlert.removeClass('d-none').text('Kjo lende nuk ka pedagog te caktuar. Nuk mund te shtohet ne orar.');
+        return;
+      }
+
+      if (!roomId) {
+        errorAlert.removeClass('d-none').text('Ju lutem zgjidhni sallen me pare.');
+        return;
+      }
+
+      const reqData = {
+        courseId: activeModalCourse.courseId,
+        roleType: roleType,
+        professorId: profId ? parseInt(profId) : null,
+        classId: classIdVal,
+        dayOfWeek: dita,
+        startTime: start,
+        endTime: end,
+        roomId: parseInt(roomId),
+        semester: semestri,
+        academicYear: '2025-2026'
       };
 
-      reader.readAsArrayBuffer(file);
+      try {
+        const res = await fetch('/api/admin/schedules', {
+          method: 'POST',
+          headers: _headers,
+          body: JSON.stringify(reqData)
+        });
+
+        if (res.ok) {
+          await loadSchedulesFromDb();
+          modalShtoOrarInstance.hide();
+        } else {
+          const err = await res.json();
+          errorAlert.removeClass('d-none').text(err.message || 'Gabim gjate ruajtjes.');
+        }
+      } catch (err) {
+        errorAlert.removeClass('d-none').text('Gabim gjate komunikimit me serverin.');
+      }
+    }
+
+    async function deleteScheduleItem(id) {
+      if (!confirm("A jeni i sigurt qe deshironi ta fshini kete orar?")) return;
+      try {
+        const res = await fetch(`/api/admin/schedules/${id}`, {
+          method: 'DELETE',
+          headers: _headers
+        });
+        if (res.ok) {
+          await loadSchedulesFromDb();
+        } else {
+          alert("Gabim gjate fshirjes se orarit.");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function shkarkoOrarinPdf() {
+      const btn = $('#btnShkarkoPdf');
+      const origHtml = btn.html();
+      btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Duke shkarkuar orarin...');
+
+      try {
+        const element = document.getElementById('ftiScheduleExportArea');
+        if (!element) return;
+
+        // Klonojme elementin per te hequr kufizimet dhe per render kompakt ne 1 faqe
+        const clone = element.cloneNode(true);
+        $(clone).find('.btn-delete-cell').remove();
+
+        // Heqim kufizimet e lartesise/scroll-it
+        $(clone).find('.fti-table-container').css({
+          'max-height': 'none',
+          'height': 'auto',
+          'overflow': 'visible',
+          'box-shadow': 'none',
+          'border': 'none'
+        });
+
+        // Stil me kompakt qe te futet bukur ne 1 faqe
+        $(clone).find('.fti-timetable').css({
+          'font-size': '0.58rem',
+          'line-height': '1.05'
+        });
+        $(clone).find('.fti-timetable th, .fti-timetable td').css({
+          'padding': '1px 2px',
+          'height': 'auto'
+        });
+        $(clone).find('.fti-schedule-cell').css({
+          'padding': '1px 2px',
+          'font-size': '0.56rem'
+        });
+        $(clone).find('.fti-schedule-header').css({
+          'padding': '2px 0',
+          'margin-bottom': '2px'
+        });
+        $(clone).find('.fti-schedule-header .schedule-title').css({
+          'font-size': '0.76rem',
+          'letter-spacing': '0.3px'
+        });
+
+        $(clone).find('.fti-th-head').css({
+          'position': 'static',
+          'top': 'auto'
+        });
+
+        $(clone).css({
+          'position': 'absolute',
+          'left': '-9999px',
+          'top': '0',
+          'width': '1320px',
+          'height': 'auto',
+          'max-height': 'none',
+          'overflow': 'visible',
+          'background-color': '#ffffff'
+        });
+        document.body.appendChild(clone);
+
+        const fullCanvas = await html2canvas(clone, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          windowWidth: 1400
+        });
+
+        document.body.removeChild(clone);
+
+        // Krijojme dokumentin me fiks 1 faqe A4 Landscape
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const pageWidth = pdf.internal.pageSize.getWidth();   // 297 mm
+        const pageHeight = pdf.internal.pageSize.getHeight(); // 210 mm
+        const margin = 4;
+        const maxW = pageWidth - (margin * 2);                // 289 mm
+        const maxH = pageHeight - (margin * 2);               // 202 mm
+
+        // Llogarisim permasa qe futen 100% brenda 1 faqeje te vetme
+        let imgW = maxW;
+        let imgH = (fullCanvas.height * imgW) / fullCanvas.width;
+
+        if (imgH > maxH) {
+          imgH = maxH;
+          imgW = (fullCanvas.width * imgH) / fullCanvas.height;
+        }
+
+        const posX = margin + (maxW - imgW) / 2;
+        const posY = margin + (maxH - imgH) / 2;
+
+        const imgData = fullCanvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+
+        const rawTitle = ($('#ftiScheduleTitle').text() || 'Orari_FTI').trim();
+        const safeTitle = rawTitle.replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_');
+        pdf.save(`${safeTitle || 'Orari_FTI'}.pdf`);
+      } catch (err) {
+        console.error('Gabim gjate shkarkimit te PDF:', err);
+        alert('Gabim gjate gjenerimit te PDF: ' + err.message);
+      } finally {
+        btn.prop('disabled', false).html(origHtml);
+      }
     }
   </script>
 </body>

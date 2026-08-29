@@ -27,22 +27,22 @@ public class VerificationService {
     public User verifyCode(Integer userId, String enteredCode) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Përdoruesi nuk u gjet."));
+                .orElseThrow(() -> new RuntimeException("Perdoruesi nuk u gjet."));
 
         if ("Y".equals(user.getVerified())) {
-            throw new IllegalArgumentException("Llogaria tashmë është aktive. Hyni me login.");
+            throw new IllegalArgumentException("Llogaria tashme eshte aktive. Hyni me login.");
         }
 
         if (user.getVerificationCode() == null || user.getCodeCreatedAt() == null) {
-            throw new IllegalArgumentException("Nuk ka kod aktiv. Regjistrohuni sërisht.");
+            throw new IllegalArgumentException("Nuk ka kod aktiv. Regjistrohuni serisht.");
         }
 
         if (LocalDateTime.now().isAfter(user.getCodeCreatedAt().plusMinutes(15))) {
-            throw new IllegalArgumentException("Kodi ka skaduar (15 min). Klikoni 'Rindërgo' për kod të ri.");
+            throw new IllegalArgumentException("Kodi ka skaduar (15 min). Klikoni 'Rindergo' per kod te ri.");
         }
 
         if (!user.getVerificationCode().equals(enteredCode.trim())) {
-            throw new IllegalArgumentException("Kodi është i pasaktë. Provoni sërisht.");
+            throw new IllegalArgumentException("Kodi eshte i pasakte. Provoni serisht.");
         }
 
         user.setVerified("Y");
@@ -68,10 +68,10 @@ public class VerificationService {
     public void resendCode(Integer userId) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Përdoruesi nuk u gjet."));
+                .orElseThrow(() -> new RuntimeException("Perdoruesi nuk u gjet."));
 
         if ("Y".equals(user.getVerified())) {
-            throw new IllegalArgumentException("Llogaria tashmë është aktive.");
+            throw new IllegalArgumentException("Llogaria tashme eshte aktive.");
         }
 
         String newCode = String.valueOf(100000 + new SecureRandom().nextInt(900000));

@@ -124,11 +124,11 @@ public class AdminStudentService {
         String cleanMatrikulimi = req.getNrMatrikulimit().trim();
 
         if (enrollmentRepo.existsByNrMatrikulimitIgnoreCase(cleanMatrikulimi) || studentRepo.existsByNrMatrikulimitIgnoreCase(cleanMatrikulimi)) {
-            throw new IllegalArgumentException("Studenti me nr. matrikulimit '" + cleanMatrikulimi + "' ekziston tashmë në sistem.");
+            throw new IllegalArgumentException("Studenti me nr. matrikulimit '" + cleanMatrikulimi + "' ekziston tashme ne sistem.");
         }
 
         if (enrollmentRepo.existsByEmailIgnoreCase(cleanEmail) || userRepo.existsByEmail(cleanEmail)) {
-            throw new IllegalArgumentException("Studenti me email '" + cleanEmail + "' ekziston tashmë në sistem.");
+            throw new IllegalArgumentException("Studenti me email '" + cleanEmail + "' ekziston tashme ne sistem.");
         }
 
         Program program = null;

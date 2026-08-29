@@ -19,6 +19,13 @@ public interface ProgramRepository extends JpaRepository<Program, Integer> {
 
     Optional<Program> findFirstByNivel(String nivel);
 
+    List<Program> findByDepartmentDepartmentId(Integer departmentId);
+
+    List<Program> findByDepartmentDepartmentIdAndNivelIgnoreCase(Integer departmentId, String nivel);
+
+    @Query("SELECT DISTINCT p.nivel FROM Program p WHERE (:departmentId IS NULL OR p.department.departmentId = :departmentId) AND p.nivel IS NOT NULL ORDER BY p.nivel")
+    List<String> findDistinctNiveleByDepartment(@Param("departmentId") Integer departmentId);
+
     @Query("SELECT DISTINCT p.nivel FROM Program p WHERE p.nivel IS NOT NULL ORDER BY p.nivel")
     List<String> findDistinctNivele();
 

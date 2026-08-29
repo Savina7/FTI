@@ -50,12 +50,12 @@ public class StudentController {
         boolean isImprovement = payload.get("isImprovement") != null && Boolean.parseBoolean(payload.get("isImprovement").toString());
 
         if (courseId == null) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Mungon ID e lëndës."));
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Mungon ID e lendes."));
         }
 
         try {
             studentService.toggleImprovementRequest(userId, email, courseId, isImprovement);
-            return ResponseEntity.ok(java.util.Map.of("success", true, "message", isImprovement ? "Kërkesa për përmirësim u dërgua me sukses." : "Kërkesa u anulua."));
+            return ResponseEntity.ok(java.util.Map.of("success", true, "message", isImprovement ? "Kerkesa per permiresim u dergua me sukses." : "Kerkesa u anulua."));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
         }

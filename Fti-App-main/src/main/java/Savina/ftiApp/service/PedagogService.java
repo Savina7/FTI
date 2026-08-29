@@ -40,9 +40,9 @@ public class PedagogService {
 
     @Transactional(readOnly = true)
     public PedagogOptionsDto getPedagogOptions(Integer userId, String email) {
-        log.info("[getPedagogOptions] Filloi kërkimi për userId={}, email='{}'", userId, email);
+        log.info("[getPedagogOptions] Filloi kerkimi per userId={}, email='{}'", userId, email);
 
-        // 1. Gjejmë User në DB
+        // 1. Gjejme User ne DB
         User user = null;
         if (userId != null) {
             user = userRepo.findById(userId).orElse(null);
@@ -57,10 +57,10 @@ public class PedagogService {
             log.info("[getPedagogOptions] U gjet User: ID={}, Email='{}', Emri='{}', Mbiemri='{}'",
                     user.getUserId(), user.getEmail(), user.getEmri(), user.getMbiemri());
         } else {
-            log.warn("[getPedagogOptions] Nuk u gjet asnjë User në tabelën USERS për userId={}, email='{}'", userId, email);
+            log.warn("[getPedagogOptions] Nuk u gjet asnje User ne tabelen USERS per userId={}, email='{}'", userId, email);
         }
 
-        // 2. Gjejmë Professor në DB
+        // 2. Gjejme Professor ne DB
         Professor professor = null;
         if (user != null) {
             final Integer targetUserId = user.getUserId();
@@ -74,7 +74,7 @@ public class PedagogService {
         }
 
 
-        // Kërkim fallback në tabelën PROFESSORS duke krahasuar çdo rekord
+        // Kerkim fallback ne tabelen PROFESSORS duke krahasuar çdo rekord
         if (professor == null) {
             List<Professor> allProfessors = professorRepo.findAll();
             for (Professor p : allProfessors) {
@@ -91,7 +91,7 @@ public class PedagogService {
             }
         }
         if (professor == null && user != null) {
-            log.info("[getPedagogOptions] Po krijohet automatikisht rekordi në PROFESSORS për User: ID={}, Email='{}'",
+            log.info("[getPedagogOptions] Po krijohet automatikisht rekordi ne PROFESSORS per User: ID={}, Email='{}'",
                     user.getUserId(), user.getEmail());
             Department defaultDept = departmentRepo.findAll().stream().findFirst().orElse(null);
             professor = Professor.builder()
@@ -100,7 +100,7 @@ public class PedagogService {
                     .department(defaultDept)
                     .build();
             professor = professorRepo.save(professor);
-            log.info("[getPedagogOptions] U krijua me sukses rekordi në PROFESSORS me ID={} për User ID={}",
+            log.info("[getPedagogOptions] U krijua me sukses rekordi ne PROFESSORS me ID={} per User ID={}",
                     professor.getProfessorId(), user.getUserId());
         }
 
@@ -108,10 +108,10 @@ public class PedagogService {
             log.info("[getPedagogOptions] U gjet/krijua Professor: ID={}, User_ID={}",
                     professor.getProfessorId(), professor.getUser() != null ? professor.getUser().getUserId() : "null");
         } else {
-            log.error("[getPedagogOptions] GABIM: Nuk u gjet asnjë User dhe asnjë Professor për email='{}', userId={}", email, userId);
+            log.error("[getPedagogOptions] GABIM: Nuk u gjet asnje User dhe asnje Professor per email='{}', userId={}", email, userId);
         }
 
-        // 3. Përcaktojmë emrin dhe email-in e pedagogut
+        // 3. Percaktojme emrin dhe email-in e pedagogut
         String profName = "";
         String profEmail = "";
 
@@ -130,9 +130,9 @@ public class PedagogService {
             profName = "Profesor";
         }
 
-        log.info("[getPedagogOptions] Emri përfundimtar i pedagogut: '{}' (email: '{}')", profName, profEmail);
+        log.info("[getPedagogOptions] Emri perfundimtar i pedagogut: '{}' (email: '{}')", profName, profEmail);
 
-        // 4. Marrim VETËM lëndët e caktuara për këtë pedagog nga TEACHING_COURSES
+        // 4. Marrim VETEM lendet e caktuara per kete pedagog nga TEACHING_COURSES
         List<TeachingCourse> teachingCourses = Collections.emptyList();
         if (professor != null) {
             try {
@@ -140,7 +140,7 @@ public class PedagogService {
             } catch (Exception ex) {
                 teachingCourses = teachingCourseRepo.findByProfessorProfessorId(professor.getProfessorId());
             }
-            log.info("[getPedagogOptions] Pedagogu ID={} ka gjithsej {} lëndë/orë në TEACHING_COURSES",
+            log.info("[getPedagogOptions] Pedagogu ID={} ka gjithsej {} lende/ore ne TEACHING_COURSES",
                     professor.getProfessorId(), teachingCourses.size());
         }
 
@@ -169,7 +169,7 @@ public class PedagogService {
         boolean isLektor = false;
         boolean hasRegistry = false;
 
-        // Mbushim VETËM të dhënat e këtij pedagogu
+        // Mbushim VETEM te dhenat e ketij pedagogu
         Map<Integer, Set<String>> courseBranchesMap = new HashMap<>();
         Map<Integer, Set<Program>> courseProgramsMap = new HashMap<>();
 
@@ -253,10 +253,10 @@ public class PedagogService {
                 }
             }
         } else {
-            log.warn("[getPedagogOptions] Pedagogu '{}' nuk ka asnjë lëndë të caktuar në tabelën TEACHING_COURSES.", profName);
+            log.warn("[getPedagogOptions] Pedagogu '{}' nuk ka asnje lende te caktuar ne tabelen TEACHING_COURSES.", profName);
         }
 
-        // Nëse departamenti mungon nga kurset por profesori ka departament të caktuar
+        // Nese departamenti mungon nga kurset por profesori ka departament te caktuar
         if (departmentOptions.isEmpty() && professor != null && professor.getDepartment() != null) {
             Department d = professor.getDepartment();
             if (d.getDepartmentId() != null && !seenDeptIds.contains(d.getDepartmentId())) {
@@ -267,7 +267,7 @@ public class PedagogService {
 
         List<String> typesList = new ArrayList<>(typesSet);
 
-        // Programet reale të këtij pedagogu
+        // Programet reale te ketij pedagogu
         List<PedagogOptionsDto.ProgramOptionDto> programOptions = new ArrayList<>();
         Set<Integer> seenProgIds = new HashSet<>();
         for (Set<Program> progs : courseProgramsMap.values()) {
@@ -285,7 +285,7 @@ public class PedagogService {
             }
         }
 
-        log.info("[getPedagogOptions] Përfundoi: Kurse={}, Tipa={}, Departamente={}, Klasa={}, isLektor={}, hasRegistry={}",
+        log.info("[getPedagogOptions] Perfundoi: Kurse={}, Tipa={}, Departamente={}, Klasa={}, isLektor={}, hasRegistry={}",
                 courseOptions.size(), typesList, departmentOptions.size(), classOptions.size(), isLektor, hasRegistry);
 
         return PedagogOptionsDto.builder()
@@ -599,10 +599,10 @@ public class PedagogService {
                         ? dept.getEmerDepartamenti()
                         : "Departamenti i Inxhinierise Kompjuterike";
 
-                // 1. Përcakto Viti i Studimit të lëndës (p.sh. Viti 3 për Sistemet Operative)
+                // 1. Percakto Viti i Studimit te lendes (p.sh. Viti 3 per Sistemet Operative)
                 Integer courseStudyYear = (course != null && course.getStudyYear() != null) ? course.getStudyYear() : null;
 
-                // 2. Merr klasat e lidhura me lëndën (TeachingCourse)
+                // 2. Merr klasat e lidhura me lenden (TeachingCourse)
                 List<TeachingCourse> tcs = (course != null) ? teachingCourseRepo.findByCourseCourseId(course.getCourseId()) : Collections.emptyList();
                 Set<Integer> classIds = new HashSet<>();
                 for (TeachingCourse tc : tcs) {
@@ -618,10 +618,10 @@ public class PedagogService {
                     }
                 }
 
-                // 3. Merr studentët realë të lidhur me këtë lëndë nga DB
+                // 3. Merr studentet reale te lidhur me kete lende nga DB
                 Map<Integer, Student> targetStudentsMap = new LinkedHashMap<>();
 
-                // A) Studentët nga klasat e TeachingCourses të kësaj lënde
+                // A) Studentet nga klasat e TeachingCourses te kesaj lende
                 if (!classIds.isEmpty()) {
                     List<Student> studentsInClasses = studentRepo.findByClasses_ClassIdIn(classIds);
                     for (Student s : studentsInClasses) {
@@ -631,7 +631,7 @@ public class PedagogService {
                     }
                 }
 
-                // B) Nëse nuk ka klasa të lidhura në teaching_courses, merr studentët e programit
+                // B) Nese nuk ka klasa te lidhura ne teaching_courses, merr studentet e programit
                 if (targetStudentsMap.isEmpty() && course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
                     List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
                     for (Student s : progStudents) {
@@ -641,7 +641,7 @@ public class PedagogService {
                     }
                 }
 
-                // C) Merr notat reale të regjistruara për këtë lëndë
+                // C) Merr notat reale te regjistruara per kete lende
                 List<Grade> grades = (course != null) ? gradeRepo.findByTeachingCourse_Course_CourseId(course.getCourseId()) : Collections.emptyList();
                 Map<Integer, Grade> gradeByStudentId = new HashMap<>();
                 for (Grade g : grades) {
@@ -651,14 +651,14 @@ public class PedagogService {
                     }
                 }
 
-                // 4. Filtro studentët sipas Degës DHE Vitit të Studimit të lëndës
+                // 4. Filtro studentet sipas Deges DHE Vitit te Studimit te lendes
                 List<Student> finalStudents = new ArrayList<>();
                 String degaLower = (dega != null && !dega.isBlank() && !dega.toLowerCase().contains("gjith"))
                         ? dega.trim().toLowerCase()
                         : null;
 
                 for (Student s : targetStudentsMap.values()) {
-                    // A) Verifikimi i Degës
+                    // A) Verifikimi i Deges
                     boolean matchDega = true;
                     if (degaLower != null) {
                         boolean matchProg = (s.getProgram() != null && s.getProgram().getSpecializimi() != null
@@ -670,7 +670,7 @@ public class PedagogService {
                         matchDega = (matchProg || matchClassProg || matchClassName);
                     }
 
-                    // B) Verifikimi i Vitit të Studimit (p.sh. Lënda e vitit 3 merr VETËM studentët e vitit 3)
+                    // B) Verifikimi i Vitit te Studimit (p.sh. Lenda e vitit 3 merr VETEM studentet e vitit 3)
                     boolean matchYear = true;
                     if (courseStudyYear != null) {
                         Integer sYear = s.getVitStudimit();
@@ -767,7 +767,7 @@ public class PedagogService {
                         ? BigDecimal.valueOf(sumPassing / passing).setScale(2, RoundingMode.HALF_UP).doubleValue()
                         : (allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(allGradesList.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
 
-                // Kalueshmëria = % e studentëve që kanë marrë një notë dhe e kanë mbi 4 (>= 5)
+                // Kalueshmeria = % e studenteve qe kane marre nje note dhe e kane mbi 4 (>= 5)
                 double kalueshmeria = (!allGradesList.isEmpty())
                         ? BigDecimal.valueOf(((double) passing / allGradesList.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
                         : 0.0;

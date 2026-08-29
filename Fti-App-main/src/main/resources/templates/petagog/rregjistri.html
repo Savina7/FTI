@@ -545,7 +545,7 @@
                 : (pedagogOptionsData && pedagogOptionsData.courses ? pedagogOptionsData.courses : []);
 
             if (!listToUse || listToUse.length === 0) {
-                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lëndë të caktuara</option>';
+                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lende te caktuara</option>';
                 populateClasses([]);
                 return;
             }
@@ -907,7 +907,7 @@
         }
 
         // 4. RUAJTJA E NOTAVE & MUNGESAVE ME API
-        function showSuccessSticker(title = 'Notat u ruajtën me sukses!') {
+        function showSuccessSticker(title = 'Notat u ruajten me sukses!') {
             let modal = document.getElementById('successStickerModal');
             if (!modal) {
                 modal = document.createElement('div');
@@ -918,7 +918,7 @@
                         <div style="width:84px; height:84px; background:#dcfce7; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px; box-shadow:0 0 0 8px #f0fdf4;">
                             <i class="bi bi-check-lg" style="font-size:3.3rem; color:#16a34a; line-height:1; font-weight:900;"></i>
                         </div>
-                        <h4 style="font-weight:700; color:#0f172a; margin-bottom:0;" id="stickerTitle">Notat u ruajtën me sukses!</h4>
+                        <h4 style="font-weight:700; color:#0f172a; margin-bottom:0;" id="stickerTitle">Notat u ruajten me sukses!</h4>
                     </div>
                 `;
                 document.body.appendChild(modal);
@@ -1008,7 +1008,7 @@
 
             if (kaNoteJashteLimitit) {
                 if (firstInvalidInput) firstInvalidInput.focus();
-                showStatusMessage('statusNotatMsg', 'Notat nuk u ruajtën!', false);
+                showStatusMessage('statusNotatMsg', 'Notat nuk u ruajten!', false);
                 return;
             }
 
@@ -1024,15 +1024,15 @@
                 });
 
                 if (res.ok) {
-                    showSuccessSticker('Notat u ruajtën me sukses!');
+                    showSuccessSticker('Notat u ruajten me sukses!');
                 } else {
-                    let errMsg = 'Gabim gjatë ruajtjes së notave.';
+                    let errMsg = 'Gabim gjate ruajtjes se notave.';
                     try { const err = await res.json(); if (err.message) errMsg = err.message; } catch (_) { }
                     showStatusMessage('statusNotatMsg', errMsg, false);
                 }
             } catch (e) {
                 console.error("Gabim ruajtje notash:", e);
-                showStatusMessage('statusNotatMsg', 'Gabim lidhjeje gjatë ruajtjes së notave.', false);
+                showStatusMessage('statusNotatMsg', 'Gabim lidhjeje gjate ruajtjes se notave.', false);
             }
         }
 
@@ -1080,9 +1080,9 @@
                 });
 
                 if (res.ok) {
-                    showSuccessSticker('Mungesat u ruajtën me sukses!');
+                    showSuccessSticker('Mungesat u ruajten me sukses!');
                 } else {
-                    let errMsg = 'Gabim gjatë ruajtjes së mungesave.';
+                    let errMsg = 'Gabim gjate ruajtjes se mungesave.';
                     try {
                         const err = await res.json();
                         if (err.message) errMsg = err.message;
@@ -1091,7 +1091,7 @@
                 }
             } catch (e) {
                 console.error("Gabim ruajtje mungesash:", e);
-                showStatusMessage('statusMungesatMsg', 'Gabim lidhjeje gjatë ruajtjes së mungesave.', false);
+                showStatusMessage('statusMungesatMsg', 'Gabim lidhjeje gjate ruajtjes se mungesave.', false);
             }
         }
 
@@ -1139,7 +1139,7 @@
             });
 
             if (data.length <= 1) {
-                alert("Nuk ka të dhëna për filtrin e zgjedhur.");
+                alert("Nuk ka te dhena per filtrin e zgjedhur.");
                 return;
             }
 
@@ -1153,7 +1153,7 @@
             if (!str) return '';
             return str.toString()
                 .toLowerCase()
-                .replace(/ë/g, 'e')
+                .replace(/e/g, 'e')
                 .replace(/ç/g, 'c')
                 .replace(/[^a-z0-9\s]/g, '')
                 .replace(/\s+/g, ' ')
@@ -1195,17 +1195,17 @@
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
 
                     if (!jsonData || jsonData.length === 0) {
-                        alert("Skedari Excel është bosh.");
+                        alert("Skedari Excel eshte bosh.");
                         return;
                     }
 
                     const rows = document.querySelectorAll('#rregjistriTableBody tr');
                     if (rows.length === 0) {
-                        alert("Ju lutem zgjidhni dhe kërkoni fillimisht lëndën dhe klasën në faqe.");
+                        alert("Ju lutem zgjidhni dhe kerkoni fillimisht lenden dhe klasen ne faqe.");
                         return;
                     }
 
-                    // 1. FORMAT FIKS: Kolona e 1-rë (0) = Studenti, Kolona e 2-të (1) = Nota
+                    // 1. FORMAT FIKS: Kolona e 1-re (0) = Studenti, Kolona e 2-te (1) = Nota
                     const colEmri = 0;
                     const colNota = 1;
                     let startRow = 0;
@@ -1217,7 +1217,7 @@
                     // Nese rreshti i pare eshte Header (p.sh. shkruan 'Student', 'Emri', ose nota nuk eshte numer 4-10)
                     const isHeader = firstCellText.includes('student') ||
                         firstCellText.includes('emer') ||
-                        firstCellText.includes('emër') ||
+                        firstCellText.includes('emer') ||
                         secondCellText.includes('not') ||
                         secondCellText.includes('grade') ||
                         (isNaN(secondCellNum) || secondCellNum < 4 || secondCellNum > 10);
@@ -1228,7 +1228,7 @@
                         startRow = 0;
                     }
 
-                    // 2. Mblidh të gjitha notat nga Excel dhe grupoji sipas studentit
+                    // 2. Mblidh te gjitha notat nga Excel dhe grupoji sipas studentit
                     // Map<normalizedKey, { originalName: string, grades: number[] }>
                     const excelStudentMap = new Map();
                     const invalidGrades = [];
@@ -1242,7 +1242,7 @@
 
                         if (!rawName) continue;
 
-                        // Nëse fusha e notës është bosh për këtë student në Excel -> lihet ashtu siç është
+                        // Nese fusha e notes eshte bosh per kete student ne Excel -> lihet ashtu siç eshte
                         if (rawGrade === '') {
                             const key = normalizeName(rawName);
                             if (!excelStudentMap.has(key)) {
@@ -1253,8 +1253,8 @@
 
                         const gradeNum = parseFloat(rawGrade.replace(',', '.'));
 
-                        // KONTROLLI I SAKTËSISË: Duhet të jetë numër midis 4 dhe 10!
-                        // Çdo gjë tjetër (p.sh. tekst "dfjdk", vlera random "382329", nën 4 apo mbi 10) shpërfillet plotësisht.
+                        // KONTROLLI I SAKTESISE: Duhet te jete numer midis 4 dhe 10!
+                        // Çdo gje tjeter (p.sh. tekst "dfjdk", vlera random "382329", nen 4 apo mbi 10) shperfillet plotesisht.
                         if (isNaN(gradeNum) || gradeNum < 4 || gradeNum > 10) {
                             invalidGrades.push({ name: rawName, val: rawGrade });
                             continue;
@@ -1268,7 +1268,7 @@
                         }
                     }
 
-                    // 3. Përputh të dhënat e Excel-it me rreshtat e tabelës ekzistuese
+                    // 3. Perputh te dhenat e Excel-it me rreshtat e tabeles ekzistuese
                     let updatedCount = 0;
                     const duplicatesHandled = [];
                     const untouchedStudents = [];
@@ -1279,7 +1279,7 @@
                         const inputNota = tr.querySelector('.student-nota');
                         if (!trEmri || !inputNota) return;
 
-                        // Nota aktuale që studenti ka tashmë në tabelë (nëse ka)
+                        // Nota aktuale qe studenti ka tashme ne tabele (nese ka)
                         const existingValRaw = inputNota.value.trim();
                         const existingVal = existingValRaw !== '' && !isNaN(parseFloat(existingValRaw)) ? parseFloat(existingValRaw) : null;
 
@@ -1298,10 +1298,10 @@
                             matchedExcelKeys.add(matchedKey);
                             const gradesList = matchedEntry.grades;
 
-                            // 1. Nota më e madhe brenda vetë listës së Excel-it (nëse është përsëritur 2 herë)
+                            // 1. Nota me e madhe brenda vete listes se Excel-it (nese eshte perseritur 2 here)
                             const excelBestGrade = Math.max(...gradesList);
 
-                            // 2. Nëse studenti kishte tashmë një notë dhe vjen një listë tjetër, merr më të madhen midis tyre
+                            // 2. Nese studenti kishte tashme nje note dhe vjen nje liste tjeter, merr me te madhen midis tyre
                             let finalGrade = excelBestGrade;
                             if (existingVal !== null) {
                                 finalGrade = Math.max(existingVal, excelBestGrade);
@@ -1313,7 +1313,7 @@
                                 return;
                             }
 
-                            // Nëse ka pasur notë ngelëse (<5) dhe tani ka marrë notë kaluese (>=5), shënohet si Përmirësim 'P'
+                            // Nese ka pasur note ngelese (<5) dhe tani ka marre note kaluese (>=5), shenohet si Permiresim 'P'
                             const hadFail = (existingVal !== null && existingVal < 5) || gradesList.some(g => g < 5);
                             const hasPass = finalGrade >= 5;
                             if (hadFail && hasPass) {
@@ -1324,12 +1324,12 @@
                             perditesoStatusin(inputNota);
                             updatedCount++;
                         } else {
-                            // Studenti nuk ka notë në këtë Excel ose nuk është në listë -> lihet ekzaktësisht siç është
+                            // Studenti nuk ka note ne kete Excel ose nuk eshte ne liste -> lihet ekzaktesisht siç eshte
                             untouchedStudents.push(trEmri);
                         }
                     });
 
-                    // 4. Emra në Excel që nuk u gjetën në këtë grup studentësh
+                    // 4. Emra ne Excel qe nuk u gjeten ne kete grup studentesh
                     const notFoundInGroup = [];
                     for (const [key, entry] of excelStudentMap.entries()) {
                         if (!matchedExcelKeys.has(key) && entry.grades.length > 0) {
@@ -1337,7 +1337,7 @@
                         }
                     }
 
-                    console.log(`[Excel Import] U përditësuan ${updatedCount} nota.`);
+                    console.log(`[Excel Import] U perditesuan ${updatedCount} nota.`);
                 } catch (err) {
                     console.error("Gabim leximi Excel:", err);
                 } finally {

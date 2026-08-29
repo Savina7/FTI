@@ -4,16 +4,16 @@
    ========================================================================== */
 
 :root {
-  /* Skema Amber (njejte si petagog) */
-  --amber-500: #f59e0b;
-  --amber-600: #d97706;
-  --amber-700: #b45309;
+  /* Skema Amber e lehte dhe e bute */
+  --amber-500: #f8b84e;
+  --amber-600: #f5a623;
+  --amber-700: #d98218;
   --amber-800: #92400e;
   --amber-900: #78350f;
-  --amber-50: #fffbeb;
-  --amber-100: #fef3c7;
-  --amber-200: #fde68a;
-  --amber-300: #fcd34d;
+  --amber-50: #fffdf5;
+  --amber-100: #fef8e7;
+  --amber-200: #fdeec4;
+  --amber-300: #fcdfa0;
 
   /* Alias-et kryesore */
   --primary: var(--amber-500);

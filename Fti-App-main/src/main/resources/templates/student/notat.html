@@ -263,12 +263,12 @@
                                 `;
                             } else if (gradeNum >= 5 && gradeNum < 10) {
                                 notaCellContent = `
-                                    <span class="grade-clickable" title="Kliko për të kërkuar përmirësim" onclick="hapModalPermiresimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}', ${g.courseId})">
+                                    <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(g.emriLende)}', '${cellId}', '${g.nota}', ${g.courseId})">
                                         ${g.nota}
                                     </span>
                                 `;
                             } else if (gradeNum < 5) {
-                                notaCellContent = `<span class="fw-bold text-danger" title="Notë ngelëse (Nuk lejohet përmirësim)">${g.nota}</span>`;
+                                notaCellContent = `<span class="fw-bold text-danger" title="Note ngelese (Nuk lejohet permiresim)">${g.nota}</span>`;
                             } else {
                                 notaCellContent = `<span class="fw-bold">${g.nota}</span>`;
                             }
@@ -357,9 +357,9 @@
                 return;
             }
 
-            // Kontrolli i limitit: Maksimumi 2 lëndë për përmirësim
+            // Kontrolli i limitit: Maksimumi 2 lende per permiresim
             if (improvementRequestedSubjects.size >= 2) {
-                showLimitToast("Mund të zgjidhni maksimumi 2 lëndë për përmirësim!");
+                showLimitToast("Mund te zgjidhni maksimumi 2 lende per permiresim!");
                 return;
             }
 
@@ -409,10 +409,10 @@
                                 </button>
                             </div>
                         `;
-                        showLimitToast("Kërkesa për përmirësim u regjistrua me sukses!", false);
+                        showLimitToast("Kerkesa per permiresim u regjistrua me sukses!", false);
                     } else {
                         const err = await res.json();
-                        showLimitToast(err.message || "Gabim gjatë dërgimit të kërkesës.");
+                        showLimitToast(err.message || "Gabim gjate dergimit te kerkeses.");
                     }
                 } catch (e) {
                     console.error("Gabim permiresimi:", e);
@@ -462,14 +462,14 @@
                         const cell = document.getElementById(currentCellId);
                         const cId = currentCourseId;
                         cell.innerHTML = `
-                            <span class="grade-clickable" title="Kliko për të kërkuar përmirësim" onclick="hapModalPermiresimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}', ${cId})">
+                            <span class="grade-clickable" title="Kliko per te kerkuar permiresim" onclick="hapModalPermiresimi('${escapeHtml(currentSubject)}', '${currentCellId}', '${currentGrade}', ${cId})">
                                 ${currentGrade}
                             </span>
                         `;
-                        showLimitToast("Kërkesa u anulua me sukses.", false);
+                        showLimitToast("Kerkesa u anulua me sukses.", false);
                     } else {
                         const err = await res.json();
-                        showLimitToast(err.message || "Gabim gjatë anulimit të kërkesës.");
+                        showLimitToast(err.message || "Gabim gjate anulimit te kerkeses.");
                     }
                 } catch (e) {
                     console.error("Gabim anulimi:", e);

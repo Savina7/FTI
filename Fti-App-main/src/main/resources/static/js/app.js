@@ -2,7 +2,7 @@
  * app.js – Centralizimi i Auth & Global Settings per FTI App
  */
 
-// ── Injektimi Automatik i Favicon në çdo faqe (pa pasur nevojë në çdo HTML) ──
+// ── Injektimi Automatik i Favicon ne çdo faqe (pa pasur nevoje ne çdo HTML) ──
 (function injectFaviconGlobally() {
     function addFavicon() {
         if (!document.querySelector("link[rel*='icon']")) {
@@ -26,7 +26,7 @@
     }
 })();
 
-// ── Funksion ndihmës global për headers ──────────────────────────────────────
+// ── Funksion ndihmes global per headers ──────────────────────────────────────
 window.getAuthHeaders = function () {
     var token = localStorage.getItem('jwtToken');
     return token ? { 'Authorization': 'Bearer ' + token } : {};

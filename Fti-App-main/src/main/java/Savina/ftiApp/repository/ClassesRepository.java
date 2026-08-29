@@ -14,4 +14,6 @@ public interface ClassesRepository extends JpaRepository<Classes, Integer> {
     Optional<Classes> findFirstByProgramAndVitStudimit(Program program, Integer vitStudimit);
 
     List<Classes> findByProgram_ProgramId(Integer programId);
+
+    List<Classes> findByProgram_ProgramIdAndVitStudimit(Integer programId, Integer vitStudimit);
 }
