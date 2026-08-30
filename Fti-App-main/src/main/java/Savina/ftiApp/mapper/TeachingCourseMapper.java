@@ -43,8 +43,8 @@ public class TeachingCourseMapper {
         dto.setProgramName(progName);
         dto.setProgramNivel(progNivel);
         dto.setSemester("1");
-        dto.setDurationWeeks(15);
-        dto.setTotalHours(60);
+        dto.setDurationWeeks(18);
+        dto.setTotalHours(30);
         dto.setLectureProfessor(null);
         dto.setSeminarProfessors(List.of());
         dto.setLabProfessors(List.of());
@@ -134,8 +134,8 @@ public class TeachingCourseMapper {
         dto.setProgramName(progName);
         dto.setProgramNivel(progNivel);
         dto.setSemester(first.getSemester());
-        dto.setDurationWeeks(first.getDurationWeeks());
-        dto.setTotalHours(60);
+        dto.setDurationWeeks(first.getDurationWeeks() != null ? first.getDurationWeeks() : 18);
+        dto.setTotalHours(first.getTotalHours() != null ? first.getTotalHours() : 30);
         dto.setLectureProfessor(lecture);
         dto.setSeminarProfessors(seminars);
         dto.setLabProfessors(labs);

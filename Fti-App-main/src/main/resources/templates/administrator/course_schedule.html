@@ -304,6 +304,163 @@
       border-color: #f59e0b;
       box-shadow: 0 0 0 0.15rem rgba(245, 158, 11, 0.2);
     }
+
+    /* Toggle Tabs per Orarin */
+    .schedule-view-toggle {
+      background-color: #f1f5f9;
+      padding: 3px;
+      border-radius: 2px;
+      border: 1px solid #e2e8f0;
+      display: inline-flex;
+    }
+
+    .schedule-view-toggle .btn-tab {
+      border: none;
+      background: transparent;
+      padding: 6px 18px;
+      border-radius: 2px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .schedule-view-toggle .btn-tab.active {
+      background-color: #ffffff;
+      color: #0f172a;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Tabela e Provimeve */
+    .exam-table-container {
+      background-color: #ffffff;
+      border: 1.5px solid #000000;
+      overflow-x: auto;
+    }
+
+    :root {
+      --exam-col-width: 83px;
+      --exam-row-height: 32px;
+    }
+
+    .exam-timetable {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 10px;
+      margin-bottom: 0;
+      color: #000000;
+    }
+
+    .exam-timetable th,
+    .exam-timetable td {
+      border: 1px solid #000000 !important;
+      padding: 2px 2px;
+      vertical-align: middle;
+      text-align: center;
+      color: #000000;
+    }
+
+    .exam-year-divider td {
+      border-top: 3.5px solid #000000 !important;
+    }
+
+    .exam-timetable th {
+      background-color: #ffffff;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .exam-course-num {
+      width: 30px;
+      min-width: 30px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 1px !important;
+    }
+
+    .exam-course-name {
+      text-align: left !important;
+      font-weight: 500;
+      min-width: 160px;
+      max-width: 230px;
+      white-space: normal;
+      padding-left: 6px !important;
+      line-height: 1.2;
+      font-size: 10px;
+    }
+
+    .exam-date-header {
+      width: var(--exam-col-width, 48px) !important;
+      min-width: var(--exam-col-width, 48px) !important;
+      max-width: var(--exam-col-width, 48px) !important;
+    }
+
+    .exam-cell {
+      width: var(--exam-col-width, 48px) !important;
+      min-width: var(--exam-col-width, 48px) !important;
+      max-width: var(--exam-col-width, 48px) !important;
+      height: var(--exam-row-height, 30px) !important;
+      position: relative;
+      background-color: #ffffff;
+      cursor: pointer;
+      transition: background-color 0.15s;
+      padding: 1px !important;
+    }
+
+    .exam-cell:hover:not(.exam-sunday-cell) {
+      background-color: #fefce8;
+    }
+
+    .exam-cell-has-exam {
+      background-color: #ffffff;
+      font-size: 8.5px;
+      line-height: 1.15;
+      padding: 2px 1px !important;
+    }
+
+    .exam-sunday-header,
+    .exam-sunday-cell {
+      background-color: #cbd5e1 !important;
+      width: 18px !important;
+      min-width: 18px !important;
+      max-width: 18px !important;
+      padding: 1px !important;
+      color: #1e293b;
+      font-weight: bold;
+    }
+
+    .exam-sunday-text {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      letter-spacing: 0px;
+      font-size: 7px;
+      font-weight: 700;
+      text-align: center;
+      margin: 0 auto;
+      line-height: 1.1;
+    }
+
+    .btn-delete-exam-cell {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 11px;
+      padding: 0 2px;
+      display: none;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .exam-cell:hover .btn-delete-exam-cell {
+      display: block;
+    }
   </style>
 </head>
 
@@ -348,15 +505,20 @@
       </header>
 
       <div id="page-wrapper" class="p-3">
-        <!-- Veprimet lart -->
-        <div class="d-flex justify-content-between align-items-center mb-3 action-buttons-bar">
-          <div>
-            <h4 class="fw-bold mb-1"></h4>
-            <p class="text-muted small mb-0">
-
-            </p>
+        <!-- Veprimet lart me Toggle Tabs per 2 opsionet -->
+        <div class="d-flex justify-content-between align-items-center mb-3 action-buttons-bar flex-wrap gap-2">
+          <!-- TOGGLE ME 2 OPSIONE (ORARI MESIMOR / ORARI I PROVIMEVE) -->
+          <div class="schedule-view-toggle" id="scheduleViewToggle">
+            <button type="button" class="btn-tab active" id="tabBtnMesimor" onclick="switchScheduleView('mesimor')">
+              Orari Mësimor
+            </button>
+            <button type="button" class="btn-tab" id="tabBtnProvime" onclick="switchScheduleView('provime')">
+              Orari i Provimeve
+            </button>
           </div>
-          <div class="d-flex gap-2">
+
+          <!-- BUTONAT PER ORARIN MESIMOR -->
+          <div class="d-flex gap-2" id="mesimorActions">
             <button class="btn btn-outline-secondary btn-sm fw-semibold" id="btnShkarkoPdf"
               onclick="shkarkoOrarinPdf()">
               <i class="bi bi-file-earmark-pdf me-1 text-danger"></i> Shkarko Orarin
@@ -365,25 +527,94 @@
               <i class="bi bi-plus-circle me-1"></i> Shto orar
             </button>
           </div>
+
+          <!-- BUTONAT PER ORARIN E PROVIMEVE -->
+          <div class="d-flex gap-2 d-none" id="provimeActions">
+            <button class="btn btn-outline-secondary btn-sm fw-semibold" onclick="openModalKonfiguroDatat()">
+              Konfiguro Datat
+            </button>
+            <button class="btn btn-outline-secondary btn-sm fw-semibold" onclick="shkarkoProvimetPdf()">
+              Shkarko Provimet (PDF)
+            </button>
+            <button class="btn btn-primary btn-sm fw-semibold px-3" onclick="openModalShtoProvim()">
+              + Shto Provim
+            </button>
+          </div>
         </div>
 
+        <!-- ================= PAMJA 1: ORARI ZYRTAR MESIMOR I FTI ================= -->
+        <div id="viewOrariMesimor">
+          <div class="mb-4" id="ftiScheduleExportArea">
+            <div class="fti-schedule-header">
+              <h5></h5>
+              <div class="sub-header"></div>
+              <div class="schedule-title" id="ftiScheduleTitle">
+                INXHINIERI INFORMATIKE
+              </div>
+            </div>
 
+            <div class="fti-table-container">
+              <table class="fti-timetable" id="ftiMainTable">
+                <thead id="ftiTableHead"></thead>
+                <tbody id="ftiTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-        <!-- ================= ORARI ZYRTAR ME FORMATIN E PLOTE TE FTI ================= -->
-        <div class="mb-4" id="ftiScheduleExportArea">
-          <div class="fti-schedule-header">
-            <h5></h5>
-            <div class="sub-header"></div>
-            <div class="schedule-title" id="ftiScheduleTitle">
-              INXHINIERI INFORMATIKE
+        <!-- ================= PAMJA 2: ORARI ZYRTAR I PROVIMEVE (IDENTIK SI PDF) ================= -->
+        <div id="viewOrariProvimeve" class="d-none">
+          <!-- Paneli i Filtrave te Provimeve -->
+          <div class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-body p-2 d-flex flex-wrap align-items-center gap-3">
+              <div style="min-width: 260px;">
+                <label class="form-label mb-1 small fw-semibold text-muted" style="font-size: 0.74rem;">Dega</label>
+                <select id="examFilterProgram" class="form-select form-select-sm"
+                  onchange="onExamFilterChange()"></select>
+              </div>
+              <div style="min-width: 170px;">
+                <label class="form-label mb-1 small fw-semibold text-muted" style="font-size: 0.74rem;">Sezoni</label>
+                <select id="examFilterSezoni" class="form-select form-select-sm" onchange="onExamFilterChange()">
+                  <option value="VJESHTE" selected>Sezoni i Vjeshtës</option>
+                  <option value="VERE">Sezoni i Verës</option>
+                  <option value="DIMER">Sezoni i Dimrit</option>
+                </select>
+              </div>
+              <div style="min-width: 130px;">
+                <label class="form-label mb-1 small fw-semibold text-muted" style="font-size: 0.74rem;">Viti
+                  Akademik</label>
+                <input type="text" id="examFilterVitiAkademik" class="form-control form-control-sm" value="2025-2026"
+                  oninput="updateExamTitleHeader()">
+              </div>
+
+              <div class="ms-auto d-flex align-items-end pt-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadExamSchedule()"
+                  title="Refresh">
+                  Refresh
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="fti-table-container">
-            <table class="fti-timetable" id="ftiMainTable">
-              <thead id="ftiTableHead"></thead>
-              <tbody id="ftiTableBody"></tbody>
-            </table>
+          <!-- Zona e Eksportit te Provimeve -->
+          <div class="mb-4 p-2 bg-white" id="examScheduleExportArea">
+            <div class="exam-schedule-header text-center mb-3">
+              <div class="fw-bold text-dark text-uppercase" id="examHeaderSezoni"
+                style="font-size: 13px; letter-spacing: 0.5px;">
+                SEZONI I VJESHTES 2025-2026
+              </div>
+              <div class="fw-bold text-dark text-uppercase" id="examHeaderDega"
+                style="font-size: 12px; letter-spacing: 0.5px;">
+                BACHELOR INXHINIERI INFORMATIKE
+              </div>
+            </div>
+
+            <div class="exam-table-container">
+              <table class="exam-timetable" id="examMainTable">
+                <thead id="examTableHead"></thead>
+                <tbody id="examTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -588,206 +819,314 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- ================= POPUP-I: SHTO / CAKTO PROVIM ================= -->
+  <div class="modal fade" id="modalShtoProvim" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+      <div class="modal-content border shadow-sm">
+        <div class="modal-header py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+          <h6 class="modal-title fw-bold text-dark mb-0 fs-6" id="modalShtoProvimTitle">Cakto Provim</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <form id="formShtoProvim" onsubmit="return false;">
+            <input type="hidden" id="examModalEditId" value="" />
 
-  <script>
-    const _jwt = localStorage.getItem('jwtToken');
-    const _headers = _jwt ? { 'Authorization': 'Bearer ' + _jwt, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+            <!-- Lenda -->
+            <div class="mb-2">
+              <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Lënda</label>
+              <select class="form-select form-select-sm" id="examModalCourse" required></select>
+            </div>
 
-    let allRooms = [];
-    let cachedSchedules = [];
-    let cachedClasses = [];
-    let modalCoursesList = [];
-    let activeModalCourse = null;
-    let modalShtoOrarInstance = null;
+            <!-- Data -->
+            <div class="mb-2">
+              <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Data e
+                Provimit</label>
+              <input type="date" class="form-control form-control-sm" id="examModalDate" required />
+            </div>
 
-    const DITET_E_JAVES = ["E HENE", "E MARTE", "E MERKURE", "E ENJTE", "E PREMTE"];
-    const ORET_STANDARD = [
-      { start: "08:00", end: "09:00", label: "08:00" },
-      { start: "09:00", end: "10:00", label: "09:00" },
-      { start: "10:00", end: "11:00", label: "10:00" },
-      { start: "11:00", end: "12:00", label: "11:00" },
-      { start: "12:00", end: "13:00", label: "12:00" },
-      { start: "13:00", end: "14:00", label: "13:00" },
-      { start: "14:00", end: "15:00", label: "14:00" }
-    ];
+            <!-- Ora Fillimit dhe Mbarimit -->
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Ora e
+                  Fillimit</label>
+                <input type="time" class="form-control form-control-sm" id="examModalStartTime" value="09:00"
+                  required />
+              </div>
+              <div class="col-6">
+                <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Ora e
+                  Mbarimit</label>
+                <input type="time" class="form-control form-control-sm" id="examModalEndTime" value="12:00" required />
+              </div>
+            </div>
 
-    $(document).ready(function () {
-      modalShtoOrarInstance = new bootstrap.Modal(document.getElementById('modalShtoOrar'));
-      loadMainScheduleData();
-      loadRoomsData();
-    });
+            <!-- Sallat -->
+            <div class="mb-3">
+              <label class="form-label mb-1 small fw-semibold text-dark d-flex justify-content-between"
+                style="font-size: 0.76rem;">
+                <span>Sallat e Provimit</span>
+                <span class="text-muted" style="font-size: 0.70rem;">(Zgjidh një ose më shumë)</span>
+              </label>
+              <div id="examModalRoomsContainer" class="d-flex flex-wrap gap-2 p-2 border rounded bg-light"
+                style="max-height: 120px; overflow-y: auto;">
+                <!-- Dinamikisht nga sallat e DB -->
+              </div>
+              <!-- MESAZHI I GABIMIT / KONFLIKTIT POSHTE SALLAVE -->
+              <div id="examModalErrorAlert"
+                class="mt-2 p-2 bg-danger-subtle text-danger border border-danger-subtle rounded d-none"
+                style="font-size: 0.75rem; line-height: 1.35;">
+                <i class="bi bi-exclamation-circle-fill me-1"></i><span id="examModalErrorText"></span>
+              </div>
+            </div>
 
-    let currentMainProgramId = null;
+            <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+              <button type="button" class="btn btn-sm btn-light px-3" data-bs-dismiss="modal">Anulo</button>
+              <button type="button" class="btn btn-sm btn-primary px-4 fw-semibold"
+                onclick="submitExamModal()">Ruaj</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    async function loadMainScheduleData() {
-      try {
-        const resBranches = await fetch('/api/admin/schedules/branches', { headers: _headers });
-        if (resBranches.ok) {
-          const branches = await resBranches.json();
-          const defaultBranch = branches.find(b => (b.name || '').toLowerCase().includes('informatik')) || branches[0];
-          if (defaultBranch) {
-            currentMainProgramId = defaultBranch.programId;
-            $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
-          }
-        }
+  <!-- ================= POPUP-I: KONFIGURO DATAT E SEZONIT ================= -->
+  <div class="modal fade" id="modalKonfiguroDatat" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+      <div class="modal-content border shadow-sm">
+        <div class="modal-header py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+          <h6 class="modal-title fw-bold text-dark mb-0 fs-6">Konfiguro Datat e Sezonit</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <p class="text-muted small mb-3">
+            Përcakto intervalin e datave për kolonat e tabelës së provimeve. Të dielat llogariten automatikisht si ditë
+            pushimi me shkrim vertikal.
+          </p>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Data e
+                Fillimit</label>
+              <input type="date" class="form-control form-control-sm" id="confDateStart" value="2025-09-08" />
+            </div>
+            <div class="col-6">
+              <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Data e
+                Mbarimit</label>
+              <input type="date" class="form-control form-control-sm" id="confDateEnd" value="2025-09-18" />
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+            <button type="button" class="btn btn-sm btn-light px-3" data-bs-dismiss="modal">Anulo</button>
+            <button type="button" class="btn btn-sm btn-primary px-4 fw-semibold" onclick="applySeasonDates()">Zbato
+              Datat</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        let classesUrl = '/api/admin/schedules/classes';
-        if (currentMainProgramId) {
-          classesUrl += `?programId=${currentMainProgramId}`;
-        }
-        const res = await fetch(classesUrl, { headers: _headers });
-        if (res.ok) {
-          cachedClasses = await res.json();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-      await loadSchedulesFromDb();
-    }
+    <!-- SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    async function loadRoomsData() {
-      try {
-        const res = await fetch('/api/admin/schedules/rooms', { headers: _headers });
-        if (res.ok) {
-          allRooms = await res.json();
-          const modalSelect = $('#modalConfigSalla');
-          modalSelect.find('option:not(:first)').remove();
-          allRooms.forEach(r => {
-            modalSelect.append(new Option(r.roomName, r.roomId));
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    <script>
+      const _jwt = localStorage.getItem('jwtToken');
+      const _headers = _jwt ? { 'Authorization': 'Bearer ' + _jwt, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 
-    async function loadSchedulesFromDb() {
-      try {
-        let url = '/api/admin/schedules';
-        if (currentMainProgramId) {
-          url += `?programId=${currentMainProgramId}`;
-        }
-        const res = await fetch(url, { headers: _headers });
-        if (res.ok) {
-          cachedSchedules = await res.json();
-          renderFullFtiTimetable();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+      let allRooms = [];
+      let cachedSchedules = [];
+      let cachedClasses = [];
+      let modalCoursesList = [];
+      let activeModalCourse = null;
+      let modalShtoOrarInstance = null;
 
-    // ==========================================================================
-    // 2. VIZATIMI I TABELES SE ORARIT ZYRTAR TE FTI-SE
-    // ==========================================================================
-    function renderFullFtiTimetable() {
-      const progText = $('#programiSelect option:selected').text() || 'INXHINIERI INFORMATIKE';
-      const vitiVal = $('#vitiSelect').val();
+      const DITET_E_JAVES = ["E HENE", "E MARTE", "E MERKURE", "E ENJTE", "E PREMTE"];
+      const ORET_STANDARD = [
+        { start: "08:00", end: "09:00", label: "08:00" },
+        { start: "09:00", end: "10:00", label: "09:00" },
+        { start: "10:00", end: "11:00", label: "10:00" },
+        { start: "11:00", end: "12:00", label: "11:00" },
+        { start: "12:00", end: "13:00", label: "12:00" },
+        { start: "13:00", end: "14:00", label: "13:00" },
+        { start: "14:00", end: "15:00", label: "14:00" }
+      ];
 
-      $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
+      $(document).ready(function () {
+        modalShtoOrarInstance = new bootstrap.Modal(document.getElementById('modalShtoOrar'));
+        loadMainScheduleData();
+        loadRoomsData();
 
-      let yearSections = [];
-
-      if (vitiVal) {
-        const yNum = parseInt(vitiVal);
-        let groupsForYear = cachedClasses.filter(c => (c.studyYear == yNum));
-        if (groupsForYear.length === 0) {
-          const prefix = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
-          groupsForYear = [
-            { classId: null, name: `${prefix}-A-INF`, studyYear: yNum },
-            { classId: null, name: `${prefix}-B-INF`, studyYear: yNum },
-            { classId: null, name: `${prefix}-C-INF`, studyYear: yNum },
-            { classId: null, name: `${prefix}-D-INF`, studyYear: yNum }
-          ];
-        }
-        yearSections.push({
-          year: yNum,
-          title: `VITI ${yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III')}`,
-          groups: groupsForYear
+        $(document).on('change input', '#modalShtoProvim input, #modalShtoProvim select', function () {
+          showExamModalError(null);
         });
-      } else {
-        [1, 2, 3].forEach(yNum => {
-          let groupsForYear = cachedClasses.filter(c => {
-            if (c.studyYear) return c.studyYear == yNum;
-            const name = (c.name || '').toUpperCase();
-            if (yNum == 1) return name.startsWith('I-') || name.endsWith(' I') || name.includes('VITI 1') || name.includes('VITI I');
-            if (yNum == 2) return name.startsWith('II-') || name.endsWith(' II') || name.includes('VITI 2') || name.includes('VITI II');
-            if (yNum == 3) return name.startsWith('III-') || name.endsWith(' III') || name.includes('VITI 3') || name.includes('VITI III');
-            return false;
-          });
+      });
 
-          if (groupsForYear.length === 0) {
-            const p = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
-            groupsForYear = [
-              { classId: null, name: `${p}-A-INF`, studyYear: yNum },
-              { classId: null, name: `${p}-B-INF`, studyYear: yNum },
-              { classId: null, name: `${p}-C-INF`, studyYear: yNum },
-              { classId: null, name: `${p}-D-INF`, studyYear: yNum }
-            ];
-            if (yNum == 1) {
-              groupsForYear.push({ classId: null, name: `Inxh. Komp I`, studyYear: 1 });
+      let currentMainProgramId = null;
+
+      async function loadMainScheduleData() {
+        try {
+          const resBranches = await fetch('/api/admin/schedules/branches', { headers: _headers });
+          if (resBranches.ok) {
+            const branches = await resBranches.json();
+            const defaultBranch = branches.find(b => (b.name || '').toLowerCase().includes('informatik')) || branches[0];
+            if (defaultBranch) {
+              currentMainProgramId = defaultBranch.programId;
+              $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
             }
           }
 
+          let classesUrl = '/api/admin/schedules/classes';
+          if (currentMainProgramId) {
+            classesUrl += `?programId=${currentMainProgramId}`;
+          }
+          const res = await fetch(classesUrl, { headers: _headers });
+          if (res.ok) {
+            cachedClasses = await res.json();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        await loadSchedulesFromDb();
+      }
+
+      async function loadRoomsData() {
+        try {
+          const res = await fetch('/api/admin/schedules/rooms', { headers: _headers });
+          if (res.ok) {
+            allRooms = await res.json();
+            const modalSelect = $('#modalConfigSalla');
+            modalSelect.find('option:not(:first)').remove();
+            allRooms.forEach(r => {
+              modalSelect.append(new Option(r.roomName, r.roomId));
+            });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function loadSchedulesFromDb() {
+        try {
+          let url = '/api/admin/schedules';
+          if (currentMainProgramId) {
+            url += `?programId=${currentMainProgramId}`;
+          }
+          const res = await fetch(url, { headers: _headers });
+          if (res.ok) {
+            cachedSchedules = await res.json();
+            renderFullFtiTimetable();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // ==========================================================================
+      // 2. VIZATIMI I TABELES SE ORARIT ZYRTAR TE FTI-SE
+      // ==========================================================================
+      function renderFullFtiTimetable() {
+        const progText = $('#programiSelect option:selected').text() || 'INXHINIERI INFORMATIKE';
+        const vitiVal = $('#vitiSelect').val();
+
+        $('#ftiScheduleTitle').text('INXHINIERI INFORMATIKE');
+
+        let yearSections = [];
+
+        if (vitiVal) {
+          const yNum = parseInt(vitiVal);
+          let groupsForYear = cachedClasses.filter(c => (c.studyYear == yNum));
+          if (groupsForYear.length === 0) {
+            const prefix = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
+            groupsForYear = [
+              { classId: null, name: `${prefix}-A-INF`, studyYear: yNum },
+              { classId: null, name: `${prefix}-B-INF`, studyYear: yNum },
+              { classId: null, name: `${prefix}-C-INF`, studyYear: yNum },
+              { classId: null, name: `${prefix}-D-INF`, studyYear: yNum }
+            ];
+          }
           yearSections.push({
             year: yNum,
             title: `VITI ${yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III')}`,
             groups: groupsForYear
           });
-        });
-      }
+        } else {
+          [1, 2, 3].forEach(yNum => {
+            let groupsForYear = cachedClasses.filter(c => {
+              if (c.studyYear) return c.studyYear == yNum;
+              const name = (c.name || '').toUpperCase();
+              if (yNum == 1) return name.startsWith('I-') || name.endsWith(' I') || name.includes('VITI 1') || name.includes('VITI I');
+              if (yNum == 2) return name.startsWith('II-') || name.endsWith(' II') || name.includes('VITI 2') || name.includes('VITI II');
+              if (yNum == 3) return name.startsWith('III-') || name.endsWith(' III') || name.includes('VITI 3') || name.includes('VITI III');
+              return false;
+            });
 
-      let headRow1 = `<tr>
+            if (groupsForYear.length === 0) {
+              const p = yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III');
+              groupsForYear = [
+                { classId: null, name: `${p}-A-INF`, studyYear: yNum },
+                { classId: null, name: `${p}-B-INF`, studyYear: yNum },
+                { classId: null, name: `${p}-C-INF`, studyYear: yNum },
+                { classId: null, name: `${p}-D-INF`, studyYear: yNum }
+              ];
+              if (yNum == 1) {
+                groupsForYear.push({ classId: null, name: `Inxh. Komp I`, studyYear: 1 });
+              }
+            }
+
+            yearSections.push({
+              year: yNum,
+              title: `VITI ${yNum == 1 ? 'I' : (yNum == 2 ? 'II' : 'III')}`,
+              groups: groupsForYear
+            });
+          });
+        }
+
+        let headRow1 = `<tr>
         <th rowspan="2" class="fti-th-head" style="width: 26px;"></th>
         <th rowspan="2" class="fti-th-head fti-th-ora">ORA</th>`;
 
-      yearSections.forEach(sec => {
-        headRow1 += `<th colspan="${sec.groups.length}" class="fti-th-head text-center border-end">${sec.title}</th>`;
-      });
-      headRow1 += `</tr>`;
-
-      let headRow2 = `<tr>`;
-      yearSections.forEach(sec => {
-        sec.groups.forEach(g => {
-          headRow2 += `<th class="fti-th-head fti-th-sub">${g.name}</th>`;
+        yearSections.forEach(sec => {
+          headRow1 += `<th colspan="${sec.groups.length}" class="fti-th-head text-center border-end">${sec.title}</th>`;
         });
-      });
-      headRow2 += `</tr>`;
+        headRow1 += `</tr>`;
 
-      $('#ftiTableHead').html(headRow1 + headRow2);
+        let headRow2 = `<tr>`;
+        yearSections.forEach(sec => {
+          sec.groups.forEach(g => {
+            headRow2 += `<th class="fti-th-head fti-th-sub">${g.name}</th>`;
+          });
+        });
+        headRow2 += `</tr>`;
 
-      let bodyHtml = '';
+        $('#ftiTableHead').html(headRow1 + headRow2);
 
-      DITET_E_JAVES.forEach(dita => {
-        const totalHoursInDay = ORET_STANDARD.length;
+        let bodyHtml = '';
 
-        ORET_STANDARD.forEach((slot, hourIndex) => {
-          bodyHtml += `<tr>`;
+        DITET_E_JAVES.forEach(dita => {
+          const totalHoursInDay = ORET_STANDARD.length;
 
-          if (hourIndex === 0) {
-            bodyHtml += `<th rowspan="${totalHoursInDay}" class="fti-th-dita">${dita}</th>`;
-          }
+          ORET_STANDARD.forEach((slot, hourIndex) => {
+            bodyHtml += `<tr>`;
 
-          bodyHtml += `<td class="fti-th-ora">${slot.label}</td>`;
+            if (hourIndex === 0) {
+              bodyHtml += `<th rowspan="${totalHoursInDay}" class="fti-th-dita">${dita}</th>`;
+            }
 
-          yearSections.forEach(sec => {
-            const currentYear = sec.year;
+            bodyHtml += `<td class="fti-th-ora">${slot.label}</td>`;
 
-            const leksionSchedule = cachedSchedules.find(s => {
-              const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
-              const isLek = (s.roleType || '').toUpperCase() === 'LEKSION';
-              const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
-              const yearMatches = !s.studyYear || s.studyYear == currentYear;
-              const allGroupsInYear = !s.classId;
-              return dayMatches && isLek && timeMatches && yearMatches && allGroupsInYear;
-            });
+            yearSections.forEach(sec => {
+              const currentYear = sec.year;
 
-            if (leksionSchedule) {
-              const sallaFormatted = leksionSchedule.roomName ? `<span class="room-badge ms-1">${leksionSchedule.roomName}</span>` : '';
-              bodyHtml += `
+              const leksionSchedule = cachedSchedules.find(s => {
+                const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
+                const isLek = (s.roleType || '').toUpperCase() === 'LEKSION';
+                const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
+                const yearMatches = !s.studyYear || s.studyYear == currentYear;
+                const allGroupsInYear = !s.classId;
+                return dayMatches && isLek && timeMatches && yearMatches && allGroupsInYear;
+              });
+
+              if (leksionSchedule) {
+                const sallaFormatted = leksionSchedule.roomName ? `<span class="room-badge ms-1">${leksionSchedule.roomName}</span>` : '';
+                bodyHtml += `
                 <td colspan="${sec.groups.length}" class="fti-cell-leksion">
                   <button type="button" class="btn-delete-cell" onclick="deleteScheduleItem(${leksionSchedule.scheduleId})" title="Fshi orarin">
                     <i class="bi bi-x-circle-fill"></i>
@@ -796,23 +1135,23 @@
                   <div class="prof-name">${leksionSchedule.professorName || ''} ${sallaFormatted}</div>
                 </td>
               `;
-            } else {
-              sec.groups.forEach(g => {
-                const matching = cachedSchedules.find(s => {
-                  const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
-                  const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
-                  const groupMatches = s.classId && g.classId && s.classId === g.classId;
-                  const nameMatches = (!s.classId || !g.classId) && s.className && s.className === g.name;
-                  return dayMatches && timeMatches && (groupMatches || nameMatches);
-                });
+              } else {
+                sec.groups.forEach(g => {
+                  const matching = cachedSchedules.find(s => {
+                    const dayMatches = (s.dayOfWeek || '').toUpperCase().includes(dita.split(' ')[1] || dita);
+                    const timeMatches = (s.startTime && s.startTime <= slot.start && s.endTime && s.endTime > slot.start);
+                    const groupMatches = s.classId && g.classId && s.classId === g.classId;
+                    const nameMatches = (!s.classId || !g.classId) && s.className && s.className === g.name;
+                    return dayMatches && timeMatches && (groupMatches || nameMatches);
+                  });
 
-                if (matching) {
-                  const isLek = (matching.roleType || '').toUpperCase() === 'LEKSION';
-                  const cellClass = isLek ? 'fti-cell-leksion' : 'fti-cell-seminar';
-                  const prefix = isLek ? '(L)' : '(S)';
-                  const sallaFormatted = matching.roomName ? `<span class="room-badge ms-1">${matching.roomName}</span>` : '';
+                  if (matching) {
+                    const isLek = (matching.roleType || '').toUpperCase() === 'LEKSION';
+                    const cellClass = isLek ? 'fti-cell-leksion' : 'fti-cell-seminar';
+                    const prefix = isLek ? '(L)' : '(S)';
+                    const sallaFormatted = matching.roomName ? `<span class="room-badge ms-1">${matching.roomName}</span>` : '';
 
-                  bodyHtml += `
+                    bodyHtml += `
                     <td class="${cellClass}">
                       <button type="button" class="btn-delete-cell" onclick="deleteScheduleItem(${matching.scheduleId})" title="Fshi orarin">
                         <i class="bi bi-x-circle-fill"></i>
@@ -821,524 +1160,1061 @@
                       <div class="prof-name">${matching.professorName || ''} ${sallaFormatted}</div>
                     </td>
                   `;
-                } else {
-                  bodyHtml += `<td class="fti-cell-empty"></td>`;
-                }
-              });
-            }
+                  } else {
+                    bodyHtml += `<td class="fti-cell-empty"></td>`;
+                  }
+                });
+              }
+            });
+
+            bodyHtml += `</tr>`;
           });
-
-          bodyHtml += `</tr>`;
         });
-      });
 
-      $('#ftiTableBody').html(bodyHtml);
-    }
-
-    // ==========================================================================
-    // 3. POPUP-I "SHTO NE ORAR" (HAPI 1 DHE HAPI 2 ME SIDEBAR LENDESH)
-    // ==========================================================================
-    async function openModalShtoOrar() {
-      goToModalStep1();
-
-      try {
-        const res = await fetch('/api/admin/schedules/departments', { headers: _headers });
-        if (res.ok) {
-          const depts = await res.json();
-          const select = $('#modalDepartamenti');
-          select.find('option:not(:first)').remove();
-          depts.forEach(d => select.append(new Option(d.name, d.id)));
-        }
-      } catch (err) {
-        console.error(err);
+        $('#ftiTableBody').html(bodyHtml);
       }
 
-      // Parambushim me filtrat e faqes nese ka
-      const curDep = $('#cikliSelect').val();
-      if (curDep) {
-        $('#modalDepartamenti').val(curDep);
-        await onModalDepartmentChange();
-      }
-
-      modalShtoOrarInstance.show();
-    }
-
-    function goToModalStep1() {
-      $('#modalScheduleDialog').removeClass('modal-xl modal-lg').addClass('modal-md').css('max-width', '');
-      $('#modalStep1').removeClass('d-none');
-      $('#modalStep2').addClass('d-none');
-      $('#modalTitleText').text('');
-    }
-
-    async function onModalDepartmentChange() {
-      const depId = $('#modalDepartamenti').val();
-      const nivel = $('#modalNiveli').val();
-      const selectNiveli = $('#modalNiveli');
-      const selectDega = $('#modalDega');
-      selectNiveli.find('option:not(:first)').remove();
-      selectDega.find('option:not(:first)').remove();
-
-      if (!depId) {
-        selectNiveli.prop('disabled', true);
-        selectDega.prop('disabled', true);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/admin/schedules/levels?departmentId=${depId}`, { headers: _headers });
-        if (res.ok) {
-          const levels = await res.json();
-          levels.forEach(lvl => selectNiveli.append(new Option(lvl, lvl)));
-          selectNiveli.prop('disabled', false);
-
-          if (levels.length > 0) {
-            selectNiveli.val(levels[0]);
-            await onModalNivelChange();
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    async function onModalNivelChange() {
-      const depId = $('#modalDepartamenti').val();
-      const nivel = $('#modalNiveli').val();
-      const selectDega = $('#modalDega');
-      selectDega.find('option:not(:first)').remove();
-
-      if (!nivel) {
-        selectDega.prop('disabled', true);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/admin/schedules/branches?departmentId=${depId}&nivel=${encodeURIComponent(nivel)}`, { headers: _headers });
-        if (res.ok) {
-          const branches = await res.json();
-          branches.forEach(b => selectDega.append(new Option(b.name, b.programId)));
-          selectDega.prop('disabled', false);
-
-          if (branches.length > 0) {
-            selectDega.val(branches[0].programId);
-            await onModalDegaChange();
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    async function onModalDegaChange() {
-      const progId = $('#modalDega').val();
-      const selectViti = $('#modalViti');
-      selectViti.find('option:not(:first)').remove();
-
-      if (!progId) {
-        selectViti.prop('disabled', true);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/admin/schedules/years?programId=${progId}`, { headers: _headers });
-        if (res.ok) {
-          const years = await res.json();
-          years.forEach(y => selectViti.append(new Option(`Viti ${y}`, y)));
-          selectViti.prop('disabled', false);
-
-          if (years.length > 0) {
-            selectViti.val(years[0]);
-            await onModalVitiChange();
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    async function onModalVitiChange() {
-      const progId = $('#modalDega').val();
-      const studyYear = $('#modalViti').val();
-      const selectKlasa = $('#modalKlasa');
-      selectKlasa.empty().append(new Option("-- Zgjidh Grupin --", ""));
-      selectKlasa.find('option:first').prop('disabled', true);
-
-      if (!progId) {
-        selectKlasa.prop('disabled', true);
-        return;
-      }
-
-      try {
-        let url = `/api/admin/schedules/classes?programId=${progId}` + (studyYear ? `&studyYear=${studyYear}` : '');
-        const resCls = await fetch(url, { headers: _headers });
-        if (resCls.ok) {
-          const classes = await resCls.json();
-          classes.forEach(cl => selectKlasa.append(new Option(cl.name, cl.classId)));
-          selectKlasa.prop('disabled', false);
-          if (classes.length > 0) {
-            selectKlasa.val(classes[0].classId);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // ==========================================================================
-    // KALIMI NE HAPIN 2 (NEXT) BRENDA POPUP-IT
-    // ==========================================================================
-    async function goToModalStep2() {
-      const progId = $('#modalDega').val();
-      const studyYear = $('#modalViti').val();
-      const classId = $('#modalKlasa').val();
-      const degaName = $('#modalDega option:selected').text();
-      const vitiText = $('#modalViti option:selected').text();
-      const klasaText = $('#modalKlasa option:selected').text();
-
-      if (!progId || !studyYear || !classId) {
-        alert("Ju lutem zgjidhni Degen, Vitin dhe Grupin ne Hapin 1.");
-        return;
-      }
-
-      const semestri = $('#modalSemestri').val() || '2';
-      $('#modalSummaryInfo').text(`${degaName} - ${vitiText} (${klasaText})`);
-
-      // Ngarkojme te gjitha lendet per ate dege dhe vit
-      try {
-        const res = await fetch(`/api/admin/schedules/courses?programId=${progId}&studyYear=${studyYear}`, { headers: _headers });
-        if (res.ok) {
-          modalCoursesList = await res.json();
-          renderModalCoursesSidebar(modalCoursesList);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-
-      $('#modalScheduleDialog').removeClass('modal-md modal-xl modal-lg').css('max-width', '540px');
-      $('#modalStep1').addClass('d-none');
-      $('#modalStep2').removeClass('d-none');
-      $('#modalTitleText').text('');
-    }
-
-    function renderModalCoursesSidebar(courses) {
-      const container = $('#modalCoursesListContainer');
-      container.empty();
-      $('#modalCoursesBadge').text(`${courses.length} lende`);
-
-      if (courses.length === 0) {
-        container.html('<div class="text-muted fs-8 text-center py-4">Nuk ka lende te regjistruara per kete vit.</div>');
-        return;
-      }
-
-      courses.forEach(c => {
-        const item = $(`
-          <div class="modal-course-item" data-course-id="${c.courseId}" onclick="selectCourseInModal(${c.courseId})">
-            <span style="font-size: 0.78rem; font-weight: 500; color: #1e293b;">${c.name}</span>
-          </div>
-        `);
-        container.append(item);
-      });
-
-      if (courses.length > 0) {
-        selectCourseInModal(courses[0].courseId);
-      }
-    }
-
-    async function selectCourseInModal(courseId) {
-      activeModalCourse = modalCoursesList.find(c => c.courseId == courseId);
-      if (!activeModalCourse) return;
-
-      $('.modal-course-item').removeClass('active');
-      $(`.modal-course-item[data-course-id="${courseId}"]`).addClass('active');
-
-      $('#modalConfigCourseName').text(activeModalCourse.name);
-      $('#modalConfigCredits').text(`${activeModalCourse.credits || 0} Kredite`);
-      $('#modalAlertSaveSuccess').addClass('d-none').text('');
-      $('#modalAlertSaveError').addClass('d-none').text('');
-
-      await updateModalProfessorDefault();
-      triggerModalRoomCheck();
-    }
-
-    async function onModalTypeChange() {
-      await updateModalProfessorDefault();
-      triggerModalRoomCheck();
-    }
-
-    async function updateModalProfessorDefault() {
-      if (!activeModalCourse) return;
-      const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
-      const profNameInput = $('#modalConfigPedagoguName');
-      const profIdInput = $('#modalConfigPedagogu');
-
-      profNameInput.val('');
-      profIdInput.val('');
-
-      try {
-        const res = await fetch(`/api/admin/schedules/professors?courseId=${activeModalCourse.courseId}&roleType=${roleType}`, { headers: _headers });
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.professors || [];
-          const defaultProf = data.defaultProfessor;
-
-          if (defaultProf && defaultProf.professorId) {
-            profNameInput.val(defaultProf.name || '');
-            profIdInput.val(defaultProf.professorId);
-          } else if (list.length > 0) {
-            profNameInput.val(list[0].name || '');
-            profIdInput.val(list[0].professorId);
-          } else {
-            // Ne rast se nuk ka, lihet thjesht BOSH
-            profNameInput.val('');
-            profIdInput.val('');
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        profNameInput.val('');
-        profIdInput.val('');
-      }
-
-      // Nese lenda nuk ka pedagog, butoni "Ruaj ne Orar" çaktivizohet
-      const hasProf = !!profIdInput.val();
-      $('#btnModalSaveSchedule').prop('disabled', !hasProf).toggleClass('opacity-50', !hasProf);
-    }
-
-    let modalRoomCheckTimeout = null;
-    function triggerModalRoomCheck() {
-      clearTimeout(modalRoomCheckTimeout);
-      modalRoomCheckTimeout = setTimeout(async () => {
-        const roomId = $('#modalConfigSalla').val();
-        const profId = $('#modalConfigPedagogu').val();
-        const dita = $('#modalConfigDita').val();
-        const start = $('#modalConfigOraFillimit').val();
-        const end = $('#modalConfigOraMbarimit').val();
-        const roomAlert = $('#modalConfigRoomAlert');
-        const profAlert = $('#modalConfigProfessorAlert');
-        const saveBtn = $('#btnModalSaveSchedule');
-
-        if (!dita || !start || !end) {
-          roomAlert.addClass('d-none').text('');
-          profAlert.addClass('d-none').text('');
-          return;
-        }
-
-        let params = `dayOfWeek=${encodeURIComponent(dita)}&startTime=${encodeURIComponent(start)}&endTime=${encodeURIComponent(end)}`;
-        if (roomId) params += `&roomId=${roomId}`;
-        if (profId) params += `&professorId=${profId}`;
+      // ==========================================================================
+      // 3. POPUP-I "SHTO NE ORAR" (HAPI 1 DHE HAPI 2 ME SIDEBAR LENDESH)
+      // ==========================================================================
+      async function openModalShtoOrar() {
+        goToModalStep1();
 
         try {
-          const url = `/api/admin/schedules/check-room?${params}`;
-          const res = await fetch(url, { headers: _headers });
+          const res = await fetch('/api/admin/schedules/departments', { headers: _headers });
           if (res.ok) {
-            const data = await res.json();
-
-            // 1. Kontrolli i Sallës - Shfaqet VETËM nëse salla është e zënë në atë ditë dhe orar
-            if (roomId && !data.roomAvailable && data.roomConflictMessage) {
-              roomAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.roomConflictMessage);
-            } else {
-              roomAlert.addClass('d-none').text('');
-            }
-
-            // 2. Kontrolli i Pedagogut - Shfaqet VETËM nëse pedagogu ka mësim në atë ditë dhe orar
-            if (profId && !data.professorAvailable && data.professorConflictMessage) {
-              profAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.professorConflictMessage);
-            } else {
-              profAlert.addClass('d-none').text('');
-            }
-
-            // 3. Butoni Ruaj aktivizohet vetëm nëse nuk ka konflikt dhe janë zgjedhur të dhënat
-            const isAvailable = data.available !== false;
-            const canSave = isAvailable && !!profId && !!roomId;
-            saveBtn.prop('disabled', !canSave).toggleClass('opacity-50', !canSave).css('cursor', canSave ? 'pointer' : 'not-allowed');
+            const depts = await res.json();
+            const select = $('#modalDepartamenti');
+            select.find('option:not(:first)').remove();
+            depts.forEach(d => select.append(new Option(d.name, d.id)));
           }
         } catch (err) {
           console.error(err);
         }
-      }, 200);
-    }
 
-    async function saveModalSchedule() {
-      if (!activeModalCourse) return;
+        // Parambushim me filtrat e faqes nese ka
+        const curDep = $('#cikliSelect').val();
+        if (curDep) {
+          $('#modalDepartamenti').val(curDep);
+          await onModalDepartmentChange();
+        }
 
-      const profId = $('#modalConfigPedagogu').val();
-      const roomId = $('#modalConfigSalla').val();
-      const dita = $('#modalConfigDita').val();
-      const start = $('#modalConfigOraFillimit').val();
-      const end = $('#modalConfigOraMbarimit').val();
-      const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
-      const classIdVal = $('#modalKlasa').val() ? parseInt($('#modalKlasa').val()) : null;
-      const semestri = $('#modalSemestri').val() || '2';
-
-      const successAlert = $('#modalAlertSaveSuccess');
-      const errorAlert = $('#modalAlertSaveError');
-      successAlert.addClass('d-none').text('');
-      errorAlert.addClass('d-none').text('');
-
-      if (!profId) {
-        errorAlert.removeClass('d-none').text('Kjo lende nuk ka pedagog te caktuar. Nuk mund te shtohet ne orar.');
-        return;
+        modalShtoOrarInstance.show();
       }
 
-      if (!roomId) {
-        errorAlert.removeClass('d-none').text('Ju lutem zgjidhni sallen me pare.');
-        return;
+      function goToModalStep1() {
+        $('#modalScheduleDialog').removeClass('modal-xl modal-lg').addClass('modal-md').css('max-width', '');
+        $('#modalStep1').removeClass('d-none');
+        $('#modalStep2').addClass('d-none');
+        $('#modalTitleText').text('');
       }
 
-      const reqData = {
-        courseId: activeModalCourse.courseId,
-        roleType: roleType,
-        professorId: profId ? parseInt(profId) : null,
-        classId: classIdVal,
-        dayOfWeek: dita,
-        startTime: start,
-        endTime: end,
-        roomId: parseInt(roomId),
-        semester: semestri,
-        academicYear: '2025-2026'
+      async function onModalDepartmentChange() {
+        const depId = $('#modalDepartamenti').val();
+        const nivel = $('#modalNiveli').val();
+        const selectNiveli = $('#modalNiveli');
+        const selectDega = $('#modalDega');
+        selectNiveli.find('option:not(:first)').remove();
+        selectDega.find('option:not(:first)').remove();
+
+        if (!depId) {
+          selectNiveli.prop('disabled', true);
+          selectDega.prop('disabled', true);
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/admin/schedules/levels?departmentId=${depId}`, { headers: _headers });
+          if (res.ok) {
+            const levels = await res.json();
+            levels.forEach(lvl => selectNiveli.append(new Option(lvl, lvl)));
+            selectNiveli.prop('disabled', false);
+
+            if (levels.length > 0) {
+              selectNiveli.val(levels[0]);
+              await onModalNivelChange();
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function onModalNivelChange() {
+        const depId = $('#modalDepartamenti').val();
+        const nivel = $('#modalNiveli').val();
+        const selectDega = $('#modalDega');
+        selectDega.find('option:not(:first)').remove();
+
+        if (!nivel) {
+          selectDega.prop('disabled', true);
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/admin/schedules/branches?departmentId=${depId}&nivel=${encodeURIComponent(nivel)}`, { headers: _headers });
+          if (res.ok) {
+            const branches = await res.json();
+            branches.forEach(b => selectDega.append(new Option(b.name, b.programId)));
+            selectDega.prop('disabled', false);
+
+            if (branches.length > 0) {
+              selectDega.val(branches[0].programId);
+              await onModalDegaChange();
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function onModalDegaChange() {
+        const progId = $('#modalDega').val();
+        const selectViti = $('#modalViti');
+        selectViti.find('option:not(:first)').remove();
+
+        if (!progId) {
+          selectViti.prop('disabled', true);
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/admin/schedules/years?programId=${progId}`, { headers: _headers });
+          if (res.ok) {
+            const years = await res.json();
+            years.forEach(y => selectViti.append(new Option(`Viti ${y}`, y)));
+            selectViti.prop('disabled', false);
+
+            if (years.length > 0) {
+              selectViti.val(years[0]);
+              await onModalVitiChange();
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function onModalVitiChange() {
+        const progId = $('#modalDega').val();
+        const studyYear = $('#modalViti').val();
+        const selectKlasa = $('#modalKlasa');
+        selectKlasa.empty().append(new Option("-- Zgjidh Grupin --", ""));
+        selectKlasa.find('option:first').prop('disabled', true);
+
+        if (!progId) {
+          selectKlasa.prop('disabled', true);
+          return;
+        }
+
+        try {
+          let url = `/api/admin/schedules/classes?programId=${progId}` + (studyYear ? `&studyYear=${studyYear}` : '');
+          const resCls = await fetch(url, { headers: _headers });
+          if (resCls.ok) {
+            const classes = await resCls.json();
+            classes.forEach(cl => selectKlasa.append(new Option(cl.name, cl.classId)));
+            selectKlasa.prop('disabled', false);
+            if (classes.length > 0) {
+              selectKlasa.val(classes[0].classId);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // ==========================================================================
+      // KALIMI NE HAPIN 2 (NEXT) BRENDA POPUP-IT
+      // ==========================================================================
+      async function goToModalStep2() {
+        const progId = $('#modalDega').val();
+        const studyYear = $('#modalViti').val();
+        const classId = $('#modalKlasa').val();
+        const degaName = $('#modalDega option:selected').text();
+        const vitiText = $('#modalViti option:selected').text();
+        const klasaText = $('#modalKlasa option:selected').text();
+
+        if (!progId || !studyYear || !classId) {
+          alert("Ju lutem zgjidhni Degen, Vitin dhe Grupin ne Hapin 1.");
+          return;
+        }
+
+        const semestri = $('#modalSemestri').val() || '2';
+        $('#modalSummaryInfo').text(`${degaName} - ${vitiText} (${klasaText})`);
+
+        // Ngarkojme te gjitha lendet per ate dege dhe vit
+        try {
+          const res = await fetch(`/api/admin/schedules/courses?programId=${progId}&studyYear=${studyYear}`, { headers: _headers });
+          if (res.ok) {
+            modalCoursesList = await res.json();
+            renderModalCoursesSidebar(modalCoursesList);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+
+        $('#modalScheduleDialog').removeClass('modal-md modal-xl modal-lg').css('max-width', '540px');
+        $('#modalStep1').addClass('d-none');
+        $('#modalStep2').removeClass('d-none');
+        $('#modalTitleText').text('');
+      }
+
+      function renderModalCoursesSidebar(courses) {
+        const container = $('#modalCoursesListContainer');
+        container.empty();
+        $('#modalCoursesBadge').text(`${courses.length} lende`);
+
+        if (courses.length === 0) {
+          container.html('<div class="text-muted fs-8 text-center py-4">Nuk ka lende te regjistruara per kete vit.</div>');
+          return;
+        }
+
+        courses.forEach(c => {
+          const item = $(`
+          <div class="modal-course-item" data-course-id="${c.courseId}" onclick="selectCourseInModal(${c.courseId})">
+            <span style="font-size: 0.78rem; font-weight: 500; color: #1e293b;">${c.name}</span>
+          </div>
+        `);
+          container.append(item);
+        });
+
+        if (courses.length > 0) {
+          selectCourseInModal(courses[0].courseId);
+        }
+      }
+
+      async function selectCourseInModal(courseId) {
+        activeModalCourse = modalCoursesList.find(c => c.courseId == courseId);
+        if (!activeModalCourse) return;
+
+        $('.modal-course-item').removeClass('active');
+        $(`.modal-course-item[data-course-id="${courseId}"]`).addClass('active');
+
+        $('#modalConfigCourseName').text(activeModalCourse.name);
+        $('#modalConfigCredits').text(`${activeModalCourse.credits || 0} Kredite`);
+        $('#modalAlertSaveSuccess').addClass('d-none').text('');
+        $('#modalAlertSaveError').addClass('d-none').text('');
+
+        await updateModalProfessorDefault();
+        triggerModalRoomCheck();
+      }
+
+      async function onModalTypeChange() {
+        await updateModalProfessorDefault();
+        triggerModalRoomCheck();
+      }
+
+      async function updateModalProfessorDefault() {
+        if (!activeModalCourse) return;
+        const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
+        const profNameInput = $('#modalConfigPedagoguName');
+        const profIdInput = $('#modalConfigPedagogu');
+
+        profNameInput.val('');
+        profIdInput.val('');
+
+        try {
+          const res = await fetch(`/api/admin/schedules/professors?courseId=${activeModalCourse.courseId}&roleType=${roleType}`, { headers: _headers });
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.professors || [];
+            const defaultProf = data.defaultProfessor;
+
+            if (defaultProf && defaultProf.professorId) {
+              profNameInput.val(defaultProf.name || '');
+              profIdInput.val(defaultProf.professorId);
+            } else if (list.length > 0) {
+              profNameInput.val(list[0].name || '');
+              profIdInput.val(list[0].professorId);
+            } else {
+              // Ne rast se nuk ka, lihet thjesht BOSH
+              profNameInput.val('');
+              profIdInput.val('');
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          profNameInput.val('');
+          profIdInput.val('');
+        }
+
+        // Nese lenda nuk ka pedagog, butoni "Ruaj ne Orar" çaktivizohet
+        const hasProf = !!profIdInput.val();
+        $('#btnModalSaveSchedule').prop('disabled', !hasProf).toggleClass('opacity-50', !hasProf);
+      }
+
+      let modalRoomCheckTimeout = null;
+      function triggerModalRoomCheck() {
+        clearTimeout(modalRoomCheckTimeout);
+        modalRoomCheckTimeout = setTimeout(async () => {
+          const roomId = $('#modalConfigSalla').val();
+          const profId = $('#modalConfigPedagogu').val();
+          const dita = $('#modalConfigDita').val();
+          const start = $('#modalConfigOraFillimit').val();
+          const end = $('#modalConfigOraMbarimit').val();
+          const roomAlert = $('#modalConfigRoomAlert');
+          const profAlert = $('#modalConfigProfessorAlert');
+          const saveBtn = $('#btnModalSaveSchedule');
+
+          if (!dita || !start || !end) {
+            roomAlert.addClass('d-none').text('');
+            profAlert.addClass('d-none').text('');
+            return;
+          }
+
+          let params = `dayOfWeek=${encodeURIComponent(dita)}&startTime=${encodeURIComponent(start)}&endTime=${encodeURIComponent(end)}`;
+          if (roomId) params += `&roomId=${roomId}`;
+          if (profId) params += `&professorId=${profId}`;
+
+          try {
+            const url = `/api/admin/schedules/check-room?${params}`;
+            const res = await fetch(url, { headers: _headers });
+            if (res.ok) {
+              const data = await res.json();
+
+              // 1. Kontrolli i Sallës - Shfaqet VETËM nëse salla është e zënë në atë ditë dhe orar
+              if (roomId && !data.roomAvailable && data.roomConflictMessage) {
+                roomAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.roomConflictMessage);
+              } else {
+                roomAlert.addClass('d-none').text('');
+              }
+
+              // 2. Kontrolli i Pedagogut - Shfaqet VETËM nëse pedagogu ka mësim në atë ditë dhe orar
+              if (profId && !data.professorAvailable && data.professorConflictMessage) {
+                profAlert.removeClass('d-none').addClass('text-danger').html('⚠️ ' + data.professorConflictMessage);
+              } else {
+                profAlert.addClass('d-none').text('');
+              }
+
+              // 3. Butoni Ruaj aktivizohet vetëm nëse nuk ka konflikt dhe janë zgjedhur të dhënat
+              const isAvailable = data.available !== false;
+              const canSave = isAvailable && !!profId && !!roomId;
+              saveBtn.prop('disabled', !canSave).toggleClass('opacity-50', !canSave).css('cursor', canSave ? 'pointer' : 'not-allowed');
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }, 200);
+      }
+
+      async function saveModalSchedule() {
+        if (!activeModalCourse) return;
+
+        const profId = $('#modalConfigPedagogu').val();
+        const roomId = $('#modalConfigSalla').val();
+        const dita = $('#modalConfigDita').val();
+        const start = $('#modalConfigOraFillimit').val();
+        const end = $('#modalConfigOraMbarimit').val();
+        const roleType = $('input[name="modalRoleType"]:checked').val() || 'LEKSION';
+        const classIdVal = $('#modalKlasa').val() ? parseInt($('#modalKlasa').val()) : null;
+        const semestri = $('#modalSemestri').val() || '2';
+
+        const successAlert = $('#modalAlertSaveSuccess');
+        const errorAlert = $('#modalAlertSaveError');
+        successAlert.addClass('d-none').text('');
+        errorAlert.addClass('d-none').text('');
+
+        if (!profId) {
+          errorAlert.removeClass('d-none').text('Kjo lende nuk ka pedagog te caktuar. Nuk mund te shtohet ne orar.');
+          return;
+        }
+
+        if (!roomId) {
+          errorAlert.removeClass('d-none').text('Ju lutem zgjidhni sallen me pare.');
+          return;
+        }
+
+        const reqData = {
+          courseId: activeModalCourse.courseId,
+          roleType: roleType,
+          professorId: profId ? parseInt(profId) : null,
+          classId: classIdVal,
+          dayOfWeek: dita,
+          startTime: start,
+          endTime: end,
+          roomId: parseInt(roomId),
+          semester: semestri,
+          academicYear: '2025-2026'
+        };
+
+        try {
+          const res = await fetch('/api/admin/schedules', {
+            method: 'POST',
+            headers: _headers,
+            body: JSON.stringify(reqData)
+          });
+
+          if (res.ok) {
+            await loadSchedulesFromDb();
+            modalShtoOrarInstance.hide();
+          } else {
+            const err = await res.json();
+            errorAlert.removeClass('d-none').text(err.message || 'Gabim gjate ruajtjes.');
+          }
+        } catch (err) {
+          errorAlert.removeClass('d-none').text('Gabim gjate komunikimit me serverin.');
+        }
+      }
+
+      async function deleteScheduleItem(id) {
+        if (!confirm("A jeni i sigurt qe deshironi ta fshini kete orar?")) return;
+        try {
+          const res = await fetch(`/api/admin/schedules/${id}`, {
+            method: 'DELETE',
+            headers: _headers
+          });
+          if (res.ok) {
+            await loadSchedulesFromDb();
+          } else {
+            alert("Gabim gjate fshirjes se orarit.");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function shkarkoOrarinPdf() {
+        const btn = $('#btnShkarkoPdf');
+        const origHtml = btn.html();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Duke shkarkuar orarin...');
+
+        try {
+          const element = document.getElementById('ftiScheduleExportArea');
+          if (!element) return;
+
+          // Klonojme elementin per te hequr kufizimet dhe per render kompakt ne 1 faqe
+          const clone = element.cloneNode(true);
+          $(clone).find('.btn-delete-cell').remove();
+
+          // Heqim kufizimet e lartesise/scroll-it
+          $(clone).find('.fti-table-container').css({
+            'max-height': 'none',
+            'height': 'auto',
+            'overflow': 'visible',
+            'box-shadow': 'none',
+            'border': 'none'
+          });
+
+          // Stil me kompakt qe te futet bukur ne 1 faqe
+          $(clone).find('.fti-timetable').css({
+            'font-size': '0.58rem',
+            'line-height': '1.05'
+          });
+          $(clone).find('.fti-timetable th, .fti-timetable td').css({
+            'padding': '1px 2px',
+            'height': 'auto'
+          });
+          $(clone).find('.fti-schedule-cell').css({
+            'padding': '1px 2px',
+            'font-size': '0.56rem'
+          });
+          $(clone).find('.fti-schedule-header').css({
+            'padding': '2px 0',
+            'margin-bottom': '2px'
+          });
+          $(clone).find('.fti-schedule-header .schedule-title').css({
+            'font-size': '0.76rem',
+            'letter-spacing': '0.3px'
+          });
+
+          $(clone).find('.fti-th-head').css({
+            'position': 'static',
+            'top': 'auto'
+          });
+
+          $(clone).css({
+            'position': 'absolute',
+            'left': '-9999px',
+            'top': '0',
+            'width': '1320px',
+            'height': 'auto',
+            'max-height': 'none',
+            'overflow': 'visible',
+            'background-color': '#ffffff'
+          });
+          document.body.appendChild(clone);
+
+          const fullCanvas = await html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            windowWidth: 1400
+          });
+
+          document.body.removeChild(clone);
+
+          // Krijojme dokumentin me fiks 1 faqe A4 Landscape
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          const pageWidth = pdf.internal.pageSize.getWidth();   // 297 mm
+          const pageHeight = pdf.internal.pageSize.getHeight(); // 210 mm
+          const margin = 4;
+          const maxW = pageWidth - (margin * 2);                // 289 mm
+          const maxH = pageHeight - (margin * 2);               // 202 mm
+
+          // Llogarisim permasa qe futen 100% brenda 1 faqeje te vetme
+          let imgW = maxW;
+          let imgH = (fullCanvas.height * imgW) / fullCanvas.width;
+
+          if (imgH > maxH) {
+            imgH = maxH;
+            imgW = (fullCanvas.width * imgH) / fullCanvas.height;
+          }
+
+          const posX = margin + (maxW - imgW) / 2;
+          const posY = margin + (maxH - imgH) / 2;
+
+          const imgData = fullCanvas.toDataURL('image/jpeg', 0.98);
+          pdf.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+
+          const rawTitle = ($('#ftiScheduleTitle').text() || 'Orari_FTI').trim();
+          const safeTitle = rawTitle.replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_');
+          pdf.save(`${safeTitle || 'Orari_FTI'}.pdf`);
+        } catch (err) {
+          console.error('Gabim gjate shkarkimit te PDF:', err);
+          alert('Gabim gjate gjenerimit te PDF: ' + err.message);
+        } finally {
+          btn.prop('disabled', false).html(origHtml);
+        }
+      }
+
+      // ==========================================================================
+      // 4. ORARI I PROVIMEVE (EXAM SCHEDULE - LOGJIKA E PLOTE & INTERACTIVE)
+      // ==========================================================================
+      let currentScheduleView = 'mesimor';
+      let examPrograms = [];
+      let examCourses = [];
+      let examItems = [];
+      let examDates = [];
+      let examDbRooms = [];
+      let modalShtoProvimInstance = null;
+      let modalKonfiguroDatatInstance = null;
+
+      const MUAJT_SHQIP_MAP = {
+        1: 'Janar', 2: 'Shkurt', 3: 'Mars', 4: 'Prill', 5: 'Maj', 6: 'Qershor',
+        7: 'Korrik', 8: 'Gusht', 9: 'Shtator', 10: 'Tetor', 11: 'Nentor', 12: 'Dhjetor'
       };
 
-      try {
-        const res = await fetch('/api/admin/schedules', {
-          method: 'POST',
-          headers: _headers,
-          body: JSON.stringify(reqData)
-        });
-
-        if (res.ok) {
-          await loadSchedulesFromDb();
-          modalShtoOrarInstance.hide();
+      function switchScheduleView(viewType) {
+        currentScheduleView = viewType;
+        if (viewType === 'mesimor') {
+          $('#tabBtnMesimor').addClass('active').removeClass('text-muted');
+          $('#tabBtnProvime').removeClass('active').addClass('text-muted');
+          $('#viewOrariMesimor').removeClass('d-none');
+          $('#mesimorActions').removeClass('d-none');
+          $('#viewOrariProvimeve').addClass('d-none');
+          $('#provimeActions').addClass('d-none');
         } else {
-          const err = await res.json();
-          errorAlert.removeClass('d-none').text(err.message || 'Gabim gjate ruajtjes.');
-        }
-      } catch (err) {
-        errorAlert.removeClass('d-none').text('Gabim gjate komunikimit me serverin.');
-      }
-    }
+          $('#tabBtnProvime').addClass('active').removeClass('text-muted');
+          $('#tabBtnMesimor').removeClass('active').addClass('text-muted');
+          $('#viewOrariMesimor').addClass('d-none');
+          $('#mesimorActions').addClass('d-none');
+          $('#viewOrariProvimeve').removeClass('d-none');
+          $('#provimeActions').removeClass('d-none');
 
-    async function deleteScheduleItem(id) {
-      if (!confirm("A jeni i sigurt qe deshironi ta fshini kete orar?")) return;
-      try {
-        const res = await fetch(`/api/admin/schedules/${id}`, {
-          method: 'DELETE',
-          headers: _headers
+          initExamScheduleView();
+        }
+      }
+
+      async function initExamScheduleView() {
+        if (!modalShtoProvimInstance) {
+          modalShtoProvimInstance = new bootstrap.Modal(document.getElementById('modalShtoProvim'));
+        }
+        if (!modalKonfiguroDatatInstance) {
+          modalKonfiguroDatatInstance = new bootstrap.Modal(document.getElementById('modalKonfiguroDatat'));
+        }
+
+        // Ngarkojme programet per provimet nese nuk jane ngarkuar
+        if (examPrograms.length === 0) {
+          await loadExamPrograms();
+        }
+
+        // Ngarkojme sallat nese nuk jane ngarkuar
+        if (examDbRooms.length === 0) {
+          await loadExamRooms();
+        }
+
+        // Inicializojme datat default (8 Shtator deri 18 Shtator 2025 fiks si PDF)
+        if (examDates.length === 0) {
+          generateExamDates('2025-09-08', '2025-09-18');
+        }
+
+        await loadExamSchedule();
+      }
+
+      async function loadExamPrograms() {
+        try {
+          const res = await fetch('/api/admin/exams/programs', { headers: _headers });
+          if (res.ok) {
+            examPrograms = await res.json();
+            const select = $('#examFilterProgram');
+            select.empty();
+            examPrograms.forEach(p => {
+              select.append(new Option(p.name, p.programId));
+            });
+            // Selektojme mundesisht Inxhinieri Informatike
+            const foundInfo = examPrograms.find(p => p.name.toUpperCase().includes('INXHINIERI INFORMATIKE'));
+            if (foundInfo) {
+              select.val(foundInfo.programId);
+            }
+          }
+        } catch (err) {
+          console.error("Gabim gjate ngarkimit te programeve per provime:", err);
+        }
+      }
+
+      async function loadExamRooms() {
+        try {
+          const res = await fetch('/api/admin/exams/rooms', { headers: _headers });
+          if (res.ok) {
+            examDbRooms = await res.json();
+            const container = $('#examModalRoomsContainer');
+            container.empty();
+            examDbRooms.forEach(r => {
+              const id = `chkRoom_${r.roomId}`;
+              container.append(`
+              <div class="form-check form-check-inline me-2 mb-1">
+                <input class="form-check-input chk-exam-room" type="checkbox" value="${r.roomId}" id="${id}">
+                <label class="form-check-label small fw-semibold" for="${id}">${r.roomName}</label>
+              </div>
+            `);
+            });
+          }
+        } catch (err) {
+          console.error("Gabim gjate ngarkimit te sallave per provime:", err);
+        }
+      }
+
+      function generateExamDates(startStr, endStr) {
+        examDates = [];
+        const curr = new Date(startStr);
+        const end = new Date(endStr);
+
+        while (curr <= end) {
+          const y = curr.getFullYear();
+          const m = String(curr.getMonth() + 1).padStart(2, '0');
+          const d = String(curr.getDate()).padStart(2, '0');
+          const dateStr = `${y}-${m}-${d}`;
+          const dayNum = curr.getDate();
+          const monthName = MUAJT_SHQIP_MAP[curr.getMonth() + 1] || '';
+          const dayOfWeek = curr.getDay(); // 0 eshte e Diel
+
+          const isSunday = (dayOfWeek === 0);
+          let displayLabel = (dayNum < 10 ? '0' + dayNum : dayNum) + ' ' + monthName;
+
+          examDates.push({
+            dateStr: dateStr,
+            label: displayLabel,
+            dayNum: dayNum,
+            monthName: monthName,
+            isSunday: isSunday
+          });
+
+          curr.setDate(curr.getDate() + 1);
+        }
+      }
+
+      function onExamFilterChange() {
+        updateExamTitleHeader();
+        loadExamSchedule();
+      }
+
+      function updateExamTitleHeader() {
+        const seasonVal = $('#examFilterSezoni').val();
+        const seasonText = (seasonVal === 'VERE') ? 'SEZONI I VERES' : (seasonVal === 'DIMER' ? 'SEZONI I DIMRIT' : 'SEZONI I VJESHTES');
+        const vitiAkad = ($('#examFilterVitiAkademik').val() || '2025-2026').trim();
+        $('#examHeaderSezoni').text(`${seasonText} ${vitiAkad}`);
+
+        const progText = $('#examFilterProgram option:selected').text() || 'INXHINIERI INFORMATIKE';
+        $('#examHeaderDega').text(progText.toUpperCase());
+      }
+
+      async function loadExamSchedule() {
+        const progId = $('#examFilterProgram').val();
+        const semestri = $('#examFilterSemestri').val();
+        const sezoni = $('#examFilterSezoni').val();
+
+        if (!progId) return;
+
+        updateExamTitleHeader();
+
+        try {
+          // 0. Ngarkojme datat e sezonit te ruajtura ne DB
+          const acadYear = ($('#examFilterVitiAkademik').val() || '2025-2026').trim();
+          try {
+            const resDates = await fetch(`/api/admin/exams/season-dates?academicYear=${encodeURIComponent(acadYear)}&season=${sezoni || 'VJESHTE'}&programId=${progId}`, { headers: _headers });
+            if (resDates.ok) {
+              const cfg = await resDates.json();
+              if (cfg && cfg.startDate && cfg.endDate) {
+                generateExamDates(cfg.startDate, cfg.endDate);
+              }
+            }
+          } catch (_) { }
+
+          // 1. Ngarkojme te gjitha lendet nga databaza per kete dege
+          const resCourses = await fetch(`/api/admin/exams/courses?programId=${progId}`, { headers: _headers });
+          if (resCourses.ok) {
+            examCourses = await resCourses.json();
+          }
+
+          // 2. Ngarkojme provimet ekzistuese per kete dege dhe sezon
+          const resExams = await fetch(`/api/admin/exams?programId=${progId}&season=${sezoni || ''}`, { headers: _headers });
+          if (resExams.ok) {
+            examItems = await resExams.json();
+          }
+
+          renderExamTable();
+        } catch (err) {
+          console.error("Gabim gjate ngarkimit te orarit te provimeve:", err);
+        }
+      }
+
+      function renderExamTable() {
+        // 1. Koka e tabeles
+        let headHtml = '<tr>';
+        headHtml += '<th class="exam-course-num"></th>';
+        headHtml += '<th class="exam-course-name"></th>';
+
+        examDates.forEach(dt => {
+          const dNum = (dt.dayNum < 10 ? '0' + parseInt(dt.dayNum) : dt.dayNum);
+          if (dt.isSunday) {
+            // E Diel: Kolone pushimi vertikale pa hapesira
+            const chars = `${dNum} ${dt.monthName}`;
+            headHtml += `<th class="exam-sunday-header" title="${dt.label} (Pushim)">
+              <div class="exam-sunday-text">
+                <span style="font-size: 9.5px; font-weight: 800; display: block; margin-bottom: 2px;">${dNum}</span>
+                <span>${dt.monthName}</span>
+              </div>
+            </th>`;
+          } else {
+            headHtml += `<th class="exam-date-header" style="padding: 3px 1px; line-height: 1.15;">
+              <div style="font-size: 12px; font-weight: 700; color: #000000;">${dNum}</div>
+              <div style="font-size: 7.5px; font-weight: 600; color: #475569; text-transform: uppercase;">${dt.monthName.substring(0, 3)}</div>
+            </th>`;
+          }
         });
-        if (res.ok) {
-          await loadSchedulesFromDb();
+        headHtml += '</tr>';
+        $('#examTableHead').html(headHtml);
+
+        // 2. Trupi i tabeles me lende automatike
+        let bodyHtml = '';
+        if (!examCourses || examCourses.length === 0) {
+          const totalCols = examDates.length + 2;
+          bodyHtml = `<tr><td colspan="${totalCols}" class="text-center py-4 text-muted">Nuk u gjet asnjë lëndë për këtë përzgjedhje.</td></tr>`;
         } else {
-          alert("Gabim gjate fshirjes se orarit.");
+          examCourses.forEach((c, idx) => {
+            const isNewYear = (idx > 0 && c.studyYear && examCourses[idx - 1].studyYear && c.studyYear !== examCourses[idx - 1].studyYear);
+            const trClass = isNewYear ? ' class="exam-year-divider"' : '';
+            bodyHtml += `<tr${trClass}>`;
+            bodyHtml += `<td class="exam-course-num">${idx + 1}</td>`;
+            bodyHtml += `<td class="exam-course-name">${c.emriCourse}</td>`;
+
+            examDates.forEach(dt => {
+              if (dt.isSunday) {
+                // Qelize pushimi e dieles
+                bodyHtml += `<td class="exam-sunday-cell"></td>`;
+              } else {
+                // Kontrollojme nese kjo lende ka provim ne kete date
+                const foundExam = examItems.find(e => String(e.courseId) === String(c.courseId) && e.examDate === dt.dateStr);
+
+                if (foundExam) {
+                  bodyHtml += `
+                  <td class="exam-cell exam-cell-has-exam" title="Provim: ${c.emriCourse} - ${dt.label}">
+                    <button type="button" class="btn-delete-exam-cell" onclick="deleteExamPrompt(${foundExam.examId}, event)" title="Fshi këtë provim">&times;</button>
+                    <div style="font-weight: 500;">Ora ${foundExam.startTime}-${foundExam.endTime},</div>
+                    <div style="color: #334155;">salla ${foundExam.roomNames || '204'}</div>
+                  </td>
+                `;
+                } else {
+                  bodyHtml += `
+                  <td class="exam-cell" onclick="openModalShtoProvim(${c.courseId}, '${dt.dateStr}')" title="Kliko për të caktuar provim në ${dt.label}"></td>
+                `;
+                }
+              }
+            });
+
+            bodyHtml += '</tr>';
+          });
         }
-      } catch (err) {
-        console.error(err);
+
+        $('#examTableBody').html(bodyHtml);
       }
-    }
 
-    async function shkarkoOrarinPdf() {
-      const btn = $('#btnShkarkoPdf');
-      const origHtml = btn.html();
-      btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Duke shkarkuar orarin...');
+      function showExamModalError(msg) {
+        if (!msg) {
+          $('#examModalErrorAlert').addClass('d-none');
+          $('#examModalErrorText').empty();
+        } else {
+          $('#examModalErrorText').text(msg);
+          $('#examModalErrorAlert').removeClass('d-none');
+        }
+      }
 
-      try {
-        const element = document.getElementById('ftiScheduleExportArea');
-        if (!element) return;
+      function openModalShtoProvim(preCourseId, preDateStr) {
+        showExamModalError(null);
+        const selectCourse = $('#examModalCourse');
+        selectCourse.empty();
+        if (examCourses && examCourses.length > 0) {
+          examCourses.forEach(c => {
+            selectCourse.append(new Option(c.emriCourse, c.courseId));
+          });
+        }
 
-        // Klonojme elementin per te hequr kufizimet dhe per render kompakt ne 1 faqe
-        const clone = element.cloneNode(true);
-        $(clone).find('.btn-delete-cell').remove();
+        if (preCourseId) {
+          selectCourse.val(preCourseId);
+        }
 
-        // Heqim kufizimet e lartesise/scroll-it
-        $(clone).find('.fti-table-container').css({
-          'max-height': 'none',
-          'height': 'auto',
-          'overflow': 'visible',
-          'box-shadow': 'none',
-          'border': 'none'
+        if (preDateStr) {
+          $('#examModalDate').val(preDateStr);
+        } else if (examDates.length > 0) {
+          $('#examModalDate').val(examDates[0].dateStr);
+        }
+
+        $('#examModalStartTime').val('09:00');
+        $('#examModalEndTime').val('12:00');
+        $('.chk-exam-room').prop('checked', false);
+
+        // Default zgjedhim sallen 204 nese ekziston
+        const salla204 = examDbRooms.find(r => r.roomName && r.roomName.includes('204'));
+        if (salla204) {
+          $(`#chkRoom_${salla204.roomId}`).prop('checked', true);
+        }
+
+        modalShtoProvimInstance.show();
+      }
+
+      async function submitExamModal() {
+        showExamModalError(null);
+        const courseId = $('#examModalCourse').val();
+        const examDate = $('#examModalDate').val();
+        const startTime = $('#examModalStartTime').val();
+        const endTime = $('#examModalEndTime').val();
+        const progId = $('#examFilterProgram').val();
+        const season = $('#examFilterSezoni').val() || 'VJESHTE';
+
+        if (!courseId) {
+          showExamModalError("Ju lutem zgjidhni lëndën!");
+          return;
+        }
+        if (!examDate) {
+          showExamModalError("Ju lutem zgjidhni datën e provimit!");
+          return;
+        }
+
+        const selectedRoomIds = [];
+        $('.chk-exam-room:checked').each(function () {
+          selectedRoomIds.push(parseInt($(this).val()));
         });
 
-        // Stil me kompakt qe te futet bukur ne 1 faqe
-        $(clone).find('.fti-timetable').css({
-          'font-size': '0.58rem',
-          'line-height': '1.05'
-        });
-        $(clone).find('.fti-timetable th, .fti-timetable td').css({
-          'padding': '1px 2px',
-          'height': 'auto'
-        });
-        $(clone).find('.fti-schedule-cell').css({
-          'padding': '1px 2px',
-          'font-size': '0.56rem'
-        });
-        $(clone).find('.fti-schedule-header').css({
-          'padding': '2px 0',
-          'margin-bottom': '2px'
-        });
-        $(clone).find('.fti-schedule-header .schedule-title').css({
-          'font-size': '0.76rem',
-          'letter-spacing': '0.3px'
-        });
+        if (selectedRoomIds.length === 0) {
+          showExamModalError("Ju lutem zgjidhni të paktën një sallë për provimin!");
+          return;
+        }
 
-        $(clone).find('.fti-th-head').css({
-          'position': 'static',
-          'top': 'auto'
-        });
+        const sTime = (startTime || '09:00').trim();
+        const eTime = (endTime || '12:00').trim();
+
+        if (sTime >= eTime) {
+          showExamModalError("Ora e fillimit (" + sTime + ") duhet të jetë para orës së mbarimit (" + eTime + ")!");
+          return;
+        }
+
+        // KONTROLLI I MENJEHERSHEM PER KONFLIKT SALLE DHE ORARI:
+        // Nje provim sduhet te jete ne te njejten salle me nje tjeter ne te njejtin orar ne te njejten date!
+        if (examItems && examItems.length > 0) {
+          for (const ex of examItems) {
+            if (ex.examDate === examDate) {
+              const exStart = (ex.startTime || '09:00').trim();
+              const exEnd = (ex.endTime || '12:00').trim();
+
+              // Mbivendosje e orarit: sTime < exEnd && eTime > exStart
+              if (sTime < exEnd && eTime > exStart) {
+                if (ex.roomIds && Array.isArray(ex.roomIds)) {
+                  for (const rId of selectedRoomIds) {
+                    if (ex.roomIds.includes(rId)) {
+                      const roomObj = examDbRooms.find(r => r.roomId === rId);
+                      const rName = roomObj ? roomObj.roomName : rId;
+                      showExamModalError(`Salla '${rName}' është e zënë!`);
+                      return;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        const payload = {
+          courseId: parseInt(courseId),
+          programId: parseInt(progId),
+          examDate: examDate,
+          startTime: startTime,
+          endTime: endTime,
+          season: season,
+          roomIds: selectedRoomIds
+        };
+
+        try {
+          const res = await fetch('/api/admin/exams', {
+            method: 'POST',
+            headers: _headers,
+            body: JSON.stringify(payload)
+          });
+
+          if (res.ok) {
+            modalShtoProvimInstance.hide();
+            await loadExamSchedule();
+          } else {
+            let errorMsg = "Gabim gjatë ruajtjes së provimit.";
+            try {
+              const err = await res.json();
+              if (err.message) errorMsg = err.message;
+            } catch (_) { }
+            showExamModalError(errorMsg);
+          }
+        } catch (e) {
+          console.error("Gabim:", e);
+          showExamModalError("Gabim gjatë ruajtjes: " + e.message);
+        }
+      }
+
+      async function deleteExamPrompt(examId, evt) {
+        if (evt) evt.stopPropagation();
+        if (!confirm("A jeni i sigurt që dëshironi ta fshini këtë provim nga orari?")) return;
+
+        try {
+          const res = await fetch(`/api/admin/exams/${examId}`, {
+            method: 'DELETE',
+            headers: _headers
+          });
+          if (res.ok) {
+            await loadExamSchedule();
+          } else {
+            alert("Nuk u mundësua fshirja e provimit.");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function openModalKonfiguroDatat() {
+        if (examDates && examDates.length > 0) {
+          $('#confDateStart').val(examDates[0].dateStr);
+          $('#confDateEnd').val(examDates[examDates.length - 1].dateStr);
+        }
+        modalKonfiguroDatatInstance.show();
+      }
+
+      async function applySeasonDates() {
+        const dStart = $('#confDateStart').val();
+        const dEnd = $('#confDateEnd').val();
+        if (!dStart || !dEnd) {
+          alert("Ju lutem vendosni një datë të saktë fillimi dhe mbarimi!");
+          return;
+        }
+        if (dStart > dEnd) {
+          alert("Data e fillimit nuk mund të jetë pas datës së mbarimit!");
+          return;
+        }
+
+        const progId = $('#examFilterProgram').val();
+        const season = $('#examFilterSezoni').val() || 'VJESHTE';
+        const academicYear = ($('#examFilterVitiAkademik').val() || '2025-2026').trim();
+
+        try {
+          const res = await fetch('/api/admin/exams/season-dates', {
+            method: 'POST',
+            headers: _headers,
+            body: JSON.stringify({
+              academicYear: academicYear,
+              seasonType: season,
+              programId: progId ? parseInt(progId) : null,
+              startDate: dStart,
+              endDate: dEnd
+            })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            alert("Gabim gjatë ruajtjes në databazë: " + (err.message || 'Kontrolloni të dhënat'));
+            return;
+          }
+        } catch (err) {
+          console.error("Gabim gjate komunikimit me serverin:", err);
+        }
+
+        generateExamDates(dStart, dEnd);
+        modalKonfiguroDatatInstance.hide();
+        renderExamTable();
+      }
+
+      // Eksporti i Orarit te Provimeve ne 1 Faqe A4 Landscape (Fit-to-Page)
+      async function shkarkoProvimetPdf() {
+        const area = document.getElementById('examScheduleExportArea');
+        if (!area) return;
+
+        const clone = area.cloneNode(true);
 
         $(clone).css({
           'position': 'absolute',
           'left': '-9999px',
           'top': '0',
-          'width': '1320px',
+          'width': '1280px',
           'height': 'auto',
           'max-height': 'none',
           'overflow': 'visible',
-          'background-color': '#ffffff'
+          'background-color': '#ffffff',
+          'padding': '8px'
         });
+        $(clone).find('.btn-delete-exam-cell').remove();
+
         document.body.appendChild(clone);
 
-        const fullCanvas = await html2canvas(clone, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          windowWidth: 1400
-        });
+        try {
+          const fullCanvas = await html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            windowWidth: 1350
+          });
 
-        document.body.removeChild(clone);
+          document.body.removeChild(clone);
 
-        // Krijojme dokumentin me fiks 1 faqe A4 Landscape
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-        const pageWidth = pdf.internal.pageSize.getWidth();   // 297 mm
-        const pageHeight = pdf.internal.pageSize.getHeight(); // 210 mm
-        const margin = 4;
-        const maxW = pageWidth - (margin * 2);                // 289 mm
-        const maxH = pageHeight - (margin * 2);               // 202 mm
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          const pageWidth = pdf.internal.pageSize.getWidth();   // 297 mm
+          const pageHeight = pdf.internal.pageSize.getHeight(); // 210 mm
+          const margin = 4;
+          const maxW = pageWidth - (margin * 2);
+          const maxH = pageHeight - (margin * 2);
 
-        // Llogarisim permasa qe futen 100% brenda 1 faqeje te vetme
-        let imgW = maxW;
-        let imgH = (fullCanvas.height * imgW) / fullCanvas.width;
+          let imgW = maxW;
+          let imgH = (fullCanvas.height * imgW) / fullCanvas.width;
 
-        if (imgH > maxH) {
-          imgH = maxH;
-          imgW = (fullCanvas.width * imgH) / fullCanvas.height;
+          if (imgH > maxH) {
+            imgH = maxH;
+            imgW = (fullCanvas.width * imgH) / fullCanvas.height;
+          }
+
+          const posX = margin + (maxW - imgW) / 2;
+          const posY = margin + (maxH - imgH) / 2;
+
+          const imgData = fullCanvas.toDataURL('image/jpeg', 0.98);
+          pdf.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+
+          const sezoniTitle = ($('#examHeaderSezoni').text() || 'Orari_Provimeve').trim();
+          const degaTitle = ($('#examHeaderDega').text() || 'FTI').trim();
+          const safeTitle = `${sezoniTitle}_${degaTitle}`.replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_');
+          pdf.save(`${safeTitle}.pdf`);
+        } catch (err) {
+          console.error("Gabim gjate eksportit te provimeve ne PDF:", err);
+          alert("Gabim gjate gjenerimit te PDF: " + err.message);
+          if (document.body.contains(clone)) {
+            document.body.removeChild(clone);
+          }
         }
-
-        const posX = margin + (maxW - imgW) / 2;
-        const posY = margin + (maxH - imgH) / 2;
-
-        const imgData = fullCanvas.toDataURL('image/jpeg', 0.98);
-        pdf.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
-
-        const rawTitle = ($('#ftiScheduleTitle').text() || 'Orari_FTI').trim();
-        const safeTitle = rawTitle.replace(/[^a-zA-Z0-9_\-]/g, '_').replace(/_+/g, '_');
-        pdf.save(`${safeTitle || 'Orari_FTI'}.pdf`);
-      } catch (err) {
-        console.error('Gabim gjate shkarkimit te PDF:', err);
-        alert('Gabim gjate gjenerimit te PDF: ' + err.message);
-      } finally {
-        btn.prop('disabled', false).html(origHtml);
       }
-    }
-  </script>
+    </script>
 </body>
 
 </html>

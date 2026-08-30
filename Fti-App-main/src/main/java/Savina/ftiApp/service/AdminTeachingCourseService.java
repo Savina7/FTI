@@ -72,7 +72,8 @@ public class AdminTeachingCourseService {
                 .orElseThrow(() -> new RuntimeException("Lenda nuk u gjet me ID: " + req.getCourseId()));
 
         String semester = req.getSemester() != null ? req.getSemester() : "1";
-        Integer duration = req.getDurationWeeks() != null ? req.getDurationWeeks() : 15;
+        Integer duration = req.getDurationWeeks() != null ? req.getDurationWeeks() : 18;
+        Integer totalHours = req.getTotalHours() != null ? req.getTotalHours() : 30;
 
         // Existing records for this course to update in-place (prevents ORA-02292 foreign key violations)
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
@@ -106,6 +107,7 @@ public class AdminTeachingCourseService {
                     tc.setProfessor(prof);
                     tc.setSemester(semester);
                     tc.setDurationWeeks(duration);
+                    tc.setTotalHours(totalHours);
                     tc.setClasses(lectureClasses);
                     teachingCourseRepository.save(tc);
                 } else {
@@ -115,6 +117,7 @@ public class AdminTeachingCourseService {
                             .roleType("LEKSION")
                             .semester(semester)
                             .durationWeeks(duration)
+                            .totalHours(totalHours)
                             .classes(lectureClasses)
                             .build();
                     teachingCourseRepository.save(tc);
@@ -135,6 +138,7 @@ public class AdminTeachingCourseService {
                             tc.setProfessor(prof);
                             tc.setSemester(semester);
                             tc.setDurationWeeks(duration);
+                            tc.setTotalHours(totalHours);
                             tc.setClasses(semClasses);
                             teachingCourseRepository.save(tc);
                         } else {
@@ -144,6 +148,7 @@ public class AdminTeachingCourseService {
                                     .roleType("SEMINAR")
                                     .semester(semester)
                                     .durationWeeks(duration)
+                                    .totalHours(totalHours)
                                     .classes(semClasses)
                                     .build();
                             teachingCourseRepository.save(tc);
@@ -166,6 +171,7 @@ public class AdminTeachingCourseService {
                             tc.setProfessor(prof);
                             tc.setSemester(semester);
                             tc.setDurationWeeks(duration);
+                            tc.setTotalHours(totalHours);
                             tc.setClasses(labClasses);
                             teachingCourseRepository.save(tc);
                         } else {
@@ -175,6 +181,7 @@ public class AdminTeachingCourseService {
                                     .roleType("LABORATOR")
                                     .semester(semester)
                                     .durationWeeks(duration)
+                                    .totalHours(totalHours)
                                     .classes(labClasses)
                                     .build();
                             teachingCourseRepository.save(tc);
@@ -283,9 +290,13 @@ public class AdminTeachingCourseService {
                         String emri = c.getEmriClass().trim();
                         if (emri.equalsIgnoreCase(targetName)) {
                             classesSet.add(c);
-                        } else if (targetName.equalsIgnoreCase("Klasa A") && (emri.equalsIgnoreCase("A") || emri.equalsIgnoreCase("Grupi A") || emri.endsWith(" A"))) {
+                        } else if ((targetName.equalsIgnoreCase("Klasa A") || targetName.equalsIgnoreCase("Grupi A")) && (emri.equalsIgnoreCase("A") || emri.equalsIgnoreCase("Grupi A") || emri.endsWith(" A"))) {
                             classesSet.add(c);
-                        } else if (targetName.equalsIgnoreCase("Klasa B") && (emri.equalsIgnoreCase("B") || emri.equalsIgnoreCase("Grupi B") || emri.endsWith(" B"))) {
+                        } else if ((targetName.equalsIgnoreCase("Klasa B") || targetName.equalsIgnoreCase("Grupi B")) && (emri.equalsIgnoreCase("B") || emri.equalsIgnoreCase("Grupi B") || emri.endsWith(" B"))) {
+                            classesSet.add(c);
+                        } else if ((targetName.equalsIgnoreCase("Klasa C") || targetName.equalsIgnoreCase("Grupi C")) && (emri.equalsIgnoreCase("C") || emri.equalsIgnoreCase("Grupi C") || emri.endsWith(" C"))) {
+                            classesSet.add(c);
+                        } else if ((targetName.equalsIgnoreCase("Klasa D") || targetName.equalsIgnoreCase("Grupi D")) && (emri.equalsIgnoreCase("D") || emri.equalsIgnoreCase("Grupi D") || emri.endsWith(" D"))) {
                             classesSet.add(c);
                         }
                     }

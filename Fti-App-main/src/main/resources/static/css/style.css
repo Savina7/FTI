@@ -440,7 +440,10 @@ body {
 #sidebar-wrapper {
     min-width: 250px;
     max-width: 250px;
-    min-height: 100vh;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 /* Sidebar Heading & Top Navbar - Lartesi e njejte ne nivel */

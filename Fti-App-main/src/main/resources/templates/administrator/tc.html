@@ -20,6 +20,115 @@
     <!-- Auth Interceptor -->
     <script src="/js/app.js"></script>
     <script src="/js/auth-interceptor.js"></script>
+    <style>
+        .modal-course-item {
+            padding: 7px 8px;
+            border: none !important;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.12s ease;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-course-item:hover {
+            background: #fffbeb;
+        }
+        .modal-course-item.active {
+            background-color: #fef3c7 !important;
+            border: none !important;
+        }
+        .modal-course-item.active span {
+            color: #92400e !important;
+            font-weight: 600 !important;
+        }
+        .modal-course-item.active .badge {
+            background-color: #fde68a !important;
+            color: #78350f !important;
+            border-color: #fde68a !important;
+        }
+
+        /* Butonat dhe Ngjyrat Amber si tek Orari */
+        .btn-amber-action {
+            background-color: #f59e0b !important;
+            border-color: #d97706 !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .btn-amber-action:hover {
+            background-color: #d97706 !important;
+            border-color: #b45309 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-amber-soft {
+            background-color: #fffbeb !important;
+            border: 1px solid #fde68a !important;
+            color: #92400e !important;
+            transition: all 0.15s ease;
+        }
+        .btn-amber-soft:hover {
+            background-color: #fef3c7 !important;
+            color: #78350f !important;
+        }
+
+        #modalTeaching .form-select:focus,
+        #modalTeaching .form-control:focus {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 0.15rem rgba(245, 158, 11, 0.2) !important;
+        }
+
+        #modalTeaching .form-check-input:checked {
+            background-color: #f59e0b !important;
+            border-color: #f59e0b !important;
+        }
+
+        /* Madhesi me kompakte dhe elegante per fushat e alokimit (Step 2) */
+        #modalTcStep2 .form-select,
+        #modalTcStep2 .form-select-sm {
+            height: 25px !important;
+            min-height: 25px !important;
+            font-size: 0.72rem !important;
+            padding: 1px 18px 1px 6px !important;
+            border-radius: 4px !important;
+            background-position: right 4px center !important;
+            background-size: 10px 8px !important;
+        }
+        #modalTcStep2 .form-control,
+        #modalTcStep2 .form-control-sm {
+            height: 25px !important;
+            min-height: 25px !important;
+            font-size: 0.72rem !important;
+            padding: 1px 6px !important;
+            border-radius: 4px !important;
+        }
+        #modalTcStep2 .form-label {
+            font-size: 0.69rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 2px !important;
+        }
+        #modalTcStep2 .btn-amber-soft {
+            font-size: 0.67rem !important;
+            padding: 1px 7px !important;
+            border-radius: 3px !important;
+        }
+        #modalTcStep2 .seminar-row,
+        #modalTcStep2 .lab-row {
+            margin-bottom: 3px !important;
+        }
+        #modalTcStep2 .form-check.form-switch {
+            min-height: auto;
+            margin-bottom: 2px !important;
+        }
+        #modalTcStep2 .form-check-input {
+            height: 14px !important;
+            width: 26px !important;
+            margin-top: 2px !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -92,7 +201,7 @@
                         <p class="text-muted small mb-0">
                         </p>
                     </div>
-                    <button class="btn btn-dark btn-sm px-3" onclick="openCreateModal()">
+                    <button class="btn btn-amber-action btn-sm px-3" onclick="openCreateModal()">
                         <i class="bi bi-plus-lg me-1"></i>Shto
                     </button>
                 </div>
@@ -156,9 +265,9 @@
 
             </div>
 
-            <!-- MODAL SHTO / EDITO (VERTIKAL DHE KOMPAKT) -->
+            <!-- MODAL SHTO / EDITO (STEP 1: FILTRAT DERI TE SEMESTRI -> STEP 2: SIDEBAR LENDET + DETANET) -->
             <div class="modal fade" id="modalTeaching" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" style="max-width: 410px;">
+                <div class="modal-dialog modal-dialog-centered" id="modalTeachingDialog" style="max-width: 420px; transition: max-width 0.25s ease;">
                     <div class="modal-content border-0 shadow">
 
                         <div class="modal-header border-bottom-0 pb-0 pt-2 px-3">
@@ -167,10 +276,11 @@
                                 aria-label="Close"></button>
                         </div>
 
-                        <div class="modal-body px-3 py-2" style="max-height: 84vh; overflow-y: auto;">
+                        <div class="modal-body px-3 py-2" style="max-height: 85vh; overflow-y: auto;">
                             <div id="modalTcAlert" class="alert alert-danger small d-none py-1 px-2 mb-2"></div>
-                            <form id="formTeaching">
 
+                            <!-- ================= HAPI 1: ZGJEDHJA DERI TE SEMESTRI ================= -->
+                            <div id="modalTcStep1">
                                 <!-- 1. DEPARTAMENTI -->
                                 <div class="mb-2" id="groupDepartamenti">
                                     <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Departamenti</label>
@@ -202,94 +312,108 @@
                                     </select>
                                 </div>
 
-                                <!-- 5. SEMESTRI -->
-                                <div class="mb-2" id="groupSemestri">
-                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Semestri</label>
-                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectSemestri" required>
-                                        <option value="1">Semestri 1</option>
-                                        <option value="2">Semestri 2</option>
-                                    </select>
-                                </div>
-
-                                <!-- 6. LENDA -->
-                                <div class="mb-2" id="groupLenda">
-                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Lenda</label>
-                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectLenda" required>
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-
-                                <!-- 7. KOHEZGJATJA & ORET -->
-                                <div class="row g-2 mb-2">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Kohezgjatja (Jave)</label>
-                                        <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputKohezgjatja"
-                                            required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Ore</label>
-                                        <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputOreGjithsej"
-                                            required>
-                                    </div>
-                                </div>
-
-                                <div class="border-top my-2"></div>
-
-                                <!-- 8. SEKSIONI LEKSION -->
-                                <div class="mb-2">
-                                    <label
-                                        class="form-label small fw-semibold text-dark d-block border-bottom pb-1 mb-1" style="font-size: 0.74rem;">Pedagogu
-                                        i leksionit</label>
-                                    <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectLeksionProf" required>
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-
-                                <!-- 9. SEKSIONI SEMINAR -->
-                                <div class="mb-2">
-                                    <div
-                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
-                                        <label class="form-label small fw-semibold text-dark mb-0" style="font-size: 0.74rem;">Pedagogu i
-                                            seminarit</label>
-                                        <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2" style="font-size: 0.70rem;"
-                                            onclick="addSeminarRow()">+ Shto pedagog</button>
-                                    </div>
-                                    <div id="seminarContainer">
-                                        <!-- Dynamic Seminar Rows -->
-                                    </div>
-                                </div>
-
-                                <!-- 10. SEKSIONI LABORATOR -->
-                                <div class="mb-2">
-                                    <div
-                                        class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" id="hasLabSwitch"
-                                                onchange="toggleLabSection()">
-                                            <label class="form-check-label small fw-semibold text-dark" style="font-size: 0.74rem;"
-                                                for="hasLabSwitch">Kjo lende ka laborator</label>
-                                        </div>
-                                    </div>
-
-                                    <div id="labSection" class="d-none mt-1">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="small text-muted fw-bold"></span>
-                                            <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2" style="font-size: 0.70rem;"
-                                                onclick="addLabRow()">+ Shto pedagog laboratori</button>
-                                        </div>
-                                        <div id="labContainer">
-                                            <!-- Dynamic Lab Rows -->
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+                                <div class="d-flex justify-content-end gap-2 mt-3">
                                     <button type="button" class="btn btn-sm btn-light py-1 px-3" style="font-size: 0.8rem;"
                                         data-bs-dismiss="modal">Anulo</button>
-                                    <button type="submit" class="btn btn-sm btn-dark py-1 px-4 fw-semibold" style="font-size: 0.8rem;">Ruaj</button>
+                                    <button type="button" class="btn btn-sm btn-amber-action py-1 px-4 fw-semibold" style="font-size: 0.8rem;"
+                                        onclick="goToModalStep2()">Vazhdo <i class="bi bi-arrow-right ms-1"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- ================= HAPI 2: SIDEBAR LENDET + DETANET DJATHTAS ================= -->
+                            <div id="modalTcStep2" class="d-none">
+                                <div class="row g-2">
+                                    <!-- SIDEBAR ME LENDET (col-5) -->
+                                    <div class="col-5 border-end pe-2">
+                                        <div id="modalCoursesSidebar" class="d-flex flex-column pe-1" style="max-height: 380px; overflow-y: auto;">
+                                            <!-- Dinamike .modal-course-item -->
+                                        </div>
+                                    </div>
+
+                                    <!-- DETANET E LENDES SE PERZGJEDHUR (col-7) -->
+                                    <div class="col-7 ps-2">
+                                        <form id="formTeaching" onsubmit="return false;">
+                                            <input type="hidden" id="selectLenda" value="">
+
+                                            <!-- SEMESTRI I LENDES -->
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Semestri</label>
+                                                <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="step2Semestri">
+                                                    <option value="1">Semestri 1</option>
+                                                    <option value="2">Semestri 2</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- KOHEZGJATJA & ORET -->
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6">
+                                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Kohezgjatja (Jave)</label>
+                                                    <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputKohezgjatja"
+                                                        value="18" required>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label small fw-semibold text-dark mb-1" style="font-size: 0.74rem;">Ore</label>
+                                                    <input type="number" class="form-control form-control-sm py-0" style="height: 28px; font-size: 0.76rem;" id="inputOreGjithsej"
+                                                        value="30" required>
+                                                </div>
+                                            </div>
+
+                                            <!-- SEKSIONI LEKSION -->
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-semibold text-dark d-block mb-1" style="font-size: 0.74rem;">Pedagogu i leksionit</label>
+                                                <select class="form-select form-select-sm py-0" style="height: 28px; font-size: 0.76rem;" id="selectLeksionProf" required>
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>
+
+                                            <!-- SEKSIONI SEMINAR -->
+                                            <div class="mb-2">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <label class="form-label small fw-semibold text-dark mb-0" style="font-size: 0.74rem;">Pedagogu i seminarit</label>
+                                                    <button type="button" class="btn btn-sm btn-amber-soft py-0 px-2 fw-semibold" style="font-size: 0.70rem;"
+                                                        onclick="addSeminarRow()">+ Shto pedagog</button>
+                                                </div>
+                                                <div id="seminarContainer">
+                                                    <!-- Dynamic Seminar Rows -->
+                                                </div>
+                                            </div>
+
+                                            <!-- SEKSIONI LABORATOR -->
+                                            <div class="mb-2">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input" type="checkbox" id="hasLabSwitch"
+                                                            onchange="toggleLabSection()">
+                                                        <label class="form-check-label small fw-semibold text-dark" style="font-size: 0.74rem;"
+                                                            for="hasLabSwitch">Kjo lende ka laborator</label>
+                                                    </div>
+                                                </div>
+
+                                                <div id="labSection" class="d-none mt-1">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="small text-muted fw-bold"></span>
+                                                        <button type="button" class="btn btn-sm btn-amber-soft py-0 px-2 fw-semibold" style="font-size: 0.70rem;"
+                                                            onclick="addLabRow()">+ Shto pedagog laboratori</button>
+                                                    </div>
+                                                    <div id="labContainer">
+                                                        <!-- Dynamic Lab Rows -->
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+                                    </div>
                                 </div>
 
-                            </form>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <button type="button" class="btn btn-sm btn-amber-action py-1 px-4 fw-semibold" style="font-size: 0.8rem;"
+                                        onclick="goToModalStep1()">
+                                        Mbrapa
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-amber-action py-1 px-4 fw-semibold" style="font-size: 0.8rem;"
+                                        onclick="saveAllocationData()">Ruaj</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -310,6 +434,7 @@
                 let dbDepartments = [];
                 let dbPrograms = [];
                 let allAllocationsData = [];
+                let currentClasses = [];
                 let currentEditingCourseId = null;
 
                 $(document).ready(function () {
@@ -714,9 +839,6 @@
                     $('#modalTitle').text("");
                     $('#formTeaching')[0].reset();
 
-                    // Hiq modalitetin edit: aktivizo te gjitha fushat
-                    setEditMode(false);
-
                     $('#selectDepartamenti').val('');
                     $('#selectNiveli').val('');
                     $('#selectProgrami').val('');
@@ -726,26 +848,157 @@
                     populateNiveliDropdown();
                     populateProgramDropdown();
                     populateVitiDropdown();
-                    updateLendetOptions();
 
+                    goToModalStep1();
+                    modalTeaching.show();
+                }
+
+                function goToModalStep1() {
+                    $('#modalTeachingDialog').removeClass('modal-lg modal-xl').css('max-width', '420px');
+                    $('#modalTcStep2').addClass('d-none');
+                    $('#modalTcStep1').removeClass('d-none');
+                    $('#modalTcAlert').addClass('d-none').empty();
+                }
+
+                async function goToModalStep2(preselectedCourseId = null) {
+                    const progId = $('#selectProgrami').val();
+                    const viti = $('#selectViti').val();
+
+                    if (!progId || !viti) {
+                        alert("Ju lutem zgjidhni Nivelin, Degen dhe Vitin para se te vazhdoni.");
+                        return;
+                    }
+
+                    // Ngarko klasat reale nga databaza per kete dege dhe vit
+                    await loadClassesForCurrentSelection(progId, viti);
+
+                    const progName = $('#selectProgrami option:selected').text();
+                    $('#step2SummaryBadge').text(`${progName} • Viti ${viti}`);
+
+                    let courses = allCourses.filter(c => String(c.programId) === String(progId) && String(c.studyYear) === String(viti));
+
+                    renderModalCoursesSidebar(courses, preselectedCourseId);
+
+                    $('#modalTcStep1').addClass('d-none');
+                    $('#modalTcStep2').removeClass('d-none');
+                    $('#modalTeachingDialog').removeClass('modal-lg modal-xl').css('max-width', '580px');
+                    $('#modalTcAlert').addClass('d-none').empty();
+                }
+
+                async function loadClassesForCurrentSelection(progId, viti) {
+                    try {
+                        const res = await fetch(`/api/admin/schedules/classes?programId=${progId}&studyYear=${viti}`, {
+                            headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') }
+                        });
+                        if (res.ok) {
+                            currentClasses = await res.json();
+                        } else {
+                            currentClasses = [];
+                        }
+                    } catch (e) {
+                        console.error("Gabim gjate ngarkimit te klasave:", e);
+                        currentClasses = [];
+                    }
+                }
+
+                function buildClassOptionsHtml(selectedGroup = "", selectedClassIds = [], isLab = false) {
+                    let opts = '';
+                    let matched = false;
+
+                    // 1. Klasat reale nga databaza (Grupi A, Grupi B, Grupi C, Grupi D)
+                    if (currentClasses && currentClasses.length > 0) {
+                        currentClasses.forEach(cl => {
+                            const clName = cl.name || `Klasa ${cl.classId}`;
+                            const isSelById = selectedClassIds && selectedClassIds.some(id => String(id) === String(cl.classId));
+                            
+                            let isSelByName = false;
+                            if (selectedGroup) {
+                                const normSel = selectedGroup.trim().toLowerCase();
+                                const normCl = clName.trim().toLowerCase();
+                                if (normSel === normCl) {
+                                    isSelByName = true;
+                                } else {
+                                    ['a', 'b', 'c', 'd', 'e', 'f'].forEach(letter => {
+                                        if (normSel.endsWith(letter) && normCl.endsWith(letter)) {
+                                            isSelByName = true;
+                                        }
+                                    });
+                                }
+                            }
+
+                            const selected = (isSelById || (!matched && isSelByName)) ? 'selected' : '';
+                            if (selected) matched = true;
+
+                            opts += `<option value="${clName}" data-class-id="${cl.classId}" ${selected}>${clName}</option>`;
+                        });
+                    }
+
+                    // 2. Opsioni per te gjitha klasat
+                    const allSelected = (!matched && selectedGroup && (selectedGroup.includes('gjitha') || selectedGroup.includes('&'))) ? 'selected' : '';
+                    opts += `<option value="Te gjitha klasat" data-class-id="" ${allSelected}>Te gjitha klasat</option>`;
+
+                    // 3. Fallback nese nuk u gjet asnje klase ne DB
+                    if (!currentClasses || currentClasses.length === 0) {
+                        ['Grupi A', 'Grupi B', 'Grupi C', 'Grupi D'].forEach((grp, idx) => {
+                            const sel = (selectedGroup === grp || (!selectedGroup && idx === 0)) ? 'selected' : '';
+                            opts += `<option value="${grp}" ${sel}>${grp}</option>`;
+                        });
+                    }
+
+                    return opts;
+                }
+
+                function renderModalCoursesSidebar(courses, selectCourseId = null) {
+                    const container = $('#modalCoursesSidebar');
+                    container.empty();
+                    $('#step2CoursesBadge').text(`${courses.length} lëndë`);
+
+                    if (courses.length === 0) {
+                        container.html('<div class="text-muted small text-center py-4">Nuk ka lëndë të regjistruara për këtë vit.</div>');
+                        $('#selectLenda').val('');
+                        $('#step2ActiveCourseTitle').text("Nuk ka lëndë");
+                        return;
+                    }
+
+                    courses.forEach(c => {
+                        const item = $(`
+                            <div class="modal-course-item" data-course-id="${c.courseId}">
+                                <span class="fw-semibold small text-dark text-truncate" style="font-size: 0.78rem;">${c.emriCourse}</span>
+                            </div>
+                        `);
+
+                        item.on('click', function () {
+                            selectSidebarCourse(c.courseId);
+                        });
+
+                        container.append(item);
+                    });
+
+                    const targetId = selectCourseId || courses[0].courseId;
+                    selectSidebarCourse(targetId);
+                }
+
+                async function selectSidebarCourse(courseId) {
+                    const course = allCourses.find(c => String(c.courseId) === String(courseId));
+                    if (!course) return;
+
+                    $('.modal-course-item').removeClass('active');
+                    $(`.modal-course-item[data-course-id="${courseId}"]`).addClass('active');
+
+                    $('#selectLenda').val(course.courseId);
+                    $('#step2ActiveCourseTitle').text(course.emriCourse);
+                    $('#step2ActiveCourseKredite').text(`${course.kredite || 0} Kredite`);
+
+                    $('#inputKohezgjatja').val('18');
+                    $('#inputOreGjithsej').val('30');
+                    $('#selectLeksionProf').val('');
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();
                     addSeminarRow();
                     $('#hasLabSwitch').prop('checked', false);
                     toggleLabSection();
-                    modalTeaching.show();
-                }
 
-                function setEditMode(isEdit) {
-                    const readOnlyIds = ['selectDepartamenti', 'selectNiveli', 'selectProgrami', 'selectViti', 'selectSemestri', 'selectLenda'];
-                    readOnlyIds.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (!el) return;
-                        el.disabled = isEdit;
-                        el.style.backgroundColor = isEdit ? '#f8f9fa' : '';
-                        el.style.cursor = isEdit ? 'not-allowed' : '';
-                        el.style.opacity = isEdit ? '0.72' : '';
-                    });
+                    await checkExistingCourseAllocation(course.courseId);
                 }
 
                 async function openEditModal(courseId) {
@@ -755,75 +1008,35 @@
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();
 
-                    // Vendos modalitetin edit: blloko fushat read-only
-                    setEditMode(true);
-
                     try {
                         const targetCourse = allCourses.find(c => String(c.courseId) === String(courseId));
+                        let sem = '1';
+                        try {
+                            const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data && data.semester) sem = data.semester;
+                            }
+                        } catch (_) {}
 
-                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
-                        if (!res.ok) throw new Error("Nuk u mundesua leximi i alokimit");
-                        const data = await res.json();
-
-                        const deptId = data.departmentId || (targetCourse ? targetCourse.departmentId : null);
-                        const progId = data.programId || (targetCourse ? targetCourse.programId : null);
-                        const progNivel = data.programNivel || (targetCourse ? targetCourse.programNivel : null);
-                        const studyYear = data.studyYear || (targetCourse ? targetCourse.studyYear : null);
+                        const deptId = targetCourse ? targetCourse.departmentId : null;
+                        const progId = targetCourse ? targetCourse.programId : null;
+                        const progNivel = targetCourse ? targetCourse.programNivel : null;
+                        const studyYear = targetCourse ? targetCourse.studyYear : null;
 
                         populateDepartmentDropdown();
-                        if (deptId) {
-                            $('#selectDepartamenti').val(deptId);
-                        } else {
-                            $('#selectDepartamenti').val('');
-                        }
+                        if (deptId) $('#selectDepartamenti').val(deptId);
 
                         populateNiveliDropdown();
-                        if (progNivel) {
-                            $('#selectNiveli').val(progNivel);
-                        }
+                        if (progNivel) $('#selectNiveli').val(progNivel);
 
                         populateProgramDropdown();
-                        if (progId) {
-                            $('#selectProgrami').val(progId);
-                        }
+                        if (progId) $('#selectProgrami').val(progId);
 
                         populateVitiDropdown();
-                        if (studyYear) {
-                            $('#selectViti').val(studyYear);
-                        }
+                        if (studyYear) $('#selectViti').val(studyYear);
 
-                        updateLendetOptions();
-
-                        if (data.courseId || courseId) {
-                            $('#selectLenda').val(data.courseId || courseId);
-                        }
-                        if (data.semester) $('#selectSemestri').val(data.semester);
-                        if (data.durationWeeks) $('#inputKohezgjatja').val(data.durationWeeks);
-                        if (data.totalHours) $('#inputOreGjithsej').val(data.totalHours);
-
-                        if (data.lectureProfessor) {
-                            $('#selectLeksionProf').val(data.lectureProfessor.professorId);
-                        }
-
-                        if (data.seminarProfessors && data.seminarProfessors.length > 0) {
-                            data.seminarProfessors.forEach(s => {
-                                addSeminarRow(s.professorId, s.classGroup);
-                            });
-                        } else {
-                            addSeminarRow();
-                        }
-
-                        if (data.labProfessors && data.labProfessors.length > 0) {
-                            $('#hasLabSwitch').prop('checked', true);
-                            toggleLabSection();
-                            data.labProfessors.forEach(l => {
-                                addLabRow(l.professorId, l.classGroup);
-                            });
-                        } else {
-                            $('#hasLabSwitch').prop('checked', false);
-                            toggleLabSection();
-                        }
-
+                        await goToModalStep2(courseId);
                         modalTeaching.show();
                     } catch (err) {
                         alert("Gabim gjate leximit te te dhenave: " + err.message);
@@ -838,65 +1051,57 @@
                     }
                 }
 
-                function addSeminarRow(selectedProfId = "", selectedGroup = "Klasa A") {
+                function addSeminarRow(selectedProfId = "", selectedGroup = "", selectedClassIds = []) {
                     let profOpts = '<option value="">Pedagogu i seminarit</option>';
                     allProfessors.forEach(p => {
                         const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
                         profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
                     });
 
-                    const isA = selectedGroup && (selectedGroup === 'Klasa A' || (selectedGroup.includes('A') && !selectedGroup.includes('B')));
-                    const isB = selectedGroup && (selectedGroup === 'Klasa B' || (selectedGroup.includes('B') && !selectedGroup.includes('A')));
-                    const isAll = selectedGroup && (selectedGroup.includes('gjitha') || (selectedGroup.includes('A') && selectedGroup.includes('B')));
+                    const classOpts = buildClassOptionsHtml(selectedGroup, selectedClassIds, false);
 
                     let html = `
-                    <div class="row g-2 mb-2 align-items-center seminar-row">
-                        <div class="col-md-7">
-                            <select class="form-select form-select-sm select-seminar-prof" required>
+                    <div class="row g-1 mb-1 align-items-center seminar-row">
+                        <div class="col-md-8 col-7">
+                            <select class="form-select form-select-sm py-0 select-seminar-prof" required>
                                 ${profOpts}
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <select class="form-select form-select-sm select-seminar-group" required>
-                                <option value="Klasa A" ${isA || (!isB && !isAll) ? 'selected' : ''}>Klasa A</option>
-                                <option value="Klasa B" ${isB ? 'selected' : ''}>Klasa B</option>
-                                <option value="Te gjitha klasat" ${isAll ? 'selected' : ''}>Te gjitha klasat</option>
+                        <div class="col-md-3 col-4">
+                            <select class="form-select form-select-sm py-0 select-seminar-group" required>
+                                ${classOpts}
                             </select>
                         </div>
-                        <div class="col-md-1 text-end">
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        <div class="col-md-1 col-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" style="font-size: 0.76rem;" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>`;
                     $('#seminarContainer').append(html);
                 }
 
-                function addLabRow(selectedProfId = "", selectedGroup = "Klasa A & B") {
-                    let profOpts = '<option value=""></option>';
+                function addLabRow(selectedProfId = "", selectedGroup = "", selectedClassIds = []) {
+                    let profOpts = '<option value="">Pedagogu i laboratorit</option>';
                     allProfessors.forEach(p => {
                         const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
                         profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
                     });
 
-                    const isA = selectedGroup && (selectedGroup === 'Klasa A' || (selectedGroup.includes('A') && !selectedGroup.includes('B')));
-                    const isB = selectedGroup && (selectedGroup === 'Klasa B' || (selectedGroup.includes('B') && !selectedGroup.includes('A')));
-                    const isAll = selectedGroup && (selectedGroup.includes('&') || selectedGroup.includes('gjitha') || (selectedGroup.includes('A') && selectedGroup.includes('B')));
+                    const classOpts = buildClassOptionsHtml(selectedGroup, selectedClassIds, true);
 
                     let html = `
-                    <div class="row g-2 mb-2 align-items-center lab-row">
-                        <div class="col-md-7">
-                            <select class="form-select form-select-sm select-lab-prof">
+                    <div class="row g-1 mb-1 align-items-center lab-row">
+                        <div class="col-md-8 col-7">
+                            <select class="form-select form-select-sm py-0 select-lab-prof">
                                 ${profOpts}
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <select class="form-select form-select-sm select-lab-group">
-                                <option value="Klasa A & B" ${isAll || (!isA && !isB) ? 'selected' : ''}>Klasa A & B</option>
-                                <option value="Klasa A" ${isA ? 'selected' : ''}>Klasa A</option>
-                                <option value="Klasa B" ${isB ? 'selected' : ''}>Klasa B</option>
+                        <div class="col-md-3 col-4">
+                            <select class="form-select form-select-sm py-0 select-lab-group">
+                                ${classOpts}
                             </select>
                         </div>
-                        <div class="col-md-1 text-end">
-                            <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        <div class="col-md-1 col-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" style="font-size: 0.76rem;" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>`;
                     $('#labContainer').append(html);
@@ -908,26 +1113,15 @@
 
                 async function checkExistingCourseAllocation(courseId) {
                     $('#modalTcAlert').addClass('d-none').empty();
-                    // Reset fields first
-                    $('#selectLeksionProf').val('');
-                    $('#seminarContainer').empty();
-                    $('#labContainer').empty();
-                    addSeminarRow();
-                    $('#hasLabSwitch').prop('checked', false);
-                    toggleLabSection();
-
                     try {
                         const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
                         if (!res.ok) return;
                         const data = await res.json();
 
                         if (data && (data.lectureProfessor || (data.seminarProfessors && data.seminarProfessors.length > 0) || (data.labProfessors && data.labProfessors.length > 0))) {
-                            $('#modalTcAlert')
-                                .removeClass('d-none alert-danger')
-                                .addClass('alert-info')
-                                .html('<i class="bi bi-info-circle me-1"></i> Kjo lende ka alokim ekzistues ne databaze. Te dhenat u ngarkuan per perditesim.');
-
-                            if (data.semester) $('#selectSemestri').val(data.semester);
+                            if (data.semester) {
+                                $('#step2Semestri').val(data.semester);
+                            }
                             if (data.durationWeeks) $('#inputKohezgjatja').val(data.durationWeeks);
                             if (data.totalHours) $('#inputOreGjithsej').val(data.totalHours);
 
@@ -938,7 +1132,7 @@
                             $('#seminarContainer').empty();
                             if (data.seminarProfessors && data.seminarProfessors.length > 0) {
                                 data.seminarProfessors.forEach(s => {
-                                    addSeminarRow(s.professorId, s.classGroup);
+                                    addSeminarRow(s.professorId, s.classGroup, s.classIds);
                                 });
                             } else {
                                 addSeminarRow();
@@ -949,7 +1143,7 @@
                                 $('#hasLabSwitch').prop('checked', true);
                                 toggleLabSection();
                                 data.labProfessors.forEach(l => {
-                                    addLabRow(l.professorId, l.classGroup);
+                                    addLabRow(l.professorId, l.classGroup, l.classIds);
                                 });
                             } else {
                                 $('#hasLabSwitch').prop('checked', false);
@@ -962,13 +1156,10 @@
                 }
 
                 async function saveAllocationData() {
-                    // Ne edit mode, courseId vjen nga currentEditingCourseId
-                    // jQuery .val() funksionon edhe per disabled selects
-                    const isEditMode = currentEditingCourseId !== null;
-                    const courseIdVal = isEditMode ? currentEditingCourseId : ($('#selectLenda').val() || null);
+                    const courseIdVal = $('#selectLenda').val();
                     const courseId = courseIdVal ? parseInt(courseIdVal) : null;
                     if (!courseId) {
-                        alert("Ju lutem zgjidhni lenden!");
+                        alert("Ju lutem zgjidhni një lëndë nga lista në të majtë.");
                         return;
                     }
 
@@ -977,9 +1168,16 @@
                     const seminars = [];
                     $('#seminarContainer .seminar-row').each(function () {
                         const profId = $(this).find('.select-seminar-prof').val();
-                        const group = $(this).find('.select-seminar-group').val();
+                        const selEl = $(this).find('.select-seminar-group');
+                        const group = selEl.val();
+                        const classId = selEl.find('option:selected').data('class-id');
+                        const classIds = classId ? [parseInt(classId)] : [];
                         if (profId) {
-                            seminars.push({ professorId: parseInt(profId), classGroup: group });
+                            seminars.push({ 
+                                professorId: parseInt(profId), 
+                                classGroup: group,
+                                classIds: classIds
+                            });
                         }
                     });
 
@@ -988,15 +1186,21 @@
                     if (hasLab) {
                         $('#labContainer .lab-row').each(function () {
                             const profId = $(this).find('.select-lab-prof').val();
-                            const group = $(this).find('.select-lab-group').val();
+                            const selEl = $(this).find('.select-lab-group');
+                            const group = selEl.val();
+                            const classId = selEl.find('option:selected').data('class-id');
+                            const classIds = classId ? [parseInt(classId)] : [];
                             if (profId) {
-                                labs.push({ professorId: parseInt(profId), classGroup: group });
+                                labs.push({ 
+                                    professorId: parseInt(profId), 
+                                    classGroup: group,
+                                    classIds: classIds
+                                });
                             }
                         });
                     }
 
-                    // Lexo semester edhe kur disabled (ne edit mode)
-                    const semesterVal = $('#selectSemestri').val();
+                    const semesterVal = $('#step2Semestri').val() || '1';
 
                     const payload = {
                         courseId: courseId,
@@ -1009,7 +1213,6 @@
                         labs: labs
                     };
 
-
                     try {
                         const response = await fetch('/api/admin/teaching-courses', {
                             method: 'POST',
@@ -1018,16 +1221,20 @@
                         });
 
                         if (response.ok) {
-                            modalTeaching.hide();
-                            loadAllocationsTable();
+                            await loadAllocationsTable();
+                            const progId = $('#selectProgrami').val();
+                            const viti = $('#selectViti').val();
+                            let courses = allCourses.filter(c => String(c.programId) === String(progId) && String(c.studyYear) === String(viti));
+                            renderModalCoursesSidebar(courses, courseId);
+
+                            $('#modalTcAlert').addClass('d-none').empty();
                         } else {
                             let msg = "Gabim gjate ruajtjes se te dhenave te alokimit.";
                             try {
                                 const errObj = await response.json();
                                 if (errObj.message) msg = errObj.message;
                             } catch (_) { }
-                            $('#modalTcAlert').removeClass('d-none alert-info').addClass('alert-danger').text(msg);
-                            alert(msg);
+                            $('#modalTcAlert').removeClass('d-none alert-info alert-success').addClass('alert-danger').text(msg);
                         }
                     } catch (err) {
                         console.error("Gabim ruajtjeje:", err);
@@ -1038,14 +1245,20 @@
                 async function deleteAllocation(courseId) {
                     if (!confirm("A jeni i sigurt qe deshironi ta fshini kete mesimdhenie?")) return;
                     try {
-                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { method: 'DELETE' });
+                        const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
                         if (res.ok) {
                             loadAllocationsTable();
                         } else {
-                            alert("Gabim gjate fshirjes se mesimdhenies.");
+                            let msg = "Gabim gjate fshirjes se mesimdhenies.";
+                            try {
+                                const errObj = await res.json();
+                                if (errObj && errObj.message) msg = errObj.message;
+                            } catch (_) {}
+                            alert(msg);
                         }
                     } catch (err) {
                         console.error("Gabim fshirjeje:", err);
+                        alert("Gabim gjate komunikimit me serverin: " + err.message);
                     }
                 }
             </script>

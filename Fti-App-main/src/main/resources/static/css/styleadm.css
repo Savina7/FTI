@@ -54,15 +54,21 @@ body {
    2. SIDEBAR (Neutral si Student + Amber accent)
    -------------------------------------------------------------------------- */
 #sidebar-wrapper {
+  width: 250px;
   min-width: 250px;
   max-width: 250px;
-  min-height: 100vh;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
   background-color: #ffffff;
   border-right: 1px solid var(--border-neutral);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
+  z-index: 1020;
 }
 
 .sidebar-heading {
@@ -129,6 +135,7 @@ body {
    4. LAYOUT & TOP BAR HEADER
    -------------------------------------------------------------------------- */
 #page-content-wrapper {
+  margin-left: 250px;
   flex: 1;
   min-width: 0;
   display: flex;

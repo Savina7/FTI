@@ -40,6 +40,9 @@ public class TeachingCourse {
     @Column(name = "DURATION_WEEKS")
     private Integer durationWeeks;
 
+    @Column(name = "TOTAL_HOURS")
+    private Integer totalHours;
+
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
