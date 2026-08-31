@@ -64,17 +64,15 @@ public class StudentService {
                 Integer courseCredits = g.getTeachingCourse().getCourse().getKredite();
                 int krediteVal = courseCredits != null ? courseCredits : 0;
 
-                if (krediteVal > 0) {
+                // Nota 4 (ngelese) nuk llogaritet ne mesatare dhe as te kreditet e fituara
+                if (krediteVal > 0 && gradeVal >= 5.0) {
                     totalWeightedPoints += (gradeVal * krediteVal);
                     sumCreditsFromGrades += krediteVal;
                 }
             }
         }
 
-        Integer totalKredite = student.getTotalKredite();
-        if (totalKredite == null || totalKredite == 0) {
-            totalKredite = sumCreditsFromGrades;
-        }
+        Integer totalKredite = sumCreditsFromGrades;
 
         double mesatarja = 0.0;
         String mesatarjaFormatted = "0.00";

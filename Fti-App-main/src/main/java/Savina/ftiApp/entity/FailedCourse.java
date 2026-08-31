@@ -6,7 +6,11 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "FAILED_COURSES")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FailedCourse {
 
     @Id
@@ -14,20 +18,21 @@ public class FailedCourse {
     @Column(name = "FAILED_ID")
     private Integer failedId;
 
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STUDENT_ID", nullable = false)
     private Student student;
 
-    @ToString.Exclude @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEACHING_COURSE_ID", nullable = false)
     private TeachingCourse teachingCourse;
 
-    @ToString.Exclude @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GRADE_ID", nullable = false)
-    private Grade grade;
+    @Builder.Default
+    @Column(name = "STATUS", length = 50)
+    private String status = "FREKUENTIM";
 
     @Column(name = "DATE_RECORDED")
     private LocalDate dateRecorded;

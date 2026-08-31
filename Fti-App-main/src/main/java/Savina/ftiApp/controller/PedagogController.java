@@ -68,4 +68,17 @@ public class PedagogController {
         pedagogService.saveAttendance(req);
         return ResponseEntity.ok(Map.of("message", "Mungesat u ruajten me sukses."));
     }
+
+    @GetMapping("/exam-attendance")
+    public ResponseEntity<Savina.ftiApp.dto.responseDTO.ExamAttendancePageDto> getExamAttendance(
+            @RequestParam Integer courseId,
+            @RequestParam(required = false) Integer classId) {
+        return ResponseEntity.ok(pedagogService.getExamAttendance(courseId, classId));
+    }
+
+    @PostMapping("/exam-attendance")
+    public ResponseEntity<Map<String, String>> saveExamAttendance(@RequestBody Savina.ftiApp.dto.requestDTO.SaveExamAttendanceRequest req) {
+        pedagogService.saveExamAttendance(req);
+        return ResponseEntity.ok(Map.of("message", "Pjesëmarrja në provim u ruajt me sukses."));
+    }
 }

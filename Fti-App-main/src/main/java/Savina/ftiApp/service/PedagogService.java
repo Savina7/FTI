@@ -3,8 +3,11 @@ package Savina.ftiApp.service;
 import Savina.ftiApp.dto.responseDTO.BranchStatsDto;
 import Savina.ftiApp.dto.responseDTO.PedagogOptionsDto;
 import Savina.ftiApp.dto.responseDTO.PedagogRegisterDto;
+import Savina.ftiApp.dto.responseDTO.ExamAttendancePageDto;
+import Savina.ftiApp.dto.responseDTO.ExamAttendanceStudentDto;
 import Savina.ftiApp.dto.requestDTO.SaveAttendanceRequest;
 import Savina.ftiApp.dto.requestDTO.SaveGradesRequest;
+import Savina.ftiApp.dto.requestDTO.SaveExamAttendanceRequest;
 import Savina.ftiApp.entity.*;
 import Savina.ftiApp.mapper.PedagogMapper;
 import Savina.ftiApp.repository.*;
@@ -16,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +42,8 @@ public class PedagogService {
     private final TopicRepository topicRepo;
     private final ProgramRepository programRepo;
     private final PedagogMapper pedagogMapper;
+    private final ExamScheduleRepository examScheduleRepo;
+    private final ExamAttendanceRepository examAttendanceRepo;
 
     @Transactional(readOnly = true)
     public PedagogOptionsDto getPedagogOptions(Integer userId, String email) {
@@ -366,6 +373,20 @@ public class PedagogService {
         List<PedagogRegisterDto.StudentRowDto> studentRows = new ArrayList<>();
         List<BigDecimal> allGradeValues = new ArrayList<>();
 
+        Map<Integer, String> examAttByStudentId = new HashMap<>();
+        if (courseId != null) {
+            List<ExamSchedule> exams = examScheduleRepo.findByCourse_CourseId(courseId);
+            if (!exams.isEmpty()) {
+                List<Integer> exIds = exams.stream().map(ExamSchedule::getExamId).collect(Collectors.toList());
+                List<ExamAttendance> attList = examAttendanceRepo.findByExamSchedule_ExamIdIn(exIds);
+                for (ExamAttendance ea : attList) {
+                    if (ea.getStudent() != null) {
+                        examAttByStudentId.put(ea.getStudent().getStudentId(), ea.getStatus());
+                    }
+                }
+            }
+        }
+
         for (Student s : students) {
             String fullName = (s.getUser() != null)
                     ? ((s.getUser().getEmri() != null ? s.getUser().getEmri() : "") + " "
@@ -387,6 +408,8 @@ public class PedagogService {
             boolean isPermiresim = (g != null && "IMPROVED".equalsIgnoreCase(g.getStatus()));
             if (isPermiresim) {
                 status = "P";
+            } else if (g != null && ("ABSENT".equalsIgnoreCase(g.getStatus()) || "NP".equalsIgnoreCase(g.getStatus()))) {
+                status = "NP";
             } else if (gradeVal != null && gradeVal.compareTo(new BigDecimal("5.0")) < 0) {
                 status = "N";
             }
@@ -407,6 +430,8 @@ public class PedagogService {
                 }
             }
 
+            String exStatus = examAttByStudentId.get(s.getStudentId());
+
             studentRows.add(PedagogRegisterDto.StudentRowDto.builder()
                     .studentId(s.getStudentId())
                     .emri(fullName)
@@ -415,6 +440,7 @@ public class PedagogService {
                     .status(status)
                     .isPermiresim(isPermiresim)
                     .attendance(attMap)
+                    .examAttendanceStatus(exStatus)
                     .build());
         }
 
@@ -485,15 +511,31 @@ public class PedagogService {
                         .build();
             }
 
-            grade.setGrade(entry.getGrade());
-            if ("P".equalsIgnoreCase(entry.getStatus())) {
-                grade.setStatus("IMPROVED");
-            } else if (entry.getGrade() != null && entry.getGrade().compareTo(new BigDecimal("5.0")) < 0) {
-                grade.setStatus("FAILED");
+            if ("NP".equalsIgnoreCase(entry.getStatus()) || "ABSENT".equalsIgnoreCase(entry.getStatus())) {
+                grade.setGrade(null);
+                grade.setStatus("ABSENT");
             } else {
-                grade.setStatus("PASSED");
+                grade.setGrade(entry.getGrade());
+                if ("P".equalsIgnoreCase(entry.getStatus())) {
+                    grade.setStatus("IMPROVED");
+                } else if (entry.getGrade() != null && entry.getGrade().compareTo(new BigDecimal("5.0")) < 0) {
+                    grade.setStatus("FAILED");
+                } else {
+                    grade.setStatus("PASSED");
+                }
             }
             gradeRepo.save(grade);
+
+            if (entry.getGrade() != null && req.getCourseId() != null) {
+                List<ExamSchedule> exams = examScheduleRepo.findByCourse_CourseId(req.getCourseId());
+                for (ExamSchedule ex : exams) {
+                    ExamAttendance ea = examAttendanceRepo.findByExamSchedule_ExamIdAndStudent_StudentId(ex.getExamId(), student.getStudentId()).orElse(null);
+                    if (ea != null && "absent".equalsIgnoreCase(ea.getStatus())) {
+                        ea.setStatus("present");
+                        examAttendanceRepo.save(ea);
+                    }
+                }
+            }
         }
     }
 
@@ -867,5 +909,166 @@ public class PedagogService {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Merr listen e pjesemarrjes se studenteve ne provim per lenden dhe klasen e zgjedhur.
+     */
+    @Transactional(readOnly = true)
+    public ExamAttendancePageDto getExamAttendance(Integer courseId, Integer classId) {
+        if (courseId == null) {
+            return ExamAttendancePageDto.builder()
+                    .hasExam(false)
+                    .students(Collections.emptyList())
+                    .build();
+        }
+
+        // 1. Gjejme provimin me te afert per kete lende
+        List<ExamSchedule> exams = examScheduleRepo.findByCourse_CourseId(courseId);
+        ExamSchedule exam = exams.isEmpty() ? null : exams.get(exams.size() - 1);
+
+        String examDateStr = "";
+        String timeRangeStr = "";
+        String roomNamesStr = "";
+        Integer examId = null;
+
+        if (exam != null) {
+            examId = exam.getExamId();
+            if (exam.getExamDate() != null) {
+                examDateStr = exam.getExamDate().toLocalDate().toString();
+                String start = exam.getExamDate().format(DateTimeFormatter.ofPattern("HH:mm"));
+                String end = (exam.getEndTime() != null && !exam.getEndTime().isBlank())
+                        ? exam.getEndTime()
+                        : exam.getExamDate().plusHours(3).format(DateTimeFormatter.ofPattern("HH:mm"));
+                timeRangeStr = start + " - " + end;
+            }
+            if (exam.getRooms() != null && !exam.getRooms().isEmpty()) {
+                roomNamesStr = exam.getRooms().stream()
+                        .map(Room::getRoomName)
+                        .sorted()
+                        .collect(Collectors.joining(", "));
+            }
+        }
+
+        // 2. Gjejme studentet e klases ose te gjithe kursit
+        Course course = courseRepo.findById(courseId).orElse(null);
+        List<Student> students = new ArrayList<>();
+        if (classId != null) {
+            students = studentRepo.findByClasses_ClassId(classId);
+        }
+        if (students.isEmpty() && course != null && course.getProgram() != null) {
+            students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+        }
+        if (students.isEmpty()) {
+            students = studentRepo.findAll();
+        }
+
+        // 3. Gjejme attendance ekzistuese nese ka
+        Map<Integer, String> statusByStudent = new HashMap<>();
+        if (examId != null) {
+            List<ExamAttendance> attList = examAttendanceRepo.findByExamSchedule_ExamId(examId);
+            for (ExamAttendance ea : attList) {
+                if (ea.getStudent() != null) {
+                    statusByStudent.put(ea.getStudent().getStudentId(), ea.getStatus());
+                }
+            }
+        }
+
+        List<ExamAttendanceStudentDto> studentDtos = new ArrayList<>();
+        for (Student s : students) {
+            String fullName = (s.getUser() != null)
+                    ? ((s.getUser().getEmri() != null ? s.getUser().getEmri() : "") + " "
+                            + (s.getUser().getMbiemri() != null ? s.getUser().getMbiemri() : "")).trim()
+                    : "Student #" + s.getStudentId();
+            if (fullName.isBlank()) fullName = "Student " + s.getStudentId();
+
+            // By default PREZENT nese nuk eshte shenuar me pare!
+            String status = statusByStudent.getOrDefault(s.getStudentId(), "present");
+
+            studentDtos.add(ExamAttendanceStudentDto.builder()
+                    .studentId(s.getStudentId())
+                    .studentName(fullName)
+                    .matrikulli(s.getNrMatrikulimit() != null ? s.getNrMatrikulimit() : "IK-" + (3000 + s.getStudentId()))
+                    .status(status)
+                    .build());
+        }
+
+        studentDtos.sort(Comparator.comparing(ExamAttendanceStudentDto::getStudentName, String.CASE_INSENSITIVE_ORDER));
+
+        String courseName = course != null ? course.getEmriCourse() : "";
+
+        return ExamAttendancePageDto.builder()
+                .examId(examId)
+                .courseId(courseId)
+                .courseName(courseName)
+                .examDate(examDateStr)
+                .timeRange(timeRangeStr)
+                .roomNames(roomNamesStr)
+                .hasExam(exam != null)
+                .students(studentDtos)
+                .build();
+    }
+
+    /**
+     * Ruan pjesemarrjen ne provim per studentet te EXAM_ATTENDANCE.
+     */
+    @Transactional
+    public void saveExamAttendance(SaveExamAttendanceRequest req) {
+        if (req == null || req.getCourseId() == null || req.getEntries() == null) {
+            return;
+        }
+
+        ExamSchedule exam = null;
+        if (req.getExamId() != null) {
+            exam = examScheduleRepo.findById(req.getExamId()).orElse(null);
+        }
+        if (exam == null) {
+            List<ExamSchedule> exams = examScheduleRepo.findByCourse_CourseId(req.getCourseId());
+            if (!exams.isEmpty()) {
+                exam = exams.get(exams.size() - 1);
+            }
+        }
+
+        if (exam == null) {
+            Course c = courseRepo.findById(req.getCourseId()).orElse(null);
+            if (c == null) throw new IllegalArgumentException("Lënda nuk u gjet!");
+
+            Program prog = c.getProgram();
+
+            exam = ExamSchedule.builder()
+                    .course(c)
+                    .program(prog)
+                    .examDate(LocalDateTime.now())
+                    .type("VJESHTE")
+                    .build();
+            exam = examScheduleRepo.save(exam);
+        }
+
+        final ExamSchedule finalExam = exam;
+        for (SaveExamAttendanceRequest.StudentStatusEntry entry : req.getEntries()) {
+            if (entry.getStudentId() == null) continue;
+
+            ExamAttendance ea = examAttendanceRepo.findByExamSchedule_ExamIdAndStudent_StudentId(finalExam.getExamId(), entry.getStudentId())
+                    .orElse(null);
+
+            String statusVal = (entry.getStatus() != null && !entry.getStatus().isBlank())
+                    ? entry.getStatus().trim().toLowerCase()
+                    : "present";
+
+            if (ea == null) {
+                Student st = studentRepo.findById(entry.getStudentId()).orElse(null);
+                if (st == null) continue;
+
+                ea = ExamAttendance.builder()
+                        .examSchedule(finalExam)
+                        .student(st)
+                        .status(statusVal)
+                        .build();
+            } else {
+                ea.setStatus(statusVal);
+            }
+
+            examAttendanceRepo.save(ea);
+        }
     }
 }

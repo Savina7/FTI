@@ -55,9 +55,7 @@
                         class="list-group-item list-group-item-action border-0 px-4 py-2.5">
                         Statistikat e Deges
                     </a>
-                    <a href="#" id="menuOrari" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
-                        Orari Im
-                    </a>
+
                 </div>
             </div>
 
@@ -190,6 +188,12 @@
                                                 Mungesat
                                             </button>
                                         </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="connected-tab-btn" id="provimi-tab" data-bs-toggle="tab"
+                                                data-bs-target="#provimi-pane" type="button" role="tab">
+                                                Provimi
+                                            </button>
+                                        </li>
 
                                     </ul>
                                 </div>
@@ -282,7 +286,6 @@
                                                         <tr>
                                                             <th style="width: 50px;"></th>
                                                             <th>Studenti</th>
-                                                            <th>Nr.Matrikullimit</th>
                                                             <th class="text-center" style="width: 120px;">Nota</th>
                                                             <th class="text-center" style="width: 130px;">Statusi</th>
                                                         </tr>
@@ -303,12 +306,7 @@
 
                                         <!-- ================= TAB 3: MUNGESAT ================= -->
                                         <div class="tab-pane fade" id="mungesat-pane" role="tabpanel">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div>
-                                                    <p class="text-muted small mb-0">Shenimi <code>✓</code> do te thote
-                                                        <strong>Pjesemarres</strong>.
-                                                    </p>
-                                                </div>
+                                            <div class="d-flex justify-content-end align-items-center mb-3">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div id="statusMungesatMsg" class="d-none"></div>
                                                     <button class="btn btn-amber-light btn-sm fw-semibold"
@@ -328,6 +326,46 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody id="mungesatTableBody">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- ================= TAB 4: PROVIMI (EXAM ATTENDANCE) ================= -->
+                                        <div class="tab-pane fade" id="provimi-pane" role="tabpanel">
+                                            <div class="d-flex justify-content-end align-items-center mb-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div id="statusProvimiMsg" class="d-none"></div>
+                                                    <button type="button" class="btn btn-amber-light btn-sm fw-semibold"
+                                                        onclick="ruajExamAttendance()">
+                                                        Ruaj
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle border-light-subtle"
+                                                    id="examAttendanceTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 60px;">Nr.</th>
+                                                            <th>Emri dhe Mbiemri</th>
+                                                            <th class="text-center" style="width: 110px;">
+                                                                <input class="form-check-input form-check-amber-light"
+                                                                    type="checkbox" id="examAttMasterCheck" checked
+                                                                    title="Zgjidh të gjithë / Hiq të gjithë"
+                                                                    onchange="toggleAllExamChecks(this)"
+                                                                    style="cursor: pointer; transform: scale(1.15);">
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="examAttendanceTableBody">
+                                                        <tr>
+                                                            <td colspan="3" class="text-center py-4 text-muted">
+                                                                Zgjidhni një lëndë dhe klikoni Kërko për të parë
+                                                                studentët.
+                                                            </td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -682,10 +720,11 @@
                 if (paneReg) paneReg.classList.remove('d-none');
             }
 
-            // Ngarko Temat, Regjistrin dhe Mungesat
+            // Ngarko Temat, Regjistrin, Mungesat dhe Provimin
             await Promise.all([
                 ngarkoTemat(courseId),
-                ngarkoRegjistrin(courseId, classId, academicYear, roleType)
+                ngarkoRegjistrin(courseId, classId, academicYear, roleType),
+                ngarkoExamAttendance(courseId, classId)
             ]);
         }
 
@@ -722,21 +761,35 @@
             if (tbodyNotat && data.students) {
                 tbodyNotat.innerHTML = '';
                 data.students.forEach((s, idx) => {
-                    const statusBadge = (s.status === 'P')
-                        ? '<span class="badge badge-amber-soft px-2 py-1 student-status">P</span>'
-                        : ((s.status === 'N') ? '<span class="badge badge-danger-soft px-2 py-1 student-status">N</span>' : '<span class="text-muted small student-status">-</span>');
+                    const isAbsentInExam = (s.examAttendanceStatus === 'absent');
+
+                    let statusBadge;
+                    let inputField;
+
+                    if (isAbsentInExam) {
+                        statusBadge = '<span class="badge bg-secondary-subtle text-secondary border fw-bold px-2 py-1 student-status" title="Nuk u Paraqit në Provim">NP</span>';
+                        inputField = `<input type="number" class="form-control form-control-sm text-center fw-bold student-nota"
+                                value="" min="4" max="10" step="1"
+                                oninput="perditesoStatusin(this)">`;
+                    } else {
+                        statusBadge = (s.status === 'P')
+                            ? '<span class="badge badge-amber-soft px-2 py-1 student-status">P</span>'
+                            : ((s.status === 'N') ? '<span class="badge badge-danger-soft px-2 py-1 student-status">N</span>' : '<span class="text-muted small student-status">-</span>');
+                        inputField = `<input type="number" class="form-control form-control-sm text-center fw-bold student-nota"
+                                value="${s.grade != null ? s.grade : ''}" min="4" max="10" step="1"
+                                oninput="perditesoStatusin(this)">`;
+                    }
 
                     const tr = document.createElement('tr');
                     tr.dataset.studentId = s.studentId;
                     tr.dataset.permiresim = s.permiresim ? "true" : "false";
+                    tr.dataset.examAbsent = isAbsentInExam ? "true" : "false";
+                    tr.dataset.examAbsentOrig = isAbsentInExam ? "true" : "false";
                     tr.innerHTML = `
                         <td>${idx + 1}</td>
                         <td class="fw-semibold student-emri">${s.emri || ''}</td>
-                        <td class="student-amza text-muted">${s.nrMatrikulimit || ''}</td>
                         <td>
-                            <input type="number" class="form-control form-control-sm text-center fw-bold student-nota"
-                                value="${s.grade != null ? s.grade : ''}" min="4" max="10" step="1"
-                                oninput="perditesoStatusin(this)">
+                            ${inputField}
                         </td>
                         <td class="text-center cell-status">
                             ${statusBadge}
@@ -808,13 +861,24 @@
             const isPermiresim = tr.dataset.permiresim === "true";
 
             if (isNaN(val) || rawVal === '') {
-                statusCell.innerHTML = '<span class="text-muted small student-status">-</span>';
-            } else if (isPermiresim) {
-                statusCell.innerHTML = '<span class="badge badge-amber-soft px-2 py-1 student-status">P</span>';
-            } else if (val < 5) {
-                statusCell.innerHTML = '<span class="badge badge-danger-soft px-2 py-1 student-status">N</span>';
+                // Nese fusha mbetet bosh: nese ka qene NP, rikthehet NP, perndryshe '-'
+                if (tr.dataset.examAbsentOrig === "true") {
+                    tr.dataset.examAbsent = "true";
+                    statusCell.innerHTML = '<span class="badge bg-secondary-subtle text-secondary border fw-bold px-2 py-1 student-status" title="Nuk u Paraqit në Provim">NP</span>';
+                } else {
+                    tr.dataset.examAbsent = "false";
+                    statusCell.innerHTML = '<span class="text-muted small student-status">-</span>';
+                }
             } else {
-                statusCell.innerHTML = '<span class="text-muted small student-status">-</span>';
+                // Sapo vendoset nje note numerike, statusi NP hiqet menjehere!
+                tr.dataset.examAbsent = "false";
+                if (isPermiresim) {
+                    statusCell.innerHTML = '<span class="badge badge-amber-soft px-2 py-1 student-status">P</span>';
+                } else if (val < 5) {
+                    statusCell.innerHTML = '<span class="badge badge-danger-soft px-2 py-1 student-status">N</span>';
+                } else {
+                    statusCell.innerHTML = '<span class="text-muted small student-status">-</span>';
+                }
             }
 
             llogaritStatistikatLive();
@@ -1025,6 +1089,12 @@
 
                 if (res.ok) {
                     showSuccessSticker('Notat u ruajten me sukses!');
+                    gradeEntries.forEach(g => {
+                        if (g.grade !== null) {
+                            const chk = document.querySelector(`#examAttendanceTableBody .exam-att-check[data-student-id="${g.studentId}"]`);
+                            if (chk) chk.checked = true;
+                        }
+                    });
                 } else {
                     let errMsg = 'Gabim gjate ruajtjes se notave.';
                     try { const err = await res.json(); if (err.message) errMsg = err.message; } catch (_) { }
@@ -1298,26 +1368,13 @@
                             matchedExcelKeys.add(matchedKey);
                             const gradesList = matchedEntry.grades;
 
-                            // 1. Nota me e madhe brenda vete listes se Excel-it (nese eshte perseritur 2 here)
-                            const excelBestGrade = Math.max(...gradesList);
-
-                            // 2. Nese studenti kishte tashme nje note dhe vjen nje liste tjeter, merr me te madhen midis tyre
-                            let finalGrade = excelBestGrade;
-                            if (existingVal !== null) {
-                                finalGrade = Math.max(existingVal, excelBestGrade);
-                            }
+                            // Nota nga skedari Excel (nese eshte perseritur disa here ne Excel, merr me te larten)
+                            const finalGrade = Math.max(...gradesList);
 
                             // Nese nota e vjeter dhe e re eshte e njejte, nuk bejme asnje ndryshim
                             if (existingVal !== null && existingVal === finalGrade) {
                                 untouchedStudents.push(trEmri);
                                 return;
-                            }
-
-                            // Nese ka pasur note ngelese (<5) dhe tani ka marre note kaluese (>=5), shenohet si Permiresim 'P'
-                            const hadFail = (existingVal !== null && existingVal < 5) || gradesList.some(g => g < 5);
-                            const hasPass = finalGrade >= 5;
-                            if (hadFail && hasPass) {
-                                tr.dataset.permiresim = "true";
                             }
 
                             inputNota.value = finalGrade;
@@ -1578,6 +1635,164 @@
                 }
             } catch (e) {
                 console.error("Gabim te fshirja e temes:", e);
+            }
+        }
+
+        // ==========================================
+        // 8. PJESEMARRJA NE PROVIM (EXAM ATTENDANCE)
+        // ==========================================
+        let currentExamAttendanceData = null;
+
+        async function ngarkoExamAttendance(courseId, classId) {
+            if (!courseId) return;
+
+            const tbody = document.getElementById('examAttendanceTableBody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <span class="spinner-border spinner-border-sm me-2"></span> Po ngarkohet pjesëmarrja në provim...
+                        </td>
+                    </tr>
+                `;
+            }
+
+            try {
+                let url = `/api/pedagog/exam-attendance?courseId=${courseId}`;
+                if (classId) url += `&classId=${classId}`;
+
+                const res = await fetch(url, {
+                    headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') }
+                });
+
+                if (res.ok) {
+                    currentExamAttendanceData = await res.json();
+                    renditExamAttendance(currentExamAttendanceData);
+                } else {
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-danger">Nuk u mundësua ngarkimi i provimit.</td></tr>`;
+                    }
+                }
+            } catch (err) {
+                console.error("Gabim te ngarkimi i provimit:", err);
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-danger">Gabim rrjeti gjatë ngarkimit të provimit.</td></tr>`;
+                }
+            }
+        }
+
+        function renditExamAttendance(data) {
+            if (!data) return;
+
+            // Mbush tabelen e studenteve
+            const tbody = document.getElementById('examAttendanceTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const students = data.students || [];
+            if (students.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">
+                            Nuk u gjetën studentë për këtë lëndë/grup.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            students.forEach((s, idx) => {
+                const isPresent = (s.status !== 'absent'); // By default me tik (present)!
+
+                const tr = document.createElement('tr');
+                tr.dataset.studentId = s.studentId;
+
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td class="fw-semibold text-dark student-name-cell">${s.studentName || ''}</td>
+                    <td class="text-center">
+                        <input class="form-check-input form-check-amber-light exam-att-check"
+                            type="checkbox" ${isPresent ? 'checked' : ''}
+                            data-student-id="${s.studentId}"
+                            style="cursor: pointer; transform: scale(1.15);"
+                            title="Hiq tikun nëse studenti nuk është paraqitur në provim">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleAllExamChecks(master) {
+            const isChecked = master ? master.checked : true;
+            document.querySelectorAll('#examAttendanceTableBody .exam-att-check').forEach(chk => {
+                chk.checked = isChecked;
+            });
+        }
+
+        async function ruajExamAttendance() {
+            const selectLenda = document.getElementById('selectLenda');
+            const selectKlasa = document.getElementById('selectKlasa');
+            const courseId = selectLenda && selectLenda.selectedIndex >= 0 ? parseInt(selectLenda.options[selectLenda.selectedIndex].dataset.courseId) : null;
+            const classId = selectKlasa && selectKlasa.selectedIndex >= 0 ? parseInt(selectKlasa.options[selectKlasa.selectedIndex].dataset.classId) : null;
+
+            if (!courseId) {
+                alert("Ju lutem zgjidhni një lëndë!");
+                return;
+            }
+
+            const checkboxes = document.querySelectorAll('#examAttendanceTableBody .exam-att-check');
+            const entries = [];
+
+            checkboxes.forEach(chk => {
+                const sId = chk.dataset.studentId ? parseInt(chk.dataset.studentId) : null;
+                const isChecked = chk.checked;
+                if (sId) {
+                    entries.push({
+                        studentId: sId,
+                        status: isChecked ? 'present' : 'absent'
+                    });
+                }
+            });
+
+            if (entries.length === 0) {
+                alert("Nuk ka studentë për të ruajtur pjesëmarrjen!");
+                return;
+            }
+
+            const payload = {
+                examId: currentExamAttendanceData ? currentExamAttendanceData.examId : null,
+                courseId: courseId,
+                classId: classId,
+                entries: entries
+            };
+
+            try {
+                const res = await fetch('/api/pedagog/exam-attendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '')
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showSuccessSticker('Pjesëmarrja në provim u ruajt me sukses!');
+
+                    // Rifreskojme regjistrin e notave qe studentet "NP" te bllokohen automatikisht!
+                    const selectViti = document.getElementById('selectVitiAkademik');
+                    const academicYear = selectViti ? selectViti.value : "2025-2026";
+                    const selectTipi = document.getElementById('selectTipiOres');
+                    const roleType = selectTipi ? selectTipi.value : "Seminar";
+
+                    await ngarkoRegjistrin(courseId, classId, academicYear, roleType);
+                } else {
+                    const err = await res.json();
+                    alert("Gabim gjatë ruajtjes: " + (err.message || 'Kontrolloni të dhënat'));
+                }
+            } catch (err) {
+                console.error("Gabim gjate ruajtjes se pjesemarrjes ne provim:", err);
+                alert("Gabim rrjeti gjatë ruajtjes!");
             }
         }
     </script>

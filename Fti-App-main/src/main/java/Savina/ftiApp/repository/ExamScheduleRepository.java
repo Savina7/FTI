@@ -17,4 +17,6 @@ public interface ExamScheduleRepository extends JpaRepository<ExamSchedule, Inte
     boolean existsByCourse_CourseIdAndType(Integer courseId, String type);
 
     List<ExamSchedule> findByExamDateBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    List<ExamSchedule> findByCourse_CourseId(Integer courseId);
 }

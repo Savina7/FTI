@@ -37,6 +37,7 @@ public class PedagogRegisterDto {
         private String status; // "P", "N", "-"
         private boolean isPermiresim;
         private Map<String, Boolean> attendance; // columnKey -> isPresent
+        private String examAttendanceStatus; // "present", "absent", null
     }
 
     @Data
