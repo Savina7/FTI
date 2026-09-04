@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="sq">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sequence Diagram - Kërkesa për Përmirësim Note (FTI)</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      background: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 15px;
+      z-index: 100;
+      background: #ffffff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      background: #0f172a;
+    }
+
+    .btn-dark:hover {
+      background: #334155;
+    }
+
+    .diagram-card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+      max-width: 980px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toolbar">
+    <button class="btn" onclick="shkarkoPNG()">📥 Shkarko si PNG (High Quality)</button>
+    <a href="request_improvement_sequence.svg" download="Sequence_Diagram_Request_Improvement.svg"
+      class="btn btn-dark">💾 Shkarko si SVG</a>
+    <button class="btn btn-dark" onclick="window.print()">🖨️ Printo në PDF</button>
+  </div>
+
+  <div class="diagram-card">
+    <img id="diagramImg" src="request_improvement_sequence.svg" alt="Sequence Diagram - Request Grade Improvement">
+  </div>
+
+  <canvas id="exportCanvas" style="display: none;"></canvas>
+
+  <script>
+    function shkarkoPNG() {
+      const img = new Image();
+      img.src = 'request_improvement_sequence.svg';
+      img.onload = function () {
+        const canvas = document.getElementById('exportCanvas');
+        const scale = 2.5;
+        canvas.width = 960 * scale;
+        canvas.height = 900 * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const a = document.createElement('a');
+        a.download = 'Sequence_Diagram_Permiresim_Note_HD.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+    }
+  </script>
+</body>
+
+</html>

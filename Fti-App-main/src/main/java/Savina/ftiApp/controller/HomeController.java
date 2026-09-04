@@ -35,6 +35,16 @@ public class HomeController {
         return "auth/login";
     }
 
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage() {
+        return "auth/reset-password";
+    }
+
     @GetMapping("/verify")
     public String verifyPage(@org.springframework.web.bind.annotation.RequestParam(required = false) Integer userId, Model model) {
         if (userId != null) {

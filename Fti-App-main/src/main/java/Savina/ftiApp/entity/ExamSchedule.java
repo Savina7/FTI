@@ -26,12 +26,6 @@ public class ExamSchedule {
     @JoinColumn(name = "COURSE_ID", nullable = false)
     private Course course;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROGRAM_ID", nullable = false)
-    private Program program;
-
     @Column(name = "EXAM_DATE", nullable = false)
     private LocalDateTime examDate;
 

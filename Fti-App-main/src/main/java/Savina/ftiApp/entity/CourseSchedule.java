@@ -33,16 +33,8 @@ public class CourseSchedule {
     @Column(name = "END_TIME", length = 10, nullable = false)
     private String endTime;
 
-    @Column(name = "SEMESTER", length = 10)
-    private String semester;
-
     @Column(name = "ACADEMIC_YEAR", length = 9)
     private String academicYear;
-
-    @ToString.Exclude @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TYPE_ID")
-    private CourseType courseType;
 
     @ToString.Exclude @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

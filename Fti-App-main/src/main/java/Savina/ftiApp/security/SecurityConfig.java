@@ -75,6 +75,9 @@ public class SecurityConfig {
                 // 1. API publike
                 .requestMatchers(
                         "/api/login",
+                        "/api/forgot-password",
+                        "/api/verify-reset-code",
+                        "/api/reset-password",
                         "/api/register",
                         "/api/register/**",
                         "/api/verify/**",

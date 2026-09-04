@@ -116,8 +116,9 @@ public class StudentService {
         List<Course> allCourses = new ArrayList<>();
         if (student.getProgram() != null) {
             allCourses.addAll(courseRepo.findByProgramProgramId(student.getProgram().getProgramId()));
-        } else if (student.getDepartment() != null) {
-            allCourses.addAll(courseRepo.findByDepartmentsDepartmentId(student.getDepartment().getDepartmentId()));
+            if (student.getProgram().getDepartment() != null) {
+                allCourses.addAll(courseRepo.findByDepartmentsDepartmentId(student.getProgram().getDepartment().getDepartmentId()));
+            }
         }
 
         if (allCourses.isEmpty()) {
@@ -251,8 +252,9 @@ public class StudentService {
         List<Course> allCourses = new ArrayList<>();
         if (student.getProgram() != null) {
             allCourses.addAll(courseRepo.findByProgramProgramId(student.getProgram().getProgramId()));
-        } else if (student.getDepartment() != null) {
-            allCourses.addAll(courseRepo.findByDepartmentsDepartmentId(student.getDepartment().getDepartmentId()));
+            if (student.getProgram().getDepartment() != null) {
+                allCourses.addAll(courseRepo.findByDepartmentsDepartmentId(student.getProgram().getDepartment().getDepartmentId()));
+            }
         }
 
         if (allCourses.isEmpty()) {

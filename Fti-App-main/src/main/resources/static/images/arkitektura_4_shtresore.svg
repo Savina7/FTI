@@ -1,0 +1,256 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="100%" height="100%">
+  <defs>
+    <!-- Drop Shadow Filter -->
+    <filter id="cardShadow" x="-3%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="2" dy="5" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.07"/>
+    </filter>
+    
+    <!-- Marker Arrows -->
+    <marker id="arrDown" viewBox="0 0 12 12" refX="6" refY="11" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="1,1 11,1 6,11" fill="#2563eb"/>
+    </marker>
+    <marker id="arrUp" viewBox="0 0 12 12" refX="6" refY="1" markerWidth="9" markerHeight="9" orient="auto">
+      <polygon points="1,11 11,11 6,1" fill="#10b981"/>
+    </marker>
+
+    <!-- Gradients -->
+    <linearGradient id="gPres" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="gCtrl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf4ff"/>
+      <stop offset="100%" stop-color="#fae8ff"/>
+    </linearGradient>
+    <linearGradient id="gServ" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="gData" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+    </linearGradient>
+
+    <style>
+      text { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+      .card { rx: 12; filter: url(#cardShadow); stroke-width: 2; }
+      .card-pres { fill: url(#gPres); stroke: #3b82f6; }
+      .card-ctrl { fill: url(#gCtrl); stroke: #c084fc; }
+      .card-serv { fill: url(#gServ); stroke: #22c55e; }
+      .card-data { fill: url(#gData); stroke: #f97316; }
+      
+      .title { font-size: 18px; font-weight: 800; }
+      .subtitle { font-size: 12.5px; font-weight: 600; fill: #475569; }
+      .pill { rx: 4; fill: #ffffff; stroke-width: 1; }
+      .pill-txt { font-size: 11px; font-weight: 700; }
+      
+      .sec-hdr { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+      .sec-desc { font-size: 12.5px; fill: #1e293b; }
+      .code-tag { font-family: 'Consolas', monospace; font-size: 11.5px; font-weight: 700; fill: #0f172a; }
+      
+      .flow-req { stroke: #2563eb; stroke-width: 3.5; fill: none; stroke-dasharray: 8, 5; }
+      .flow-res { stroke: #10b981; stroke-width: 3.5; fill: none; stroke-dasharray: 8, 5; }
+      
+      .flow-tag { font-size: 11px; font-weight: 800; }
+    </style>
+  </defs>
+
+  <!-- Solid Clean White Background -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+
+  <!-- Main Diagram Title -->
+  <g transform="translate(800, 50)">
+    <text x="0" y="0" text-anchor="middle" style="font-size: 24px; font-weight: 900; fill: #0f172a; letter-spacing: -0.5px;">
+      ARKITEKTURA 4-SHTRESORE E SISTEMIT DHE RRUGËTIMI I TË DHËNAVE
+    </text>
+    <text x="0" y="24" text-anchor="middle" style="font-size: 13.5px; fill: #64748b; font-weight: 500;">
+      Komunikimi sekuencial i kërkesës (Request) dhe përgjigjes (Response) në aplikacionin FTI
+    </text>
+  </g>
+
+  <!-- ================================================================ -->
+  <!-- LEFT & RIGHT FLOW LABELS / ARROWS                                 -->
+  <!-- ================================================================ -->
+  
+  <!-- Downward Flow (Request Flow) -->
+  <g transform="translate(180, 200)">
+    <line x1="0" y1="0" x2="0" y2="780" class="flow-req" marker-end="url(#arrDown)"/>
+    <rect x="-75" y="360" width="150" height="40" rx="20" fill="#2563eb"/>
+    <text x="0" y="378" fill="#ffffff" text-anchor="middle" class="flow-tag">1. KËRKESA (REQUEST)</text>
+    <text x="0" y="392" fill="#dbeafe" text-anchor="middle" style="font-size: 9.5px; font-weight: 600;">Nga UI drejt Databazës</text>
+  </g>
+
+  <!-- Upward Flow (Response Flow) -->
+  <g transform="translate(1420, 980)">
+    <line x1="0" y1="0" x2="0" y2="-780" class="flow-res" marker-end="url(#arrUp)"/>
+    <rect x="-75" y="-400" width="150" height="40" rx="20" fill="#10b981"/>
+    <text x="0" y="-382" fill="#ffffff" text-anchor="middle" class="flow-tag">2. PËRGJIGJJA (RESPONSE)</text>
+    <text x="0" y="-368" fill="#d1fae5" text-anchor="middle" style="font-size: 9.5px; font-weight: 600;">Nga Databaza drejt UI</text>
+  </g>
+
+  <!-- ================================================================ -->
+  <!-- 4 SHTRESAT (4 TIERS)                                             -->
+  <!-- ================================================================ -->
+
+  <!-- SHTRESA 1: PRESENTATION LAYER -->
+  <g transform="translate(280, 120)">
+    <rect width="1040" height="200" class="card card-pres"/>
+    
+    <!-- Header Badge -->
+    <rect x="25" y="22" width="40" height="40" rx="10" fill="#2563eb"/>
+    <text x="45" y="48" fill="#ffffff" text-anchor="middle" style="font-size: 20px; font-weight: 900;">1</text>
+    
+    <text x="80" y="40" class="title" fill="#1e3a8a">Shtresa e Prezantimit (Presentation Layer / Client &amp; UI)</text>
+    <text x="80" y="58" class="subtitle">Ndërfaqja me të cilën ndërvepron Përdoruesi (Studenti, Pedagogu, Administratori)</text>
+
+    <!-- Tech Pills -->
+    <g transform="translate(730, 28)">
+      <rect x="0" y="0" width="85" height="24" class="pill" stroke="#93c5fd"/>
+      <text x="42" y="16" text-anchor="middle" class="pill-txt" fill="#1d4ed8">Thymeleaf</text>
+      <rect x="95" y="0" width="75" height="24" class="pill" stroke="#93c5fd"/>
+      <text x="132" y="16" text-anchor="middle" class="pill-txt" fill="#1d4ed8">HTML5/CSS</text>
+      <rect x="180" y="0" width="90" height="24" class="pill" stroke="#93c5fd"/>
+      <text x="225" y="16" text-anchor="middle" class="pill-txt" fill="#1d4ed8">Web Browser</text>
+    </g>
+
+    <line x1="25" y1="75" x2="1015" y2="75" stroke="#bfdbfe" stroke-width="1.5"/>
+
+    <!-- Content Columns -->
+    <g transform="translate(30, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#1d4ed8">⚡ Kur hyn kërkesa:</text>
+      <text x="0" y="22" class="sec-desc">Sapo përdoruesi klikon një buton (p.sh. "Login", "Shiko Notat", "Ruaj Orarin") në shfletues.</text>
+      <text x="0" y="42" class="sec-desc">Formulohet një kërkesë standarde rrjeti HTTP Request (GET, POST, PUT, DELETE).</text>
+    </g>
+    
+    <g transform="translate(540, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#1d4ed8">⚙️ Çfarë ndodh në këtë shtresë:</text>
+      <text x="0" y="22" class="sec-desc">• Mbledh inputet e përdoruesit nga format (email, password, nota, salla).</text>
+      <text x="0" y="42" class="sec-desc">• Renderon në mënyrë dinamike pamjen përfundimtare grafike në HTML për ekranin.</text>
+    </g>
+  </g>
+
+  <!-- SHTRESA 2: CONTROLLER LAYER -->
+  <g transform="translate(280, 360)">
+    <rect width="1040" height="200" class="card card-ctrl"/>
+    
+    <!-- Header Badge -->
+    <rect x="25" y="22" width="40" height="40" rx="10" fill="#9333ea"/>
+    <text x="45" y="48" fill="#ffffff" text-anchor="middle" style="font-size: 20px; font-weight: 900;">2</text>
+    
+    <text x="80" y="40" class="title" fill="#581c87">Shtresa e Kontrollit dhe Rrugëzimit (Controller Layer / API)</text>
+    <text x="80" y="58" class="subtitle">Menaxhimi i endpoints, siguria, autorizimi dhe transformimi i të dhënave (DTOs)</text>
+
+    <!-- Tech Pills -->
+    <g transform="translate(710, 28)">
+      <rect x="0" y="0" width="95" height="24" class="pill" stroke="#d8b4fe"/>
+      <text x="47" y="16" text-anchor="middle" class="pill-txt" fill="#7e22ce">@Controller</text>
+      <rect x="105" y="0" width="105" height="24" class="pill" stroke="#d8b4fe"/>
+      <text x="157" y="16" text-anchor="middle" class="pill-txt" fill="#7e22ce">Spring Security</text>
+      <rect x="220" y="0" width="85" height="24" class="pill" stroke="#d8b4fe"/>
+      <text x="262" y="16" text-anchor="middle" class="pill-txt" fill="#7e22ce">JWT / DTO</text>
+    </g>
+
+    <line x1="25" y1="75" x2="1015" y2="75" stroke="#e9d5ff" stroke-width="1.5"/>
+
+    <!-- Content Columns -->
+    <g transform="translate(30, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#7e22ce">⚡ Kur hyn kërkesa:</text>
+      <text x="0" y="22" class="sec-desc">Kërkesa HTTP mbërrin në backend te DispatcherServlet dhe rrugëzohet te Controller-i.</text>
+      <text x="0" y="42" class="sec-desc">Shembuj: StudentController, AdminScheduleController, AuthController.</text>
+    </g>
+    
+    <g transform="translate(540, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#7e22ce">⚙️ Çfarë ndodh në këtë shtresë:</text>
+      <text x="0" y="22" class="sec-desc">• Siguria: Verifikon nëse përdoruesi ka rolin e duhur (STUDENT, PROFESSOR, ADMIN).</text>
+      <text x="0" y="42" class="sec-desc">• Validimi &amp; Delegimi: Validon parametrat e kërkesës dhe thërret direkt Service-in.</text>
+    </g>
+  </g>
+
+  <!-- SHTRESA 3: SERVICE LAYER -->
+  <g transform="translate(280, 600)">
+    <rect width="1040" height="200" class="card card-serv"/>
+    
+    <!-- Header Badge -->
+    <rect x="25" y="22" width="40" height="40" rx="10" fill="#16a34a"/>
+    <text x="45" y="48" fill="#ffffff" text-anchor="middle" style="font-size: 20px; font-weight: 900;">3</text>
+    
+    <text x="80" y="40" class="title" fill="#14532d">Shtresa e Logjikës së Biznesit (Business Logic / Service Layer)</text>
+    <text x="80" y="58" class="subtitle">"Zemra e aplikacionit" ku zbatohen të gjitha rregullat akademike të Fakultetit</text>
+
+    <!-- Tech Pills -->
+    <g transform="translate(710, 28)">
+      <rect x="0" y="0" width="80" height="24" class="pill" stroke="#86efac"/>
+      <text x="40" y="16" text-anchor="middle" class="pill-txt" fill="#15803d">@Service</text>
+      <rect x="90" y="0" width="100" height="24" class="pill" stroke="#86efac"/>
+      <text x="140" y="16" text-anchor="middle" class="pill-txt" fill="#15803d">@Transactional</text>
+      <rect x="200" y="0" width="105" height="24" class="pill" stroke="#86efac"/>
+      <text x="252" y="16" text-anchor="middle" class="pill-txt" fill="#15803d">Business Logic</text>
+    </g>
+
+    <line x1="25" y1="75" x2="1015" y2="75" stroke="#bbf7d0" stroke-width="1.5"/>
+
+    <!-- Content Columns -->
+    <g transform="translate(30, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#15803d">⚡ Kur hyn kërkesa:</text>
+      <text x="0" y="22" class="sec-desc">Pasi Controller-i konfirmon autorizimin, thërret shërbimin (p.sh. AdminScheduleService).</text>
+      <text x="0" y="42" class="sec-desc">Këtu fillon përpunimi inteligjent i të dhënave para se të preket baza.</text>
+    </g>
+    
+    <g transform="translate(540, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#15803d">⚙️ Çfarë ndodh në këtë shtresë:</text>
+      <text x="0" y="22" class="sec-desc">• Kontrollon konfliktet e orareve në salla (checkConflict).</text>
+      <text x="0" y="42" class="sec-desc">• Llogarit mungesat, regjistron mbetjet (FailedCourse), aprovon pararegjistrimet.</text>
+    </g>
+  </g>
+
+  <!-- SHTRESA 4: DATA ACCESS / PERSISTENCE LAYER -->
+  <g transform="translate(280, 840)">
+    <rect width="1040" height="200" class="card card-data"/>
+    
+    <!-- Header Badge -->
+    <rect x="25" y="22" width="40" height="40" rx="10" fill="#ea580c"/>
+    <text x="45" y="48" fill="#ffffff" text-anchor="middle" style="font-size: 20px; font-weight: 900;">4</text>
+    
+    <text x="80" y="40" class="title" fill="#7c2d12">Shtresa e Qasjes në të Dhëna &amp; Baza (Data Access / Database Layer)</text>
+    <text x="80" y="58" class="subtitle">Komunikimi me Oracle Database, menaxhimi i transaksioneve dhe ruajtja e përhershme</text>
+
+    <!-- Tech Pills -->
+    <g transform="translate(710, 28)">
+      <rect x="0" y="0" width="110" height="24" class="pill" stroke="#fdba74"/>
+      <text x="55" y="16" text-anchor="middle" class="pill-txt" fill="#c2410c">Spring Data JPA</text>
+      <rect x="120" y="0" width="90" height="24" class="pill" stroke="#fdba74"/>
+      <text x="165" y="16" text-anchor="middle" class="pill-txt" fill="#c2410c">Hibernate ORM</text>
+      <rect x="220" y="0" width="85" height="24" class="pill" stroke="#fdba74"/>
+      <text x="262" y="16" text-anchor="middle" class="pill-txt" fill="#c2410c">Oracle 21c</text>
+    </g>
+
+    <line x1="25" y1="75" x2="1015" y2="75" stroke="#fed7aa" stroke-width="1.5"/>
+
+    <!-- Content Columns -->
+    <g transform="translate(30, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#c2410c">⚡ Kur hyn kërkesa:</text>
+      <text x="0" y="22" class="sec-desc">Kur Service-i ka nevojë të lexojë (SELECT) apo të ruajë (INSERT/UPDATE/DELETE) të dhëna.</text>
+      <text x="0" y="42" class="sec-desc">Shembuj: userRepository.findByEmail(), gradeRepository.save(grade).</text>
+    </g>
+    
+    <g transform="translate(540, 95)">
+      <text x="0" y="0" class="sec-hdr" fill="#c2410c">⚙️ Çfarë ndodh në këtë shtresë:</text>
+      <text x="0" y="22" class="sec-desc">• Hibernate e përkthen metodën e Repozitorit në pyetësor SQL për Oracle.</text>
+      <text x="0" y="42" class="sec-desc">• Oracle DB: Garanton vetitë ACID, ekzekuton SQL në disqe dhe kthen të dhënat mbrapsht.</text>
+    </g>
+  </g>
+
+  <!-- Connective flow arrows between cards -->
+  <path d="M 800, 320 L 800, 355" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrDown)"/>
+  <path d="M 800, 560 L 800, 595" stroke="#9333ea" stroke-width="2.5" marker-end="url(#arrDown)"/>
+  <path d="M 800, 800 L 800, 835" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrDown)"/>
+
+  <!-- Footer explanation note -->
+  <g transform="translate(800, 1100)">
+    <rect x="-470" y="0" width="940" height="42" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="0" y="26" text-anchor="middle" style="font-size: 13px; fill: #334155; font-weight: 600;">
+      💡 Përmbledhje për Temën e Diplomës: Ndarja në 4 shtresa (Separation of Concerns) garanton Siguri, Modularitet dhe Pavarësi Teknologjike.
+    </text>
+  </g>
+
+</svg>

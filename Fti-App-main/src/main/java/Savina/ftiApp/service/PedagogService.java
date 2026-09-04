@@ -1037,7 +1037,6 @@ public class PedagogService {
 
             exam = ExamSchedule.builder()
                     .course(c)
-                    .program(prog)
                     .examDate(LocalDateTime.now())
                     .type("VJESHTE")
                     .build();

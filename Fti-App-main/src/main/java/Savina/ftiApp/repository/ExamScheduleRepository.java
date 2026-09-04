@@ -10,9 +10,9 @@ import Savina.ftiApp.entity.ExamSchedule;
 @Repository
 public interface ExamScheduleRepository extends JpaRepository<ExamSchedule, Integer> {
 
-    List<ExamSchedule> findByProgram_ProgramId(Integer programId);
+    List<ExamSchedule> findByCourse_Program_ProgramId(Integer programId);
 
-    List<ExamSchedule> findByProgram_ProgramIdAndType(Integer programId, String type);
+    List<ExamSchedule> findByCourse_Program_ProgramIdAndType(Integer programId, String type);
 
     boolean existsByCourse_CourseIdAndType(Integer courseId, String type);
 

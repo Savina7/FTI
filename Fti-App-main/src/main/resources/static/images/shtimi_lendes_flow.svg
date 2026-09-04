@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 520" width="100%" height="100%">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#000000"/>
+    </marker>
+
+    <style>
+      text { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+      
+      .dotted-box { fill: #ffffff; stroke: #000000; stroke-width: 1.8; stroke-dasharray: 6, 5; }
+      .box-header { font-size: 18px; font-weight: 800; fill: #000000; text-anchor: middle; }
+      
+      .single-card { fill: #ffffff; stroke: #000000; stroke-width: 1.8; rx: 4; }
+      .card-hdr { font-size: 15px; font-weight: 800; fill: #000000; text-anchor: middle; }
+      
+      .step-pill { fill: #ffffff; stroke: #000000; stroke-width: 1.3; rx: 4; }
+      .step-title { font-size: 12px; font-weight: 700; fill: #000000; }
+      .step-desc { font-size: 10.5px; fill: #334155; }
+      .code-font { font-family: 'Consolas', monospace; font-size: 10.5px; font-weight: bold; }
+      
+      .lb-diamond { fill: #ffffff; stroke: #000000; stroke-width: 1.8; }
+      .arrow-line { stroke: #000000; stroke-width: 2; fill: none; }
+      
+      .client-stroke { fill: #ffffff; stroke: #000000; stroke-width: 1.8; }
+      .client-txt { font-size: 13px; font-weight: 700; fill: #000000; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#ffffff"/>
+
+  <!-- Client (Admin) -->
+  <g transform="translate(50, 205)">
+    <circle cx="20" cy="-6" r="14" class="client-stroke"/>
+    <path d="M -2,32 C -2,12 42,12 42,32 Z" class="client-stroke"/>
+    <text x="20" y="48" class="client-txt">Admin</text>
+    <text x="20" y="64" style="font-size: 11px; font-weight: 600; fill: #475569;" text-anchor="middle">Perdoruesi</text>
+  </g>
+
+  <!-- Load Balancer -->
+  <g transform="translate(145, 235)">
+    <path d="M 0,-38 L 38,0 L 0,38 L -38,0 Z" class="lb-diamond"/>
+    <text x="0" y="-4" fill="#000000" style="font-size: 11px; font-weight: 700;" text-anchor="middle">Load</text>
+    <text x="0" y="11" fill="#000000" style="font-size: 11px; font-weight: 700;" text-anchor="middle">Balancer</text>
+  </g>
+
+  <!-- Arrow Admin to LB -->
+  <path d="M 95, 235 L 107, 235" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- Arrow LB to Frontend -->
+  <path d="M 183, 235 L 210, 235" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- Frontend Box -->
+  <rect x="210" y="30" width="180" height="460" class="dotted-box"/>
+  <text x="300" y="62" class="box-header">Frontend (UI)</text>
+
+  <!-- UI Card -->
+  <rect x="225" y="85" width="150" height="385" class="single-card"/>
+  <text x="300" y="118" class="card-hdr">Forma ne UI</text>
+  <text x="300" y="136" style="font-size: 10.5px; fill: #475569; font-weight: 600;" text-anchor="middle">Thymeleaf / HTML5</text>
+
+  <g transform="translate(233, 160)">
+    <rect x="0" y="0" width="134" height="44" class="step-pill"/>
+    <text x="6" y="17" class="step-title">1. Plotesimi:</text>
+    <text x="6" y="32" class="step-desc">Emri, kredite, viti, dega</text>
+
+    <rect x="0" y="58" width="134" height="44" class="step-pill"/>
+    <text x="6" y="75" class="step-title">2. Butoni "Ruaj":</text>
+    <text x="6" y="90" class="step-desc">Dergo formen ne faqe</text>
+
+    <rect x="0" y="116" width="134" height="54" class="step-pill"/>
+    <text x="6" y="133" class="step-title">3. HTTP Request:</text>
+    <text x="6" y="148" class="code-font">POST /admin/courses</text>
+    <text x="6" y="160" class="step-desc">Body: CourseRequest JSON</text>
+  </g>
+
+  <!-- Arrow Frontend to Backend (Dispatcher) -->
+  <path d="M 375, 260 L 415, 260" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- Backend Box -->
+  <rect x="415" y="30" width="785" height="460" class="dotted-box"/>
+  <text x="807" y="62" class="box-header">Backend (Spring Boot)</text>
+
+  <!-- 1. DISPATCHER SERVLET CARD -->
+  <rect x="430" y="85" width="170" height="385" class="single-card"/>
+  <text x="515" y="118" class="card-hdr">DispatcherServlet</text>
+  <text x="515" y="136" style="font-size: 10.5px; fill: #475569; font-weight: 600;" text-anchor="middle">Front Controller</text>
+
+  <g transform="translate(438, 160)">
+    <rect x="0" y="0" width="154" height="58" class="step-pill"/>
+    <text x="6" y="17" class="step-title">Pranon kerkesen:</text>
+    <text x="6" y="33" class="code-font">POST /admin/courses</text>
+    <text x="6" y="47" class="step-desc">Hyrja kryesore ne Spring</text>
+
+    <rect x="0" y="70" width="154" height="58" class="step-pill"/>
+    <text x="6" y="87" class="step-title">HandlerMapping:</text>
+    <text x="6" y="103" class="step-desc">Gjen controller-in qe</text>
+    <text x="6" y="117" class="step-desc">menaxhon rrugen</text>
+
+    <rect x="0" y="140" width="154" height="52" class="step-pill"/>
+    <text x="6" y="157" class="step-title">Rrugezon thirrjen:</text>
+    <text x="6" y="173" class="step-desc">Delegon te Controller-i</text>
+  </g>
+
+  <!-- Arrow Dispatcher to Controller -->
+  <path d="M 600, 260 L 620, 260" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- 2. CONTROLLER CARD -->
+  <rect x="620" y="85" width="220" height="385" class="single-card"/>
+  <text x="730" y="118" class="card-hdr">AdminCourseController</text>
+  <text x="730" y="136" style="font-size: 10.5px; fill: #475569; font-weight: 600;" text-anchor="middle">@RestController / @PostMapping</text>
+
+  <g transform="translate(628, 160)">
+    <rect x="0" y="0" width="204" height="58" class="step-pill"/>
+    <text x="6" y="17" class="step-title">Pranimi i kerkeses:</text>
+    <text x="6" y="33" class="code-font">@PostMapping("/courses")</text>
+    <text x="6" y="47" class="step-desc">Pret objektin CourseRequest</text>
+
+    <rect x="0" y="70" width="204" height="50" class="step-pill"/>
+    <text x="6" y="87" class="step-title">Validimi i te dhenave:</text>
+    <text x="6" y="103" class="code-font">@Valid @RequestBody req</text>
+
+    <rect x="0" y="132" width="204" height="60" class="step-pill"/>
+    <text x="6" y="149" class="step-title">Delegimi te sherbimi:</text>
+    <text x="6" y="165" class="code-font">adminCourseService</text>
+    <text x="6" y="179" class="code-font">  .createCourse(req);</text>
+  </g>
+
+  <!-- Arrow Controller to Service -->
+  <path d="M 840, 260 L 860, 260" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- 3. SERVICE CARD -->
+  <rect x="860" y="85" width="225" height="385" class="single-card"/>
+  <text x="972" y="118" class="card-hdr">AdminCourseService</text>
+  <text x="972" y="136" style="font-size: 10.5px; fill: #475569; font-weight: 600;" text-anchor="middle">@Service / @Transactional</text>
+
+  <g transform="translate(868, 160)">
+    <rect x="0" y="0" width="209" height="52" class="step-pill"/>
+    <text x="6" y="17" class="step-title">1. Verifikon programin:</text>
+    <text x="6" y="33" class="code-font">programRepo.findById(id)</text>
+    <text x="6" y="44" class="step-desc">Gjen degen perkatese</text>
+
+    <rect x="0" y="64" width="209" height="52" class="step-pill"/>
+    <text x="6" y="81" class="step-title">2. Mapimi ne entitet:</text>
+    <text x="6" y="97" class="code-font">courseMapper.toEntity()</text>
+    <text x="6" y="108" class="step-desc">Krijon objektin Course</text>
+
+    <rect x="0" y="128" width="209" height="55" class="step-pill"/>
+    <text x="6" y="145" class="step-title">3. Thirrja e repozitorit:</text>
+    <text x="6" y="161" class="code-font">courseRepo.save(course)</text>
+    <text x="6" y="173" class="step-desc">Nis transaksionin me DB</text>
+  </g>
+
+  <!-- Arrow Service to Database -->
+  <path d="M 1085, 260 L 1230, 260" class="arrow-line" marker-end="url(#arrow)"/>
+
+  <!-- Database Box -->
+  <g transform="translate(1240, 205)">
+    <path d="M 0,22 L 0,85 C 0,105 130,105 130,85 L 130,22 Z" fill="#ffffff" stroke="#000000" stroke-width="1.8"/>
+    <ellipse cx="65" cy="22" rx="65" ry="17" fill="#ffffff" stroke="#000000" stroke-width="1.8"/>
+    
+    <text x="65" y="56" style="font-size: 15px; font-weight: 800; fill: #000000;" text-anchor="middle">Oracle DB</text>
+    <text x="65" y="72" style="font-size: 12px; font-weight: 700; fill: #475569;" text-anchor="middle">Tabela COURSES</text>
+    <text x="65" y="88" style="font-size: 10px; font-weight: 600; fill: #000000;" text-anchor="middle">SQL: INSERT INTO</text>
+  </g>
+
+</svg>

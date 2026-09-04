@@ -94,7 +94,8 @@ public class AdminStudentService {
 
             String progName = (s.getProgram() != null && s.getProgram().getNivel() != null) ? s.getProgram().getNivel() : "";
             String specName = (s.getProgram() != null && s.getProgram().getSpecializimi() != null) ? s.getProgram().getSpecializimi() : "";
-            String deptName = s.getDepartment() != null ? s.getDepartment().getEmerDepartamenti() : "";
+            String deptName = (s.getProgram() != null && s.getProgram().getDepartment() != null)
+                    ? s.getProgram().getDepartment().getEmerDepartamenti() : "";
             String className = s.getClasses() != null ? s.getClasses().getEmriClass() : "";
             String emri = s.getUser() != null ? s.getUser().getEmri() : "";
             String mbiemri = s.getUser() != null ? s.getUser().getMbiemri() : "";
@@ -282,7 +283,8 @@ public class AdminStudentService {
 
             String progName = (student.getProgram() != null && student.getProgram().getNivel() != null) ? student.getProgram().getNivel() : "";
             String specName = (student.getProgram() != null && student.getProgram().getSpecializimi() != null) ? student.getProgram().getSpecializimi() : "";
-            String deptName = student.getDepartment() != null ? student.getDepartment().getEmerDepartamenti() : "";
+            String deptName = (student.getProgram() != null && student.getProgram().getDepartment() != null)
+                    ? student.getProgram().getDepartment().getEmerDepartamenti() : "";
             String className = student.getClasses() != null ? student.getClasses().getEmriClass() : (req.getGrupi() != null ? req.getGrupi() : "");
             String emri = user != null ? user.getEmri() : req.getEmri().trim();
             String mbiemri = user != null ? user.getMbiemri() : req.getMbiemri().trim();
@@ -436,7 +438,6 @@ public class AdminStudentService {
             student = Student.builder()
                     .user(finalUser)
                     .program(pe.getProgram())
-                    .department(pe.getProgram() != null ? pe.getProgram().getDepartment() : null)
                     .classes(pe.getClasses())
                     .vitStudimit(pe.getVitStudimit() != null ? pe.getVitStudimit() : 1)
                     .nrMatrikulimit(cleanMatrikulimi)
@@ -445,9 +446,6 @@ public class AdminStudentService {
             student = studentRepo.save(student);
         } else {
             student.setProgram(pe.getProgram());
-            if (pe.getProgram() != null) {
-                student.setDepartment(pe.getProgram().getDepartment());
-            }
             student.setClasses(pe.getClasses());
             student.setVitStudimit(pe.getVitStudimit() != null ? pe.getVitStudimit() : 1);
             student.setNrMatrikulimit(cleanMatrikulimi);
@@ -466,7 +464,7 @@ public class AdminStudentService {
         String specName = (pe.getProgram() != null && pe.getProgram().getSpecializimi() != null) ? pe.getProgram().getSpecializimi() : "";
         String deptName = (pe.getProgram() != null && pe.getProgram().getDepartment() != null)
                 ? pe.getProgram().getDepartment().getEmerDepartamenti()
-                : (student.getDepartment() != null ? student.getDepartment().getEmerDepartamenti() : "");
+                : ((student.getProgram() != null && student.getProgram().getDepartment() != null) ? student.getProgram().getDepartment().getEmerDepartamenti() : "");
         String className = pe.getClasses() != null ? pe.getClasses().getEmriClass() : (student.getClasses() != null ? student.getClasses().getEmriClass() : "");
 
         return StudentAdminDto.builder()

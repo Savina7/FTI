@@ -487,11 +487,6 @@ public class AdminScheduleService {
         Room room = roomRepository.findById(req.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Salla nuk u gjet."));
 
-        CourseType cType = null;
-        if (req.getRoleType() != null) {
-            cType = courseTypeRepository.findByEmriTypeIgnoreCase(req.getRoleType()).orElse(null);
-        }
-
         CourseSchedule schedule;
         if (req.getScheduleId() != null) {
             schedule = courseScheduleRepository.findById(req.getScheduleId())
@@ -507,7 +502,6 @@ public class AdminScheduleService {
         schedule.setEndTime(eTime);
         schedule.setRoom(room);
         String semesterToSave = (req.getSemester() != null && !req.getSemester().isBlank()) ? req.getSemester().trim() : "2";
-        schedule.setSemester(semesterToSave);
         schedule.setAcademicYear(req.getAcademicYear() != null && !req.getAcademicYear().isBlank() ? req.getAcademicYear().trim() : "2025-2026");
 
         if (tc != null) {
@@ -551,8 +545,8 @@ public class AdminScheduleService {
             profName = getProfessorFullName(cs.getTeachingCourse().getProfessor());
         }
 
-        String roleType = cs.getCourseType() != null ? cs.getCourseType().getEmriType()
-                : (cs.getTeachingCourse() != null ? cs.getTeachingCourse().getRoleType() : "LEKSION");
+        String roleType = (cs.getTeachingCourse() != null && cs.getTeachingCourse().getRoleType() != null)
+                ? cs.getTeachingCourse().getRoleType() : "LEKSION";
 
         String className = cs.getClasses() != null ? cs.getClasses().getEmriClass() : "";
         Integer classId = cs.getClasses() != null ? cs.getClasses().getClassId() : null;
@@ -582,7 +576,7 @@ public class AdminScheduleService {
                 .endTime(eTime)
                 .roomId(roomId)
                 .roomName(roomName)
-                .semester(cs.getSemester())
+                .semester(cs.getTeachingCourse() != null && cs.getTeachingCourse().getSemester() != null ? cs.getTeachingCourse().getSemester() : "")
                 .academicYear(cs.getAcademicYear())
                 .build();
     }

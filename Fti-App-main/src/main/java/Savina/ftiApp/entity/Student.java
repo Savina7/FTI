@@ -37,11 +37,6 @@ public class Student {
 
     @ToString.Exclude @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEPARTMENT_ID")
-    private Department department;
-
-    @ToString.Exclude @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLASS_ID")
     private Classes classes;
 }

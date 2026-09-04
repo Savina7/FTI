@@ -45,8 +45,8 @@ public class StudentMapper {
         String programiStudimit = "";
         if (student.getProgram() != null && student.getProgram().getSpecializimi() != null) {
             programiStudimit = student.getProgram().getSpecializimi();
-        } else if (student.getDepartment() != null && student.getDepartment().getEmerDepartamenti() != null) {
-            programiStudimit = student.getDepartment().getEmerDepartamenti();
+        } else if (student.getProgram() != null && student.getProgram().getDepartment() != null && student.getProgram().getDepartment().getEmerDepartamenti() != null) {
+            programiStudimit = student.getProgram().getDepartment().getEmerDepartamenti();
         }
 
         String vitiAkademik = student.getVitStudimit() != null ? "Viti " + student.getVitStudimit() : "Viti 1";

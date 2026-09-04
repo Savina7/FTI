@@ -140,9 +140,9 @@ public class AdminExamScheduleService {
     public List<ExamScheduleDto> getExamsByProgramAndSeason(Integer programId, String season) {
         List<ExamSchedule> exams;
         if (season != null && !season.isBlank() && !season.equalsIgnoreCase("ALL")) {
-            exams = examScheduleRepo.findByProgram_ProgramIdAndType(programId, season.toUpperCase().trim());
+            exams = examScheduleRepo.findByCourse_Program_ProgramIdAndType(programId, season.toUpperCase().trim());
         } else {
-            exams = examScheduleRepo.findByProgram_ProgramId(programId);
+            exams = examScheduleRepo.findByCourse_Program_ProgramId(programId);
         }
 
         return exams.stream().map(this::mapToDto).collect(Collectors.toList());
@@ -217,7 +217,6 @@ public class AdminExamScheduleService {
         }
 
         exam.setCourse(course);
-        exam.setProgram(program);
         exam.setExamDate(examDateTime);
         exam.setEndTime(endTime.format(DateTimeFormatter.ofPattern("HH:mm")));
         exam.setType(req.getSeason() != null ? req.getSeason().toUpperCase().trim() : "VJESHTE");
@@ -259,17 +258,21 @@ public class AdminExamScheduleService {
                 .map(Room::getRoomId)
                 .collect(Collectors.toList());
 
+        Program prog = (exam.getCourse() != null && exam.getCourse().getProgram() != null)
+                ? exam.getCourse().getProgram() : null;
         String progName = "";
-        if (exam.getProgram() != null) {
-            progName = (exam.getProgram().getNivel() != null ? exam.getProgram().getNivel() + " " : "")
-                    + (exam.getProgram().getSpecializimi() != null ? exam.getProgram().getSpecializimi() : "");
+        Integer progId = null;
+        if (prog != null) {
+            progId = prog.getProgramId();
+            progName = (prog.getNivel() != null ? prog.getNivel() + " " : "")
+                    + (prog.getSpecializimi() != null ? prog.getSpecializimi() : "");
         }
 
         return ExamScheduleDto.builder()
                 .examId(exam.getExamId())
                 .courseId(exam.getCourse() != null ? exam.getCourse().getCourseId() : null)
                 .courseName(exam.getCourse() != null ? exam.getCourse().getEmriCourse() : "")
-                .programId(exam.getProgram() != null ? exam.getProgram().getProgramId() : null)
+                .programId(progId)
                 .programName(progName.trim())
                 .examDate(dateStr)
                 .displayDate(displayDate)

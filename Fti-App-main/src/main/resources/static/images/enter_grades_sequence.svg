@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 840" width="100%" height="100%">
+  <defs>
+    <!-- Filter for soft modern shadow -->
+    <filter id="boxShadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+
+    <!-- Solid Arrowhead for Synchronous Messages -->
+    <marker id="solid-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polygon points="0,1 9,5 0,9" fill="#991b1b"/>
+    </marker>
+
+    <!-- Open Arrowhead for Return Messages -->
+    <marker id="return-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <polyline points="1,1 9,5 1,9" fill="none" stroke="#991b1b" stroke-width="1.8" stroke-linecap="round"/>
+    </marker>
+
+    <!-- Stick figure template for Actor -->
+    <g id="actor-stick">
+      <circle cx="0" cy="-22" r="10" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+      <line x1="0" y1="-12" x2="0" y2="10" stroke="#1e293b" stroke-width="2"/>
+      <line x1="-15" y1="-4" x2="15" y2="-4" stroke="#1e293b" stroke-width="2"/>
+      <line x1="0" y1="10" x2="-10" y2="28" stroke="#1e293b" stroke-width="2"/>
+      <line x1="0" y1="10" x2="10" y2="28" stroke="#1e293b" stroke-width="2"/>
+    </g>
+
+    <style>
+      text { 
+        font-family: 'Segoe UI', Arial, sans-serif; 
+        font-style: normal; 
+      }
+      .participant-box { fill: #fef08a; stroke: #ca8a04; stroke-width: 1.8; rx: 8; ry: 8; filter: url(#boxShadow); }
+      .participant-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #1e293b; font-style: normal; text-anchor: middle; dominant-baseline: middle; }
+      .lifeline { stroke: #b91c1c; stroke-width: 1.6; stroke-dasharray: 6,5; }
+      .activation-box { fill: #fef9c3; stroke: #ca8a04; stroke-width: 1.6; rx: 3; }
+      .msg-line { stroke: #991b1b; stroke-width: 1.6; marker-end: url(#solid-arrow); }
+      .ret-line { stroke: #991b1b; stroke-width: 1.6; stroke-dasharray: 5,4; marker-end: url(#return-arrow); }
+      .self-line { stroke: #991b1b; stroke-width: 1.6; fill: none; marker-end: url(#solid-arrow); }
+      
+      /* UNIFIED: EXACT SAME FONT, SIZE (12px), COLOR (#1e293b), WEIGHT (600), NO ITALIC */
+      .msg-text, .ret-text, .self-text {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        fill: #1e293b;
+        font-style: normal;
+      }
+    </style>
+  </defs>
+
+  <!-- PURE WHITE BACKGROUND (NO GRID) -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+
+  <!-- ========================================================================= -->
+  <!-- LIFELINE COLUMNS (X Coordinates)                                          -->
+  <!-- Teacher: 100 | Frontend: 340 | Server: 600 | Database: 860                -->
+  <!-- ========================================================================= -->
+
+  <!-- Lifelines (Vertical dashed lines) -->
+  <line x1="100" y1="105" x2="100" y2="760" class="lifeline"/>
+  <line x1="340" y1="105" x2="340" y2="760" class="lifeline"/>
+  <line x1="600" y1="105" x2="600" y2="760" class="lifeline"/>
+  <line x1="860" y1="105" x2="860" y2="760" class="lifeline"/>
+
+  <!-- ========================================================================= -->
+  <!-- TOP PARTICIPANT HEADERS                                                   -->
+  <!-- ========================================================================= -->
+  <!-- Teacher (Actor + Box) -->
+  <g transform="translate(100, 42)">
+    <use href="#actor-stick" transform="scale(0.85) translate(0, -5)"/>
+    <rect x="-48" y="22" width="96" height="34" class="participant-box"/>
+    <text x="0" y="39" class="participant-title">Teacher</text>
+  </g>
+
+  <!-- Frontend (Web UI) -->
+  <g transform="translate(340, 68)">
+    <rect x="-65" y="-18" width="130" height="36" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Frontend</text>
+  </g>
+
+  <!-- Server (Spring Boot) -->
+  <g transform="translate(600, 68)">
+    <rect x="-60" y="-18" width="120" height="36" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Server</text>
+  </g>
+
+  <!-- Database (Oracle DB) -->
+  <g transform="translate(860, 68)">
+    <rect x="-65" y="-18" width="130" height="36" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Database</text>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- ACTIVATION BOXES (EXECUTION FOCUS)                                        -->
+  <!-- ========================================================================= -->
+  <!-- Frontend active from submit to message display -->
+  <rect x="333" y="145" width="14" height="575" class="activation-box"/>
+  <!-- Server active while processing request -->
+  <rect x="593" y="195" width="14" height="480" class="activation-box"/>
+  <!-- Database active during reads and writes -->
+  <rect x="853" y="275" width="14" height="60" class="activation-box"/>
+  <rect x="853" y="385" width="14" height="60" class="activation-box"/>
+  <rect x="853" y="555" width="14" height="60" class="activation-box"/>
+
+  <!-- ========================================================================= -->
+  <!-- MESSAGES FLOW                                                             -->
+  <!-- ========================================================================= -->
+
+  <!-- 1. Teacher enters grade -->
+  <line x1="100" y1="145" x2="333" y2="145" class="msg-line"/>
+  <text x="216" y="138" class="msg-text" text-anchor="middle">1: Enter grade</text>
+
+  <!-- 2. Teacher submits grade -->
+  <line x1="100" y1="180" x2="333" y2="180" class="msg-line"/>
+  <text x="216" y="173" class="msg-text" text-anchor="middle">2: Click "Ruaj"</text>
+
+  <!-- 3. Frontend sends POST request to Server with JWT -->
+  <line x1="347" y1="208" x2="593" y2="208" class="msg-line"/>
+  <text x="470" y="188" class="msg-text" text-anchor="middle">3: POST /api/pedagog/grades</text>
+  <text x="470" y="202" class="msg-text" text-anchor="middle">(SaveGradesRequest + JWT)</text>
+
+  <!-- 4. Server self-validation: checks JWT, role, and grade range -->
+  <path d="M 607,225 C 655,225 655,250 609,250" class="self-line"/>
+  <text x="660" y="235" class="self-text">4: Validate token &amp;</text>
+  <text x="660" y="248" class="self-text">input data (self-call)</text>
+
+  <!-- 5. Server queries Database for Student & Teaching Course -->
+  <line x1="607" y1="288" x2="853" y2="288" class="msg-line"/>
+  <text x="730" y="271" class="msg-text" text-anchor="middle">5: Find student &amp; teaching course</text>
+  <text x="730" y="284" class="msg-text" text-anchor="middle">(studentRepo)</text>
+
+  <!-- 6. Database returns Student data -->
+  <line x1="853" y1="325" x2="607" y2="325" class="ret-line"/>
+  <text x="730" y="318" class="ret-text" text-anchor="middle">6: Return student details</text>
+
+  <!-- 7. Server queries Database for existing Grade record -->
+  <line x1="607" y1="398" x2="853" y2="398" class="msg-line"/>
+  <text x="730" y="381" class="msg-text" text-anchor="middle">7: Find existing grade</text>
+  <text x="730" y="394" class="msg-text" text-anchor="middle">(gradeRepo.findByStudent...)</text>
+
+  <!-- 8. Database returns existing Grade (or null if new) -->
+  <line x1="853" y1="435" x2="607" y2="435" class="ret-line"/>
+  <text x="730" y="428" class="ret-text" text-anchor="middle">8: Return grade record (or null)</text>
+
+  <!-- 9. Server calculates status: PASSED, FAILED, IMPROVED, or ABSENT -->
+  <path d="M 607,465 C 655,465 655,495 609,495" class="self-line"/>
+  <text x="660" y="475" class="self-text">9: Determine grade status</text>
+  <text x="660" y="490" class="self-text">(FAILED if &lt; 5, IMPROVED if P)</text>
+
+  <!-- 10. Server saves Grade in Database -->
+  <line x1="607" y1="568" x2="853" y2="568" class="msg-line"/>
+  <text x="730" y="551" class="msg-text" text-anchor="middle">10: Save / update grade</text>
+  <text x="730" y="564" class="msg-text" text-anchor="middle">(gradeRepo.save)</text>
+
+  <!-- 11. Database confirms persistence -->
+  <line x1="853" y1="605" x2="607" y2="605" class="ret-line"/>
+  <text x="730" y="598" class="ret-text" text-anchor="middle">11: Grade saved (commit OK)</text>
+
+  <!-- 12. Server returns HTTP 200 Success Response -->
+  <line x1="593" y1="662" x2="347" y2="662" class="ret-line"/>
+  <text x="470" y="646" class="ret-text" text-anchor="middle">12: HTTP 200 OK</text>
+  <text x="470" y="658" class="ret-text" text-anchor="middle">{"message": "Notat u ruajten me sukses."}</text>
+
+  <!-- 13. Frontend displays success message to Teacher -->
+  <line x1="333" y1="712" x2="100" y2="712" class="ret-line"/>
+  <text x="216" y="696" class="ret-text" text-anchor="middle">13: Show success notification</text>
+  <text x="216" y="708" class="ret-text" text-anchor="middle">("Notat u ruajten me sukses!")</text>
+
+  <!-- ========================================================================= -->
+  <!-- BOTTOM PARTICIPANT BOXES                                                  -->
+  <!-- ========================================================================= -->
+  <!-- Teacher Bottom -->
+  <g transform="translate(100, 775)">
+    <rect x="-48" y="-17" width="96" height="34" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Teacher</text>
+  </g>
+
+  <!-- Frontend Bottom -->
+  <g transform="translate(340, 775)">
+    <rect x="-65" y="-17" width="130" height="34" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Frontend</text>
+  </g>
+
+  <!-- Server Bottom -->
+  <g transform="translate(600, 775)">
+    <rect x="-60" y="-17" width="120" height="34" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Server</text>
+  </g>
+
+  <!-- Database Bottom -->
+  <g transform="translate(860, 775)">
+    <rect x="-65" y="-17" width="130" height="34" class="participant-box"/>
+    <text x="0" y="0" class="participant-title">Database</text>
+  </g>
+
+</svg>

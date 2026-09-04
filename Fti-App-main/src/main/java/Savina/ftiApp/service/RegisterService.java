@@ -112,7 +112,6 @@ public class RegisterService {
         Student student = Student.builder()
                 .user(user)
                 .program(enrollment.getProgram())
-                .department(enrollment.getProgram() != null ? enrollment.getProgram().getDepartment() : null)
                 .classes(enrollment.getClasses())
                 .vitStudimit(enrollment.getVitStudimit() != null ? enrollment.getVitStudimit() : 1)
                 .nrMatrikulimit(req.getNrMatrikulimit())
