@@ -7,12 +7,14 @@ import java.time.LocalDateTime;
 public class ErrorResponse {
 
     private final String message;
-    private final int    status;
+    private final String error;
+    private final int status;
     private final LocalDateTime timestamp;
 
     public ErrorResponse(String message, int status) {
-        this.message   = message;
-        this.status    = status;
+        this.message = message;
+        this.error = message;
+        this.status = status;
         this.timestamp = LocalDateTime.now();
     }
 }

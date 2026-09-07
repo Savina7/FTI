@@ -238,25 +238,43 @@ public class AdminScheduleService {
     public List<Map<String, Object>> getClasses(Integer programId, Integer studyYear, Integer courseId) {
         List<Classes> list = new ArrayList<>();
 
-        // Klasat merren drejtperdrejt nga databaza
         if (programId != null) {
             if (studyYear != null) {
                 list = classesRepository.findByProgram_ProgramIdAndVitStudimit(programId, studyYear);
             }
             if (list == null || list.isEmpty()) {
                 list = classesRepository.findByProgram_ProgramId(programId);
+                if (studyYear != null && list != null && !list.isEmpty()) {
+                    list = list.stream()
+                            .filter(c -> c.getVitStudimit() == null || c.getVitStudimit().equals(studyYear))
+                            .collect(Collectors.toList());
+                }
             }
-        }
 
-        if (list == null || list.isEmpty()) {
+            // If this program has no classes, return empty list
+            if (list == null || list.isEmpty()) {
+                return Collections.emptyList();
+            }
+        } else if (courseId != null) {
+            Optional<Course> cOpt = courseRepository.findById(courseId);
+            if (cOpt.isPresent() && cOpt.get().getProgram() != null) {
+                return getClasses(cOpt.get().getProgram().getProgramId(), cOpt.get().getStudyYear(), null);
+            } else {
+                return Collections.emptyList();
+            }
+        } else {
             list = classesRepository.findAll();
         }
 
-        // Distinct by classId dhe renditje sipas emrit
-        Map<Integer, Classes> unique = new LinkedHashMap<>();
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Distinct by class group name to prevent duplicate group names
+        Map<String, Classes> unique = new LinkedHashMap<>();
         for (Classes c : list) {
-            if (c != null && c.getClassId() != null) {
-                unique.put(c.getClassId(), c);
+            if (c != null && c.getEmriClass() != null && !c.getEmriClass().isBlank()) {
+                unique.putIfAbsent(c.getEmriClass().trim(), c);
             }
         }
 

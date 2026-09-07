@@ -16,6 +16,9 @@ public class TeachingAllocationRequest {
     private String semester;
     private Integer durationWeeks;
     private Integer totalHours;
+    private Integer lectureHours;
+    private Integer seminarHours;
+    private Integer labHours;
 
     private Integer lectureProfessorId;
     private List<Integer> lectureClassIds;

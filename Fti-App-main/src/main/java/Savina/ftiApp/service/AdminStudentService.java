@@ -112,7 +112,7 @@ public class AdminStudentService {
                     .vitStudimit(s.getVitStudimit() != null ? s.getVitStudimit() : 1)
                     .grupi(className)
                     .dega(deptName)
-                    .status("VERIFIKUAR")
+                    .status((s.getStatus() != null && !s.getStatus().isBlank()) ? s.getStatus() : "VERIFIKUAR")
                     .build());
         }
 

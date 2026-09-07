@@ -49,7 +49,12 @@ public class StudentMapper {
             programiStudimit = student.getProgram().getDepartment().getEmerDepartamenti();
         }
 
-        String vitiAkademik = student.getVitStudimit() != null ? "Viti " + student.getVitStudimit() : "Viti 1";
+        String vitiAkademik = "Viti 1";
+        if ("GRADUATED".equalsIgnoreCase(student.getStatus())) {
+            vitiAkademik = "—";
+        } else if (student.getVitStudimit() != null) {
+            vitiAkademik = "Viti " + student.getVitStudimit();
+        }
 
         return StudentProfileDto.builder()
                 .studentId(student.getStudentId())

@@ -1293,8 +1293,7 @@
         const progId = $('#modalDega').val();
         const studyYear = $('#modalViti').val();
         const selectKlasa = $('#modalKlasa');
-        selectKlasa.empty().append(new Option("-- Zgjidh Grupin --", ""));
-        selectKlasa.find('option:first').prop('disabled', true);
+        selectKlasa.empty();
 
         if (!progId) {
           selectKlasa.prop('disabled', true);
@@ -1304,16 +1303,33 @@
         try {
           let url = `/api/admin/schedules/classes?programId=${progId}` + (studyYear ? `&studyYear=${studyYear}` : '');
           const resCls = await fetch(url, { headers: _headers });
-          if (resCls.ok) {
+           if (resCls.ok) {
             const classes = await resCls.json();
-            classes.forEach(cl => selectKlasa.append(new Option(cl.name, cl.classId)));
-            selectKlasa.prop('disabled', false);
-            if (classes.length > 0) {
+            const seen = new Set();
+            if (classes && classes.length > 0) {
+              selectKlasa.append(new Option("-- Zgjidh Grupin --", ""));
+              selectKlasa.find('option:first').prop('disabled', true);
+              classes.forEach(cl => {
+                const name = cl.name || `Klasa ${cl.classId}`;
+                if (!seen.has(name)) {
+                  seen.add(name);
+                  selectKlasa.append(new Option(name, cl.classId));
+                }
+              });
+              selectKlasa.prop('disabled', false);  
               selectKlasa.val(classes[0].classId);
+            } else {
+              selectKlasa.empty();
+              selectKlasa.prop('disabled', true);
             }
+          } else {
+            selectKlasa.empty();
+            selectKlasa.prop('disabled', true);
           }
         } catch (err) {
           console.error(err);
+          selectKlasa.empty();
+          selectKlasa.prop('disabled', true);
         }
       }
 

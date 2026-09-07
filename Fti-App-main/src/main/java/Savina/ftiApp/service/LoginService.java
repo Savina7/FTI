@@ -2,8 +2,10 @@ package Savina.ftiApp.service;
 
 import Savina.ftiApp.dto.responseDTO.AuthResponse;
 import Savina.ftiApp.dto.requestDTO.LoginRequest;
+import Savina.ftiApp.entity.LoginHistory;
 import Savina.ftiApp.entity.Role;
 import Savina.ftiApp.entity.User;
+import Savina.ftiApp.repository.LoginHistoryRepository;
 import Savina.ftiApp.repository.UserRepository;
 import Savina.ftiApp.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -20,8 +24,9 @@ public class LoginService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final LoginHistoryRepository loginHistoryRepo;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(LoginRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
 
@@ -62,6 +67,18 @@ public class LoginService {
                 + (user.getMbiemri() != null ? user.getMbiemri() : "")).trim();
         if (fullName.isEmpty()) {
             fullName = user.getEmail();
+        }
+
+        // 6. Save login history
+        try {
+            LoginHistory history = LoginHistory.builder()
+                    .user(user)
+                    .loginTime(LocalDateTime.now())
+                    .status("SUCCESS")
+                    .build();
+            loginHistoryRepo.save(history);
+        } catch (Exception e) {
+            log.error("Gabim gjate ruajtjes se historikut te hyrjes per user {}: {}", user.getUserId(), e.getMessage());
         }
 
         log.info("User logged in successfully: {} (role={}, name={})", user.getEmail(), roleName, fullName);

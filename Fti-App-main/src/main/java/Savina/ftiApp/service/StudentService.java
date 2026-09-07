@@ -129,7 +129,9 @@ public class StudentService {
         List<StudentGradeDto> dtoList = new ArrayList<>();
 
         for (Course c : allCourses) {
-            if (processedCourseIds.contains(c.getCourseId())) continue;
+            if (processedCourseIds.contains(c.getCourseId())) {
+                continue;
+            }
             processedCourseIds.add(c.getCourseId());
 
             Grade g = courseGradeMap.get(c.getCourseId());
@@ -227,8 +229,9 @@ public class StudentService {
         for (Attendance a : attendances) {
             if (a.getTeachingCourse() != null && a.getTeachingCourse().getCourse() != null) {
                 Integer courseId = a.getTeachingCourse().getCourse().getCourseId();
+                Integer tHours = a.getTeachingCourse().getTotalHours();
                 Integer duration = a.getTeachingCourse().getDurationWeeks();
-                int totalH = (duration != null && duration > 0) ? duration : 15;
+                int totalH = (tHours != null && tHours > 0) ? tHours : ((duration != null && duration > 0) ? duration : 15);
                 String roleType = a.getTeachingCourse().getRoleType() != null ? a.getTeachingCourse().getRoleType().toUpperCase() : "";
 
                 if (roleType.contains("LAB")) {
@@ -265,7 +268,9 @@ public class StudentService {
         List<StudentAttendanceDto> dtoList = new ArrayList<>();
 
         for (Course c : allCourses) {
-            if (processedCourseIds.contains(c.getCourseId())) continue;
+            if (processedCourseIds.contains(c.getCourseId())) {
+                continue;
+            }
 
             int courseYear = c.getStudyYear() != null ? c.getStudyYear() : currentStudentYear;
             List<String> semDates = seminarAbsencesMap.getOrDefault(c.getCourseId(), Collections.emptyList());
@@ -276,8 +281,12 @@ public class StudentService {
 
             int semTotal = courseSemTotalMap.getOrDefault(c.getCourseId(), 15);
             int labTotal = courseLabTotalMap.getOrDefault(c.getCourseId(), 15);
-            if (semTotal <= 0) semTotal = 15;
-            if (labTotal <= 0) labTotal = 15;
+            if (semTotal <= 0) {
+                semTotal = 15;
+            }
+            if (labTotal <= 0) {
+                labTotal = 15;
+            }
 
             double semAbsencePercentage = (double) semCount / semTotal;
             double labAbsencePercentage = (double) labCount / labTotal;

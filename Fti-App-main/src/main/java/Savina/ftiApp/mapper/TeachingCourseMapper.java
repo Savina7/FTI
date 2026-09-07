@@ -45,6 +45,9 @@ public class TeachingCourseMapper {
         dto.setSemester("1");
         dto.setDurationWeeks(18);
         dto.setTotalHours(30);
+        dto.setLectureHours(30);
+        dto.setSeminarHours(30);
+        dto.setLabHours(15);
         dto.setLectureProfessor(null);
         dto.setSeminarProfessors(List.of());
         dto.setLabProfessors(List.of());
@@ -79,8 +82,20 @@ public class TeachingCourseMapper {
         TeachingAllocationDto.ProfessorAssignment lecture = null;
         List<TeachingAllocationDto.ProfessorAssignment> seminars = new ArrayList<>();
         List<TeachingAllocationDto.ProfessorAssignment> labs = new ArrayList<>();
+        Integer lectureHours = null;
+        Integer seminarHours = null;
+        Integer labHours = null;
 
         for (TeachingCourse tc : tcs) {
+            String role = tc.getRoleType() != null ? tc.getRoleType().toUpperCase() : "LEKSION";
+            if ("LEKSION".equals(role)) {
+                if (tc.getTotalHours() != null && lectureHours == null) lectureHours = tc.getTotalHours();
+            } else if ("SEMINAR".equals(role)) {
+                if (tc.getTotalHours() != null && seminarHours == null) seminarHours = tc.getTotalHours();
+            } else if ("LABORATOR".equals(role)) {
+                if (tc.getTotalHours() != null && labHours == null) labHours = tc.getTotalHours();
+            }
+
             if (tc.getProfessor() == null) continue;
 
             Professor p = tc.getProfessor();
@@ -110,7 +125,6 @@ public class TeachingCourseMapper {
             assign.setClassIds(cIds);
             assign.setClassNames(cNames);
 
-            String role = tc.getRoleType() != null ? tc.getRoleType().toUpperCase() : "LEKSION";
             if ("LEKSION".equals(role) && lecture == null) {
                 lecture = assign;
             } else if ("SEMINAR".equals(role)) {
@@ -136,6 +150,9 @@ public class TeachingCourseMapper {
         dto.setSemester(first.getSemester());
         dto.setDurationWeeks(first.getDurationWeeks() != null ? first.getDurationWeeks() : 18);
         dto.setTotalHours(first.getTotalHours() != null ? first.getTotalHours() : 30);
+        dto.setLectureHours(lectureHours != null ? lectureHours : (first.getTotalHours() != null ? first.getTotalHours() : 30));
+        dto.setSeminarHours(seminarHours != null ? seminarHours : (first.getTotalHours() != null ? first.getTotalHours() : 30));
+        dto.setLabHours(labHours != null ? labHours : 15);
         dto.setLectureProfessor(lecture);
         dto.setSeminarProfessors(seminars);
         dto.setLabProfessors(labs);

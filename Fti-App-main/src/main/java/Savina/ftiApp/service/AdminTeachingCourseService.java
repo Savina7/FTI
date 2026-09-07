@@ -73,7 +73,10 @@ public class AdminTeachingCourseService {
 
         String semester = req.getSemester() != null ? req.getSemester() : "1";
         Integer duration = req.getDurationWeeks() != null ? req.getDurationWeeks() : 18;
-        Integer totalHours = req.getTotalHours() != null ? req.getTotalHours() : 30;
+        Integer defaultHours = req.getTotalHours() != null ? req.getTotalHours() : 30;
+        Integer lectureHours = req.getLectureHours() != null ? req.getLectureHours() : defaultHours;
+        Integer seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : defaultHours;
+        Integer labHours = req.getLabHours() != null ? req.getLabHours() : (req.getTotalHours() != null ? req.getTotalHours() : 15);
 
         // Existing records for this course to update in-place (prevents ORA-02292 foreign key violations)
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
@@ -107,7 +110,7 @@ public class AdminTeachingCourseService {
                     tc.setProfessor(prof);
                     tc.setSemester(semester);
                     tc.setDurationWeeks(duration);
-                    tc.setTotalHours(totalHours);
+                    tc.setTotalHours(lectureHours);
                     tc.setClasses(lectureClasses);
                     teachingCourseRepository.save(tc);
                 } else {
@@ -117,7 +120,7 @@ public class AdminTeachingCourseService {
                             .roleType("LEKSION")
                             .semester(semester)
                             .durationWeeks(duration)
-                            .totalHours(totalHours)
+                            .totalHours(lectureHours)
                             .classes(lectureClasses)
                             .build();
                     teachingCourseRepository.save(tc);
@@ -138,7 +141,7 @@ public class AdminTeachingCourseService {
                             tc.setProfessor(prof);
                             tc.setSemester(semester);
                             tc.setDurationWeeks(duration);
-                            tc.setTotalHours(totalHours);
+                            tc.setTotalHours(seminarHours);
                             tc.setClasses(semClasses);
                             teachingCourseRepository.save(tc);
                         } else {
@@ -148,7 +151,7 @@ public class AdminTeachingCourseService {
                                     .roleType("SEMINAR")
                                     .semester(semester)
                                     .durationWeeks(duration)
-                                    .totalHours(totalHours)
+                                    .totalHours(seminarHours)
                                     .classes(semClasses)
                                     .build();
                             teachingCourseRepository.save(tc);
@@ -171,7 +174,7 @@ public class AdminTeachingCourseService {
                             tc.setProfessor(prof);
                             tc.setSemester(semester);
                             tc.setDurationWeeks(duration);
-                            tc.setTotalHours(totalHours);
+                            tc.setTotalHours(labHours);
                             tc.setClasses(labClasses);
                             teachingCourseRepository.save(tc);
                         } else {
@@ -181,7 +184,7 @@ public class AdminTeachingCourseService {
                                     .roleType("LABORATOR")
                                     .semester(semester)
                                     .durationWeeks(duration)
-                                    .totalHours(totalHours)
+                                    .totalHours(labHours)
                                     .classes(labClasses)
                                     .build();
                             teachingCourseRepository.save(tc);

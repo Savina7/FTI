@@ -1,0 +1,23 @@
+-- =============================================================================
+-- V21: Krijimi i tabeles AUDIT_LOGS per auditimin e te gjitha ndryshimeve ne sistem
+-- =============================================================================
+
+CREATE TABLE FTIAPP.AUDIT_LOGS (
+    LOG_ID      NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ENTITY_NAME VARCHAR2(50) NOT NULL,
+    ENTITY_ID   NUMBER NOT NULL,
+    CHANGED_BY  INTEGER,
+    ACTION      VARCHAR2(20) NOT NULL,
+    FIELD_NAME  VARCHAR2(100),
+    OLD_VALUE   VARCHAR2(4000),
+    NEW_VALUE   VARCHAR2(4000),
+    CHANGED_AT  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+    CONSTRAINT FK_AUDIT_LOG_USER 
+        FOREIGN KEY (CHANGED_BY) REFERENCES FTIAPP.USERS(USER_ID) 
+        ON DELETE SET NULL
+);
+
+-- Indekse per performancen e kerkimeve
+CREATE INDEX FTIAPP.IDX_AUDIT_LOGS_ENTITY ON FTIAPP.AUDIT_LOGS(ENTITY_NAME, ENTITY_ID);
+CREATE INDEX FTIAPP.IDX_AUDIT_LOGS_CHANGED_AT ON FTIAPP.AUDIT_LOGS(CHANGED_AT DESC);

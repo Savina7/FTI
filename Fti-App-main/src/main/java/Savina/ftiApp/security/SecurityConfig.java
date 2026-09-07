@@ -55,7 +55,7 @@ public class SecurityConfig {
         return (HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"error\":\"Nuk jeni te autentifikuar. Ju lutem kyçuni perseri.\"}");
+            response.getWriter().write("{\"message\":\"Nuk jeni te autentifikuar. Ju lutem kyçuni perseri.\",\"error\":\"Nuk jeni te autentifikuar. Ju lutem kyçuni perseri.\",\"status\":401}");
         };
     }
 

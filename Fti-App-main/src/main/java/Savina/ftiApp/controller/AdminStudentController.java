@@ -1,7 +1,9 @@
 package Savina.ftiApp.controller;
 
+import Savina.ftiApp.dto.responseDTO.PromotionResultDto;
 import Savina.ftiApp.dto.responseDTO.StudentAdminDto;
 import Savina.ftiApp.dto.requestDTO.StudentPreEnrollmentRequest;
+import Savina.ftiApp.service.AcademicPromotionService;
 import Savina.ftiApp.service.AdminStudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,12 @@ import java.util.List;
 public class AdminStudentController {
 
     private final AdminStudentService adminStudentService;
+    private final AcademicPromotionService academicPromotionService;
+
+    @PostMapping("/promote-academic-year")
+    public PromotionResultDto promoteAcademicYear() {
+        return academicPromotionService.promoteAllStudents();
+    }
 
     @GetMapping
     public List<StudentAdminDto> getAllStudents() {

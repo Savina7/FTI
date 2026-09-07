@@ -24,6 +24,9 @@ public class TeachingAllocationDto {
     private String semester;
     private Integer durationWeeks;
     private Integer totalHours;
+    private Integer lectureHours;
+    private Integer seminarHours;
+    private Integer labHours;
 
     private ProfessorAssignment lectureProfessor;
     private List<ProfessorAssignment> seminarProfessors;

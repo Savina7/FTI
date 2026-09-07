@@ -248,6 +248,10 @@
                     let currentEditingCourseId = null;
 
                     $(document).ready(function () {
+                        $.fn.dataTable.ext.pager.single_number = function (page, pages) {
+                            return ['previous', page, 'next'];
+                        };
+
                         setupDataTablesFilter();
                         loadProgramsForModal();
                         loadCourses();
@@ -472,7 +476,7 @@
                                 pageLength: 10,
                                 responsive: true,
                                 searching: true,
-                                pagingType: "simple",
+                                pagingType: "single_number",
                                 dom: '<"d-flex justify-content-between align-items-center mb-3"l>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
                                 language: {
                                     lengthMenu: "_MENU_",
@@ -480,18 +484,6 @@
                                     paginate: {
                                         previous: "&lt;",
                                         next: "&gt;"
-                                    }
-                                },
-                                drawCallback: function () {
-                                    const api = this.api();
-                                    const pageInfo = api.page.info();
-                                    const paginateEl = $(api.table().container()).find('.pagination');
-                                    if (paginateEl.find('.page-number-display').length === 0) {
-                                        paginateEl.find('.paginate_button.previous, .previous').after(
-                                            `<li class="paginate_button page-item disabled"><span class="page-link page-number-display text-dark bg-light px-3">${pageInfo.page + 1}</span></li>`
-                                        );
-                                    } else {
-                                        paginateEl.find('.page-number-display').text(pageInfo.page + 1);
                                     }
                                 }
                             });

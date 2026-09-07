@@ -1,0 +1,17 @@
+-- =============================================================================
+-- V22: Krijimi i tabeles LOGIN_HISTORY per historikun e hyrjeve te perdoruesve
+-- =============================================================================
+
+CREATE TABLE FTIAPP.LOGIN_HISTORY (
+    ID          NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    USER_ID     INTEGER NOT NULL,
+    LOGIN_TIME  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    STATUS      VARCHAR2(20) DEFAULT 'SUCCESS' NOT NULL,
+
+    CONSTRAINT FK_LOGIN_HIST_USER 
+        FOREIGN KEY (USER_ID) REFERENCES FTIAPP.USERS(USER_ID) 
+        ON DELETE CASCADE
+);
+
+CREATE INDEX FTIAPP.IDX_LOGIN_HIST_USER ON FTIAPP.LOGIN_HISTORY(USER_ID);
+CREATE INDEX FTIAPP.IDX_LOGIN_HIST_TIME ON FTIAPP.LOGIN_HISTORY(LOGIN_TIME DESC);
