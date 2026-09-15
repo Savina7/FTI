@@ -62,20 +62,17 @@ public class StudentLifecycleIntegrationTest {
     @Test
     @DisplayName("Rrjedha e Plote e Studentit: Admin Pre-Enrollment -> Vet-Regjistrimi -> Verifikimi me OTP -> Login -> Aksesi ne Profil")
     void testCompleteStudentLifecycleFlow() throws Exception {
-        // Prevent actual SMTP mail sending during test
+
         doNothing().when(emailService).sendVerificationCode(anyString(), anyString(), anyString());
 
         Program program = programRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new IllegalStateException("Nuk u gjet asnje program ne DB per testim."));
 
         long suffix = System.currentTimeMillis() % 1000000;
-        String uniqueMatrikull = String.format("MAT%09d", suffix); // 12 characters exactly
+        String uniqueMatrikull = String.format("MAT%09d", suffix);
         String testEmail = "arbi.test" + suffix + "@fti.edu.al";
         String testPassword = "Password123!";
 
-        // =========================================================================
-        // HAPI 1: Admin regjistron studentin ne Pre-Enrollment
-        // =========================================================================
         StudentPreEnrollmentRequest preReq = new StudentPreEnrollmentRequest();
         preReq.setEmri("Arbi");
         preReq.setMbiemri("Hoxha");
@@ -96,9 +93,6 @@ public class StudentLifecycleIntegrationTest {
         assertThat(savedPre.getEmail()).isEqualTo(testEmail);
         assertThat(savedPre.getStatus()).isEqualTo("PARAREGJISTRUAR");
 
-        // =========================================================================
-        // HAPI 2: Studenti kryen vete-regjistrimin me te dhenat e tij
-        // =========================================================================
         StudentRegisterRequest regReq = new StudentRegisterRequest();
         regReq.setEmri("Arbi");
         regReq.setMbiemri("Hoxha");
@@ -122,9 +116,6 @@ public class StudentLifecycleIntegrationTest {
         String otpCode = pendingUser.getVerificationCode();
         Integer userId = pendingUser.getUserId();
 
-        // =========================================================================
-        // HAPI 3: Verifikimi i kodit OTP nga studenti
-        // =========================================================================
         VerifyRequest verifyReq = new VerifyRequest();
         verifyReq.setUserId(userId);
         verifyReq.setCode(otpCode);
@@ -142,9 +133,6 @@ public class StudentLifecycleIntegrationTest {
         assertThat(verifiedUser.getVerified()).isEqualTo("Y");
         assertThat(studentRepository.findByUserUserId(userId)).isPresent();
 
-        // =========================================================================
-        // HAPI 4: Login i studentit me Email dhe Password
-        // =========================================================================
         LoginRequest loginReq = new LoginRequest();
         loginReq.setEmail(testEmail);
         loginReq.setPassword(testPassword);
@@ -163,9 +151,6 @@ public class StudentLifecycleIntegrationTest {
         String jwtToken = rootNode.get("token").asText();
         assertThat(jwtToken).isNotBlank();
 
-        // =========================================================================
-        // HAPI 5: Aksesi ne profilin e studentit me JWT Token te sapo-gjeneruar
-        // =========================================================================
         mockMvc.perform(get("/api/student/me")
                         .param("email", testEmail)
                         .header("Authorization", "Bearer " + jwtToken))

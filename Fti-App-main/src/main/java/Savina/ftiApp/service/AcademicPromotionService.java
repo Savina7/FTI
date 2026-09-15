@@ -41,7 +41,7 @@ public class AcademicPromotionService {
         List<StudentPromotionDetailDto> details = new ArrayList<>();
 
         for (Student student : students) {
-            // Kalojme studentet qe jane diplomuar me pare
+
             if ("GRADUATED".equalsIgnoreCase(student.getStatus())) {
                 continue;
             }
@@ -51,10 +51,8 @@ public class AcademicPromotionService {
             int oldYear = student.getVitStudimit() != null ? student.getVitStudimit() : 1;
             String oldStatus = student.getStatus() != null ? student.getStatus() : "ACTIVE";
 
-            // 1. Llogarisim kreditet e marra sipas viteve te studimit
             List<Grade> grades = gradeRepository.findByStudentStudentId(student.getStudentId());
 
-            // courseId -> nota me e mire e kaluar
             Map<Integer, Course> passedCourses = new HashMap<>();
 
             for (Grade g : grades) {
@@ -99,7 +97,7 @@ public class AcademicPromotionService {
             String reason = "";
 
             if (oldYear == 1) {
-                // Kriteri Viti 1 -> Viti 2: >= 30 kredite nga Viti 1
+
                 if (creditsYear1 >= 30) {
                     newYear = 2;
                     newStatus = "ACTIVE";
@@ -115,7 +113,7 @@ public class AcademicPromotionService {
                     reason = "Mbeti përsëritës në Vitin 1 (ka marrë " + creditsYear1 + " kredite nga Viti 1, kërkohen ≥ 30).";
                 }
             } else if (oldYear == 2) {
-                // Kriteri Viti 2 -> Viti 3: >= 80 kredite gjithsej nga Viti 1 + Viti 2
+
                 int credits1And2 = creditsYear1 + creditsYear2;
                 if (credits1And2 >= 80) {
                     newYear = 3;
@@ -132,7 +130,7 @@ public class AcademicPromotionService {
                     reason = "Mbeti përsëritës në Vitin 2 (ka marrë " + credits1And2 + " kredite nga Viti 1+2, kërkohen ≥ 80).";
                 }
             } else {
-                // Viti 3: Kontroll per diplomim (>= 180 kredite)
+
                 if (totalCredits >= 180) {
                     newYear = 3;
                     newStatus = "GRADUATED";
@@ -206,7 +204,6 @@ public class AcademicPromotionService {
             return;
         }
 
-        // Provo te ruash te njejtin emer grupi (p.sh. Grupi A -> Grupi A)
         Classes currentClass = student.getClasses();
         if (currentClass != null && currentClass.getEmriClass() != null) {
             String currName = currentClass.getEmriClass().trim();
@@ -218,7 +215,6 @@ public class AcademicPromotionService {
             }
         }
 
-        // Perndryshe cakto klasen e pare te disponueshme te atij viti
         student.setClasses(availableClasses.get(0));
     }
 }

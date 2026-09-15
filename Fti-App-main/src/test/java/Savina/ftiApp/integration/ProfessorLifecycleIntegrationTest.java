@@ -71,9 +71,6 @@ public class ProfessorLifecycleIntegrationTest {
         String testEmail = "prof.test" + suffix + "@fti.edu.al";
         String testPassword = "Password123!";
 
-        // =========================================================================
-        // HAPI 1: Admin regjistron pedagogun ne Pre-Enrollment
-        // =========================================================================
         ProfessorPreEnrollmentRequest preReq = new ProfessorPreEnrollmentRequest();
         preReq.setEmri("Dritan");
         preReq.setMbiemri("Balla");
@@ -91,9 +88,6 @@ public class ProfessorLifecycleIntegrationTest {
                 .orElseThrow(() -> new AssertionError("Pedagogu duhej te ruhej ne PROFESSOR_PRE_ENROLLMENT"));
         assertThat(savedPre.getEmri()).isEqualTo("Dritan");
 
-        // =========================================================================
-        // HAPI 2: Pedagogu kryen vete-regjistrimin me te dhenat e tij
-        // =========================================================================
         ProfessorRegisterRequest regReq = new ProfessorRegisterRequest();
         regReq.setEmri("Dritan");
         regReq.setMbiemri("Balla");
@@ -117,9 +111,6 @@ public class ProfessorLifecycleIntegrationTest {
         String otpCode = pendingUser.getVerificationCode();
         Integer userId = pendingUser.getUserId();
 
-        // =========================================================================
-        // HAPI 3: Verifikimi i kodit OTP nga pedagogu
-        // =========================================================================
         VerifyRequest verifyReq = new VerifyRequest();
         verifyReq.setUserId(userId);
         verifyReq.setCode(otpCode);
@@ -136,9 +127,6 @@ public class ProfessorLifecycleIntegrationTest {
         assertThat(verifiedUser.getVerified()).isEqualTo("Y");
         assertThat(professorRepository.findByUserUserId(userId)).isPresent();
 
-        // =========================================================================
-        // HAPI 4: Login i pedagogut me Email dhe Password
-        // =========================================================================
         LoginRequest loginReq = new LoginRequest();
         loginReq.setEmail(testEmail);
         loginReq.setPassword(testPassword);
@@ -157,9 +145,6 @@ public class ProfessorLifecycleIntegrationTest {
         String jwtToken = rootNode.get("token").asText();
         assertThat(jwtToken).isNotBlank();
 
-        // =========================================================================
-        // HAPI 5: Aksesi ne portalin e pedagogut me JWT Token te sapo-gjeneruar
-        // =========================================================================
         mockMvc.perform(get("/api/pedagog/options")
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())

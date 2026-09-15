@@ -1,8 +1,3 @@
--- ============================================================
--- V5__Create_Professor_Pre_Enrollment.sql
--- Creates PROFESSOR_PRE_ENROLLMENT table and sequence
--- ============================================================
-
 CREATE TABLE FTIAPP.PROFESSOR_PRE_ENROLLMENT (
     PRE_ENROLLMENT_ID INTEGER NOT NULL,
     EMRI              VARCHAR2(50) NOT NULL,

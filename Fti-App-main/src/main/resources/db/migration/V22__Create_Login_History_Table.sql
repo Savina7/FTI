@@ -1,7 +1,3 @@
--- =============================================================================
--- V22: Krijimi i tabeles LOGIN_HISTORY per historikun e hyrjeve te perdoruesve
--- =============================================================================
-
 CREATE TABLE FTIAPP.LOGIN_HISTORY (
     ID          NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     USER_ID     INTEGER NOT NULL,

@@ -1,11 +1,3 @@
--- ============================================================
--- V2__Registration_Tables.sql
--- Adds to USERS:   VERIFIED, VERIFICATION_CODE, CODE_CREATED_AT
--- Adds to STUDENTS: NR_MATRIKULIMIT
--- Creates:         STUDENT_PRE_ENROLLMENT (admin pre-loads students)
--- ============================================================
-
--- 1. Add verification columns directly to USERS table
 ALTER TABLE FTIAPP.USERS ADD (
     VERIFIED           CHAR(1)      DEFAULT 'N' NOT NULL,
     VERIFICATION_CODE  VARCHAR2(6),
@@ -14,10 +6,8 @@ ALTER TABLE FTIAPP.USERS ADD (
 
 ALTER TABLE FTIAPP.USERS ADD CONSTRAINT CHK_USERS_VERIFIED CHECK (VERIFIED IN ('Y', 'N'));
 
--- 2. Add matrikulimi number column to STUDENTS table
 ALTER TABLE FTIAPP.STUDENTS ADD NR_MATRIKULIMIT VARCHAR2(12);
 
--- 3. Pre-enrollment table: admin adds students here before they self-register
 CREATE TABLE FTIAPP.STUDENT_PRE_ENROLLMENT (
     ENROLLMENT_ID    INTEGER             NOT NULL,
     EMRI             VARCHAR2(50)        NOT NULL,

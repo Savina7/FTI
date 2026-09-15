@@ -65,7 +65,6 @@ public class AcademicPromotionIntegrationTest {
 
         long suffix = System.currentTimeMillis() % 1000000;
 
-        // 1. Krijojme nje student qe kualifikohet per kalim ne Vitin 2 (>= 30 kredite)
         User userPass = userRepository.save(User.builder()
                 .emri("Student")
                 .mbiemri("Kalues")
@@ -85,7 +84,6 @@ public class AcademicPromotionIntegrationTest {
                 .status("ACTIVE")
                 .build());
 
-        // Shtojme nota kaluese per studentPass deri ne te pakten 30 kredite nga Viti 1
         List<Savina.ftiApp.entity.Course> y1Courses = courseRepository.findByProgramProgramIdAndStudyYear(program.getProgramId(), 1);
         int passCredits = 0;
         for (Savina.ftiApp.entity.Course c : y1Courses) {
@@ -106,7 +104,6 @@ public class AcademicPromotionIntegrationTest {
             passCredits += (c.getKredite() != null ? c.getKredite() : 6);
         }
 
-        // 2. Krijojme nje student qe ngel perserites (< 30 kredite)
         User userRepeat = userRepository.save(User.builder()
                 .emri("Student")
                 .mbiemri("Perserites")
@@ -126,7 +123,6 @@ public class AcademicPromotionIntegrationTest {
                 .status("ACTIVE")
                 .build());
 
-        // Studenti perserites merr vetem 1 lende kaluese (6 kredite)
         if (!y1Courses.isEmpty()) {
             Savina.ftiApp.entity.Course c = y1Courses.get(0);
             Savina.ftiApp.entity.TeachingCourse tc = teachingCourseRepository.findByCourseCourseId(c.getCourseId()).stream().findFirst()
@@ -140,9 +136,6 @@ public class AcademicPromotionIntegrationTest {
                     .build());
         }
 
-        // =========================================================================
-        // HAPI 3: Admini ekzekuton promovimin e vitit akademik
-        // =========================================================================
         MvcResult result = mockMvc.perform(post("/api/admin/students/promote-academic-year")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -152,9 +145,6 @@ public class AcademicPromotionIntegrationTest {
         PromotionResultDto resDto = objectMapper.readValue(result.getResponse().getContentAsString(), PromotionResultDto.class);
         assertThat(resDto.getTotalProcessed()).isGreaterThan(0);
 
-        // =========================================================================
-        // HAPI 4: Verifikimi i ndryshimeve ne databaze
-        // =========================================================================
         Student updatedPass = studentRepository.findById(studentPass.getStudentId()).orElseThrow();
         assertThat(updatedPass.getVitStudimit()).isEqualTo(2);
 

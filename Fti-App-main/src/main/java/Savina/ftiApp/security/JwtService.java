@@ -17,17 +17,17 @@ public class JwtService {
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-    } // e kthen ne formati qe duhet sk
+    }
 
     public String generateToken(Integer userId, String email, String role) {
         return Jwts.builder()
-                .subject(email) // pronari i token
+                .subject(email)
                 .claim("userId", userId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
-                .signWith(getSigningKey())  //i shton secret key
-                .compact(); // 3 pjeset header payload dhe secret key bashk
+                .signWith(getSigningKey())
+                .compact();
     }
 
     public Claims extractAllClaims(String token) {

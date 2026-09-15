@@ -25,6 +25,7 @@ import Savina.ftiApp.repository.RoleRepository;
 import Savina.ftiApp.repository.StudentPreEnrollmentRepository;
 import Savina.ftiApp.repository.StudentRepository;
 import Savina.ftiApp.repository.UserRepository;
+import Savina.ftiApp.util.PasswordGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,13 +42,13 @@ public class AdminStudentService {
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<StudentAdminDto> getAllStudents() {
         List<StudentAdminDto> result = new ArrayList<>();
         java.util.Set<String> seenMatrikulime = new java.util.HashSet<>();
 
-        // 1. Fetch pre-enrollments directly from DB (all students are in STUDENT_PRE_ENROLLMENT)
         List<StudentPreEnrollment> preEnrollments = enrollmentRepo.findAll();
         for (StudentPreEnrollment pe : preEnrollments) {
             String matrikulimi = pe.getNrMatrikulimit() != null ? pe.getNrMatrikulimit().trim() : "";
@@ -84,12 +85,11 @@ public class AdminStudentService {
                     .build());
         }
 
-        // 2. Fetch any registered students that might not be in STUDENT_PRE_ENROLLMENT
         List<Student> registeredStudents = studentRepo.findAll();
         for (Student s : registeredStudents) {
             String matrikulimi = s.getNrMatrikulimit() != null ? s.getNrMatrikulimit().trim() : "";
             if (!matrikulimi.isEmpty() && seenMatrikulime.contains(matrikulimi.toLowerCase())) {
-                continue; // Already included from pre-enrollment
+                continue;
             }
 
             String progName = (s.getProgram() != null && s.getProgram().getNivel() != null) ? s.getProgram().getNivel() : "";
@@ -384,7 +384,6 @@ public class AdminStudentService {
         boolean isDouble = Boolean.TRUE.equals(doubleDegree);
         List<String> list = programRepo.findSpecializimeByNivelAndDoubleDegree(nivel, isDouble);
 
-        // Fallback: if double degree filter returns nothing, try just the nivel filter
         if (list == null || list.isEmpty()) {
             list = programRepo.findSpecializimeByNivelOnly(nivel);
         }
@@ -408,7 +407,8 @@ public class AdminStudentService {
         String cleanEmail = pe.getEmail().trim().toLowerCase();
         String cleanMatrikulimi = pe.getNrMatrikulimit() != null ? pe.getNrMatrikulimit().trim() : "";
 
-        // Check if user already exists
+        String tempPass = PasswordGeneratorUtil.generateRandomPassword(8);
+
         User user = userRepo.findByEmail(cleanEmail).orElse(null);
         if (user == null) {
             Role studentRole = roleRepo.findByRoleName("STUDENT")
@@ -418,20 +418,24 @@ public class AdminStudentService {
                     .emri(pe.getEmri())
                     .mbiemri(pe.getMbiemri())
                     .email(cleanEmail)
-                    .password(passwordEncoder.encode("Fti12345!"))
+                    .password(passwordEncoder.encode(tempPass))
                     .createdAt(LocalDate.now())
                     .status("ACTIVE")
                     .verified("Y")
+                    .changePass("YES")
                     .build();
             user.getRoles().add(studentRole);
             user = userRepo.save(user);
         } else {
+            user.setPassword(passwordEncoder.encode(tempPass));
             user.setVerified("Y");
             user.setStatus("ACTIVE");
+            user.setChangePass("YES");
             user = userRepo.save(user);
         }
 
-        // Check if Student record exists
+        emailService.sendTemporaryPasswordEmail(cleanEmail, user.getEmri(), tempPass);
+
         final User finalUser = user;
         Student student = studentRepo.findByUserUserId(finalUser.getUserId()).orElse(null);
         if (student == null) {
@@ -453,11 +457,10 @@ public class AdminStudentService {
             student = studentRepo.save(student);
         }
 
-        // 3. Keep in STUDENT_PRE_ENROLLMENT and update STATUS to VERIFIKUAR
         pe.setStatus("VERIFIKUAR");
         pe = enrollmentRepo.save(pe);
 
-        log.info("Student {} {} ({}) verified and registered directly into USERS & STUDENTS (remains in STUDENT_PRE_ENROLLMENT with status VERIFIKUAR)",
+        log.info("Student {} {} ({}) verified and registered directly into USERS & STUDENTS with temp pass (changePass=YES)",
                 finalUser.getEmri(), finalUser.getMbiemri(), cleanMatrikulimi);
 
         String progName = (pe.getProgram() != null && pe.getProgram().getNivel() != null) ? pe.getProgram().getNivel() : "";
@@ -479,6 +482,7 @@ public class AdminStudentService {
                 .grupi(className)
                 .dega(deptName)
                 .status("VERIFIKUAR")
+                .tempPassword(tempPass)
                 .build();
     }
 }

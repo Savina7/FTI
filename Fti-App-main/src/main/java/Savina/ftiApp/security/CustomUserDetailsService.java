@@ -15,11 +15,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Sherben si ure mes Spring Security dhe DB-se.
- * Spring Security therret loadUserByUsername() me email-in e nxjerre nga JWT,
- * dhe merr UserDetails (me rolet) per te populluar SecurityContext.
- */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

@@ -11,6 +11,6 @@ public class ExamSeasonDto {
     private String academicYear;
     private String seasonType;
     private Integer programId;
-    private String startDate; // "YYYY-MM-DD"
-    private String endDate;   // "YYYY-MM-DD"
+    private String startDate;
+    private String endDate;
 }

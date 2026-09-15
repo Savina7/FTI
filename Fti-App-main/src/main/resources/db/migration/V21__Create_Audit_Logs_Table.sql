@@ -1,7 +1,3 @@
--- =============================================================================
--- V21: Krijimi i tabeles AUDIT_LOGS per auditimin e te gjitha ndryshimeve ne sistem
--- =============================================================================
-
 CREATE TABLE FTIAPP.AUDIT_LOGS (
     LOG_ID      NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ENTITY_NAME VARCHAR2(50) NOT NULL,
@@ -18,6 +14,5 @@ CREATE TABLE FTIAPP.AUDIT_LOGS (
         ON DELETE SET NULL
 );
 
--- Indekse per performancen e kerkimeve
 CREATE INDEX FTIAPP.IDX_AUDIT_LOGS_ENTITY ON FTIAPP.AUDIT_LOGS(ENTITY_NAME, ENTITY_ID);
 CREATE INDEX FTIAPP.IDX_AUDIT_LOGS_CHANGED_AT ON FTIAPP.AUDIT_LOGS(CHANGED_AT DESC);

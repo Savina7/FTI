@@ -30,17 +30,14 @@ public class LoginService {
     public AuthResponse login(LoginRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
 
-        // 1. Find user by email (case-insensitive)
         User user = userRepo.findByEmailIgnoreCase(cleanEmail)
                 .orElseGet(() -> userRepo.findByEmail(cleanEmail)
                         .orElseThrow(() -> new IllegalArgumentException("Email ose fjalekalimi eshte i pasakte.")));
 
-        // 2. Check if account is verified
         if (!"Y".equalsIgnoreCase(user.getVerified())) {
             throw new IllegalArgumentException("Llogaria juaj nuk eshte e verifikuar. Kontrolloni email-in tuaj per kodin 6-shifror.");
         }
 
-        // 3. Check password with BCrypt (me fallback per plain-text nese ekzistojne ne DB)
         boolean passwordMatches = false;
         try {
             passwordMatches = passwordEncoder.matches(req.getPassword(), user.getPassword());
@@ -50,7 +47,6 @@ public class LoginService {
             throw new IllegalArgumentException("Email ose fjalekalimi eshte i pasakte.");
         }
 
-        // 4. Resolve user primary role
         String roleName = user.getRoles().stream()
                 .findFirst()
                 .map(Role::getRoleName)
@@ -60,7 +56,6 @@ public class LoginService {
             roleName = "ADMIN";
         }
 
-        // 5. Generate JWT token
         String token = jwtService.generateToken(user.getUserId(), user.getEmail(), roleName);
 
         String fullName = ((user.getEmri() != null ? user.getEmri() : "") + " "
@@ -69,7 +64,6 @@ public class LoginService {
             fullName = user.getEmail();
         }
 
-        // 6. Save login history
         try {
             LoginHistory history = LoginHistory.builder()
                     .user(user)
@@ -81,14 +75,73 @@ public class LoginService {
             log.error("Gabim gjate ruajtjes se historikut te hyrjes per user {}: {}", user.getUserId(), e.getMessage());
         }
 
-        log.info("User logged in successfully: {} (role={}, name={})", user.getEmail(), roleName, fullName);
+        log.info("User logged in successfully: {} (role={}, name={}, changePass={})", user.getEmail(), roleName, fullName, user.getChangePass());
         return AuthResponse.builder()
                 .token(token)
                 .id(user.getUserId())
                 .email(user.getEmail())
                 .name(fullName)
                 .role(roleName)
+                .changePass(user.getChangePass() != null ? user.getChangePass() : "NO")
                 .message("Kyçja u krye me sukses!")
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse forceChangePassword(Savina.ftiApp.dto.requestDTO.ForceChangePasswordRequest req) {
+        String cleanEmail = req.getEmail().trim().toLowerCase();
+
+        if (!req.getNewPassword().equals(req.getConfirmPassword())) {
+            throw new IllegalArgumentException("Fjalekalimi i ri dhe konfirmimi i tij nuk perputhen.");
+        }
+
+        User user = userRepo.findByEmailIgnoreCase(cleanEmail)
+                .orElseGet(() -> userRepo.findByEmail(cleanEmail)
+                        .orElseThrow(() -> new IllegalArgumentException("Perdoruesi nuk u gjet.")));
+
+        boolean currentMatches = false;
+        try {
+            currentMatches = passwordEncoder.matches(req.getCurrentPassword(), user.getPassword());
+        } catch (Exception ignored) {}
+
+        if (!currentMatches && !req.getCurrentPassword().equals(user.getPassword())) {
+            throw new IllegalArgumentException("Fjalekalimi aktual (i perkohshem) eshte i pasakte.");
+        }
+
+        if (passwordEncoder.matches(req.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Fjalekalimi i ri nuk mund te jete i njejte me fjalekalimin e perkohshem.");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        user.setChangePass("NO");
+        user = userRepo.save(user);
+
+        log.info("User {} successfully changed temporary password (changePass is now NO)", user.getEmail());
+
+        String roleName = user.getRoles().stream()
+                .findFirst()
+                .map(Role::getRoleName)
+                .orElse("STUDENT");
+
+        if ("admin@fti.edu.al".equalsIgnoreCase(cleanEmail) || cleanEmail.startsWith("admin@")) {
+            roleName = "ADMIN";
+        }
+
+        String token = jwtService.generateToken(user.getUserId(), user.getEmail(), roleName);
+        String fullName = ((user.getEmri() != null ? user.getEmri() : "") + " "
+                + (user.getMbiemri() != null ? user.getMbiemri() : "")).trim();
+        if (fullName.isEmpty()) {
+            fullName = user.getEmail();
+        }
+
+        return AuthResponse.builder()
+                .token(token)
+                .id(user.getUserId())
+                .email(user.getEmail())
+                .name(fullName)
+                .role(roleName)
+                .changePass("NO")
+                .message("Fjalekalimi u ndryshua me sukses! Tani mund te vazhdoni ne sistem.")
                 .build();
     }
 }

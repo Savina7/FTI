@@ -17,6 +17,7 @@ public class AuthResponse {
     private String name;
     private String role;
     private String message;
+    private String changePass;
 
     public AuthResponse(String token, Integer id, String email, String role, String message) {
         this.token = token;

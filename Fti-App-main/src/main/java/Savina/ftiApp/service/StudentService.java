@@ -52,7 +52,6 @@ public class StudentService {
             return studentMapper.toEmptyProfileDto();
         }
 
-        // Calculate credits & weighted average
         List<Grade> grades = gradeRepo.findByStudentStudentId(student.getStudentId());
 
         double totalWeightedPoints = 0.0;
@@ -64,7 +63,6 @@ public class StudentService {
                 Integer courseCredits = g.getTeachingCourse().getCourse().getKredite();
                 int krediteVal = courseCredits != null ? courseCredits : 0;
 
-                // Nota 4 (ngelese) nuk llogaritet ne mesatare dhe as te kreditet e fituara
                 if (krediteVal > 0 && gradeVal >= 5.0) {
                     totalWeightedPoints += (gradeVal * krediteVal);
                     sumCreditsFromGrades += krediteVal;
@@ -220,7 +218,6 @@ public class StudentService {
 
         List<Attendance> attendances = attendanceRepo.findByStudentStudentId(student.getStudentId());
 
-        // Map courseId -> List of absence dates
         Map<Integer, List<String>> seminarAbsencesMap = new HashMap<>();
         Map<Integer, List<String>> labAbsencesMap = new HashMap<>();
         Map<Integer, Integer> courseSemTotalMap = new HashMap<>();
@@ -240,7 +237,6 @@ public class StudentService {
                     courseSemTotalMap.put(courseId, totalH);
                 }
 
-                // status == 0 means ABSENT
                 if (a.getStatus() == null || a.getStatus() == 0) {
                     String dateStr = a.getDataAttendance() != null ? studentMapper.formatDateAlbanian(a.getDataAttendance()) : "-";
                     if (roleType.contains("LAB")) {
@@ -291,9 +287,8 @@ public class StudentService {
             double semAbsencePercentage = (double) semCount / semTotal;
             double labAbsencePercentage = (double) labCount / labTotal;
 
-            boolean isReAttendance = semAbsencePercentage > 0.30; // Missed > 30% of total seminar hours
+            boolean isReAttendance = semAbsencePercentage > 0.30;
 
-            // RULE: Include course ONLY IF it belongs to current student year OR it is for re-attendance (>30% seminar missed)
             if (courseYear == currentStudentYear || isReAttendance) {
                 processedCourseIds.add(c.getCourseId());
 

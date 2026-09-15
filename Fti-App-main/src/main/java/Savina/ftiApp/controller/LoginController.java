@@ -42,4 +42,9 @@ public class LoginController {
         passwordResetService.resetPassword(req);
         return new AuthResponse("Fjalekalimi juaj u ndryshua me sukses! Tani mund te hyni.");
     }
+
+    @PostMapping("/force-change-password")
+    public AuthResponse forceChangePassword(@Valid @RequestBody Savina.ftiApp.dto.requestDTO.ForceChangePasswordRequest req) {
+        return loginService.forceChangePassword(req);
+    }
 }

@@ -49,7 +49,6 @@ public class PedagogService {
     public PedagogOptionsDto getPedagogOptions(Integer userId, String email) {
         log.info("[getPedagogOptions] Filloi kerkimi per userId={}, email='{}'", userId, email);
 
-        // 1. Gjejme User ne DB
         User user = null;
         if (userId != null) {
             user = userRepo.findById(userId).orElse(null);
@@ -67,7 +66,6 @@ public class PedagogService {
             log.warn("[getPedagogOptions] Nuk u gjet asnje User ne tabelen USERS per userId={}, email='{}'", userId, email);
         }
 
-        // 2. Gjejme Professor ne DB
         Professor professor = null;
         if (user != null) {
             final Integer targetUserId = user.getUserId();
@@ -80,7 +78,6 @@ public class PedagogService {
                     .orElseGet(() -> professorRepo.findByUserEmailIgnoreCase(cleanEmail).orElse(null));
         }
 
-        // Kerkim fallback ne tabelen PROFESSORS duke krahasuar çdo rekord
         if (professor == null) {
             List<Professor> allProfessors = professorRepo.findAll();
             for (Professor p : allProfessors) {
@@ -117,7 +114,6 @@ public class PedagogService {
             log.error("[getPedagogOptions] GABIM: Nuk u gjet asnje User dhe asnje Professor per email='{}', userId={}", email, userId);
         }
 
-        // 3. Percaktojme emrin dhe email-in e pedagogut
         String profName = "";
         String profEmail = "";
 
@@ -138,7 +134,6 @@ public class PedagogService {
 
         log.info("[getPedagogOptions] Emri perfundimtar i pedagogut: '{}' (email: '{}')", profName, profEmail);
 
-        // 4. Marrim VETEM lendet e caktuara per kete pedagog nga TEACHING_COURSES
         List<TeachingCourse> teachingCourses = Collections.emptyList();
         if (professor != null) {
             try {
@@ -150,7 +145,6 @@ public class PedagogService {
                     professor.getProfessorId(), teachingCourses.size());
         }
 
-        // Vitet akademike
         List<String> academicYears = courseScheduleRepo.findDistinctAcademicYears();
         if (academicYears == null || academicYears.isEmpty()) {
             int currentYear = LocalDate.now().getMonthValue() >= 9
@@ -175,7 +169,6 @@ public class PedagogService {
         boolean isLektor = false;
         boolean hasRegistry = false;
 
-        // Mbushim VETEM te dhenat e ketij pedagogu
         Map<Integer, Set<String>> courseBranchesMap = new HashMap<>();
         Map<Integer, Set<Program>> courseProgramsMap = new HashMap<>();
 
@@ -246,7 +239,6 @@ public class PedagogService {
                 }
             }
 
-            // Vendosim branches reale ne cdo CourseOptionDto
             for (PedagogOptionsDto.CourseOptionDto cDto : courseOptions) {
                 Set<String> brs = courseBranchesMap.get(cDto.getId());
                 if (brs != null && !brs.isEmpty()) {
@@ -262,7 +254,6 @@ public class PedagogService {
             log.warn("[getPedagogOptions] Pedagogu '{}' nuk ka asnje lende te caktuar ne tabelen TEACHING_COURSES.", profName);
         }
 
-        // Nese departamenti mungon nga kurset por profesori ka departament te caktuar
         if (departmentOptions.isEmpty() && professor != null && professor.getDepartment() != null) {
             Department d = professor.getDepartment();
             if (d.getDepartmentId() != null && !seenDeptIds.contains(d.getDepartmentId())) {
@@ -273,7 +264,6 @@ public class PedagogService {
 
         List<String> typesList = new ArrayList<>(typesSet);
 
-        // Programet reale te ketij pedagogu
         List<PedagogOptionsDto.ProgramOptionDto> programOptions = new ArrayList<>();
         Set<Integer> seenProgIds = new HashSet<>();
         for (Set<Program> progs : courseProgramsMap.values()) {
@@ -327,7 +317,6 @@ public class PedagogService {
             }
         }
 
-        // Attendance columns derived dynamically from the Topics of this course
         List<Topic> courseTopics = (courseId != null)
                 ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(courseId)
                 : Collections.emptyList();
@@ -422,7 +411,7 @@ public class PedagogService {
                     if (att != null) {
                         attMap.put(colKey, att.getStatus() != null && att.getStatus() == 1);
                     } else {
-                        attMap.put(colKey, true); // default present
+                        attMap.put(colKey, true);
                     }
                 } else {
                     attMap.put(colKey, true);
@@ -443,13 +432,11 @@ public class PedagogService {
                     .build());
         }
 
-        // Renditja alfabetike e studenteve
         studentRows.sort(Comparator.comparing(
                 PedagogRegisterDto.StudentRowDto::getEmri,
                 String.CASE_INSENSITIVE_ORDER
         ));
 
-        // Calculate statistics
         PedagogRegisterDto.RegisterStatsDto stats = pedagogMapper.calculateStats(allGradeValues, students.size());
 
         String deptName = "";
@@ -640,10 +627,8 @@ public class PedagogService {
                 ? dept.getEmerDepartamenti()
                 : "Departamenti i Inxhinierise Kompjuterike";
 
-        // 1. Percakto Viti i Studimit te lendes (p.sh. Viti 3 per Sistemet Operative)
         Integer courseStudyYear = (course != null && course.getStudyYear() != null) ? course.getStudyYear() : null;
 
-        // 2. Merr klasat e lidhura me lenden (TeachingCourse)
         List<TeachingCourse> tcs = (course != null) ? teachingCourseRepo.findByCourseCourseId(course.getCourseId()) : Collections.emptyList();
         Set<Integer> classIds = new HashSet<>();
         for (TeachingCourse tc : tcs) {
@@ -659,10 +644,8 @@ public class PedagogService {
             }
         }
 
-        // 3. Merr studentet reale te lidhur me kete lende nga DB
         Map<Integer, Student> targetStudentsMap = new LinkedHashMap<>();
 
-        // A) Studentet nga klasat e TeachingCourses te kesaj lende
         if (!classIds.isEmpty()) {
             List<Student> studentsInClasses = studentRepo.findByClasses_ClassIdIn(classIds);
             for (Student s : studentsInClasses) {
@@ -672,7 +655,6 @@ public class PedagogService {
             }
         }
 
-        // B) Nese nuk ka klasa te lidhura ne teaching_courses, merr studentet e programit
         if (targetStudentsMap.isEmpty() && course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
             List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
             for (Student s : progStudents) {
@@ -682,7 +664,6 @@ public class PedagogService {
             }
         }
 
-        // C) Merr notat reale te regjistruara per kete lende
         List<Grade> grades = (course != null) ? gradeRepo.findByTeachingCourse_Course_CourseId(course.getCourseId()) : Collections.emptyList();
         Map<Integer, Grade> gradeByStudentId = new HashMap<>();
         for (Grade g : grades) {
@@ -692,14 +673,13 @@ public class PedagogService {
             }
         }
 
-        // 4. Filtro studentet sipas Deges DHE Vitit te Studimit te lendes
         List<Student> finalStudents = new ArrayList<>();
         String degaLower = (dega != null && !dega.isBlank() && !dega.toLowerCase().contains("gjith"))
                 ? dega.trim().toLowerCase()
                 : null;
 
         for (Student s : targetStudentsMap.values()) {
-            // A) Verifikimi i Deges
+
             boolean matchDega = true;
             if (degaLower != null) {
                 boolean matchProg = (s.getProgram() != null && s.getProgram().getSpecializimi() != null
@@ -711,7 +691,6 @@ public class PedagogService {
                 matchDega = (matchProg || matchClassProg || matchClassName);
             }
 
-            // B) Verifikimi i Vitit te Studimit (p.sh. Lenda e vitit 3 merr VETEM studentet e vitit 3)
             boolean matchYear = true;
             if (courseStudyYear != null) {
                 Integer sYear = s.getVitStudimit();
@@ -767,7 +746,6 @@ public class PedagogService {
                     .build());
         }
 
-        // Renditja alfabetike e studenteve ne statistikat e deges
         studentExportList.sort(Comparator.comparing(
                 BranchStatsDto.StudentExportItem::getEmri,
                 String.CASE_INSENSITIVE_ORDER
@@ -775,8 +753,6 @@ public class PedagogService {
 
         int totalStudents = finalStudents.size();
 
-        // If there is no real student/grade data in the DB yet, return honest
-        // zero/empty statistics instead of fabricated sample data.
         if (studentExportList.isEmpty() || allGradesList.isEmpty()) {
             return pedagogMapper.buildEmptyBranchStats(actualCourseName, deptName, actualDega, actualYear, totalStudents, studentExportList, groupGradesMap.keySet());
         }
@@ -803,12 +779,10 @@ public class PedagogService {
             countByIntGrade.put(intVal, countByIntGrade.getOrDefault(intVal, 0L) + 1);
         }
 
-        // Mesatarja reale = Shuma e notave kaluese (>=5) pjesetuar me numrin e studenteve qe kane marre note kaluese
         double mesatarja = (passing > 0)
                 ? BigDecimal.valueOf(sumPassing / passing).setScale(2, RoundingMode.HALF_UP).doubleValue()
                 : (allGradesList.isEmpty() ? 0.0 : BigDecimal.valueOf(allGradesList.stream().mapToDouble(BigDecimal::doubleValue).average().orElse(0.0)).setScale(2, RoundingMode.HALF_UP).doubleValue());
 
-        // Kalueshmeria = % e studenteve qe kane marre nje note dhe e kane mbi 4 (>= 5)
         double kalueshmeria = (!allGradesList.isEmpty())
                 ? BigDecimal.valueOf(((double) passing / allGradesList.size()) * 100).setScale(1, RoundingMode.HALF_UP).doubleValue()
                 : 0.0;
@@ -912,10 +886,6 @@ public class PedagogService {
         return sb.toString();
     }
 
-    /**
-     * Merr listen e pjesemarrjes se studenteve ne provim per lenden dhe klasen
-     * e zgjedhur.
-     */
     @Transactional(readOnly = true)
     public ExamAttendancePageDto getExamAttendance(Integer courseId, Integer classId) {
         if (courseId == null) {
@@ -925,7 +895,6 @@ public class PedagogService {
                     .build();
         }
 
-        // 1. Gjejme provimin me te afert per kete lende
         List<ExamSchedule> exams = examScheduleRepo.findByCourse_CourseId(courseId);
         ExamSchedule exam = exams.isEmpty() ? null : exams.get(exams.size() - 1);
 
@@ -952,7 +921,6 @@ public class PedagogService {
             }
         }
 
-        // 2. Gjejme studentet e klases ose te gjithe kursit
         Course course = courseRepo.findById(courseId).orElse(null);
         List<Student> students = new ArrayList<>();
         if (classId != null) {
@@ -965,7 +933,6 @@ public class PedagogService {
             students = studentRepo.findAll();
         }
 
-        // 3. Gjejme attendance ekzistuese nese ka
         Map<Integer, String> statusByStudent = new HashMap<>();
         if (examId != null) {
             List<ExamAttendance> attList = examAttendanceRepo.findByExamSchedule_ExamId(examId);
@@ -986,7 +953,6 @@ public class PedagogService {
                 fullName = "Student " + s.getStudentId();
             }
 
-            // By default PREZENT nese nuk eshte shenuar me pare!
             String status = statusByStudent.getOrDefault(s.getStudentId(), "present");
 
             studentDtos.add(ExamAttendanceStudentDto.builder()
@@ -1013,9 +979,6 @@ public class PedagogService {
                 .build();
     }
 
-    /**
-     * Ruan pjesemarrjen ne provim per studentet te EXAM_ATTENDANCE.
-     */
     @Transactional
     public void saveExamAttendance(SaveExamAttendanceRequest req) {
         if (req == null || req.getCourseId() == null || req.getEntries() == null) {

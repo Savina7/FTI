@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        // Shfletuesi kerkon me default /favicon.ico -> Spring Boot e ridrejton automatikisht te /favicon.svg
+
         registry.addRedirectViewController("/favicon.ico", "/favicon.svg");
     }
 

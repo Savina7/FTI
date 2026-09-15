@@ -45,6 +45,11 @@ public class HomeController {
         return "auth/reset-password";
     }
 
+    @GetMapping("/force-change-password")
+    public String forceChangePasswordPage() {
+        return "auth/force-change-password";
+    }
+
     @GetMapping("/verify")
     public String verifyPage(@org.springframework.web.bind.annotation.RequestParam(required = false) Integer userId, Model model) {
         if (userId != null) {

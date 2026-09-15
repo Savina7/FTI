@@ -20,5 +20,6 @@ public class StudentAdminDto {
     private Integer vitStudimit;
     private String grupi;
     private String dega;
-    private String status; // "PARAREGJISTRUAR" or "VERIFIKUAR"
+    private String status;
+    private String tempPassword;
 }

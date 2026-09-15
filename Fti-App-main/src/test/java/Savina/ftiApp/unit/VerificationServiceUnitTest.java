@@ -85,7 +85,7 @@ class VerificationServiceUnitTest {
     @Test
     @DisplayName("Unit: Verifikimi deshton kur kodi ka skaduar (mbi 15 minuta)")
     void testVerifyCodeExpired() {
-        mockUser.setCodeCreatedAt(LocalDateTime.now().minusMinutes(20)); // 20 min me vonese
+        mockUser.setCodeCreatedAt(LocalDateTime.now().minusMinutes(20));
         when(userRepo.findById(1)).thenReturn(Optional.of(mockUser));
 
         assertThatThrownBy(() -> verificationService.verifyCode(1, "123456"))

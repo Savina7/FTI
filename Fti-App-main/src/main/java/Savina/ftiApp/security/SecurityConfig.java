@@ -29,9 +29,6 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * AuthenticationProvider qe lidh CustomUserDetailsService + BCrypt.
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
@@ -39,18 +36,11 @@ public class SecurityConfig {
         return provider;
     }
 
-    /**
-     * AuthenticationManager — per authenticate() manual brenda LoginService.
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * Entry point per API-te: Kur nje request ne /api/** nuk ka Bearer token te
-     * vlefshem → kthen 401 JSON.
-     */
     private AuthenticationEntryPoint apiEntryPoint() {
         return (HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -59,25 +49,19 @@ public class SecurityConfig {
         };
     }
 
-    /**
-     * Rregullat e sigurise (Arkitektura me LocalStorage + Bearer Token): 1.
-     * Endpoint-et publike te API-se (login, register, verify) → permitAll() 2.
-     * Te gjitha API-te e tjera (/api/**) → authenticated() 3. Faqet HTML dhe
-     * resourcet statike (css, js, images) → permitAll() (mbrohen me guard ne
-     * frontend dhe nga API-te)
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                // 1. API publike
+
                 .requestMatchers(
                         "/api/login",
                         "/api/forgot-password",
                         "/api/verify-reset-code",
                         "/api/reset-password",
+                        "/api/force-change-password",
                         "/api/register",
                         "/api/register/**",
                         "/api/verify/**",
@@ -85,9 +69,9 @@ public class SecurityConfig {
                         "/api/student/**",
                         "/api/admin/**"
                 ).permitAll()
-                // 2. Te gjitha API-te e tjera kerkojne JWT (Bearer Token)
+
                 .requestMatchers("/api/**").authenticated()
-                // 3. Faqet HTML dhe skedaret statike sherbehen lirisht
+
                 .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex

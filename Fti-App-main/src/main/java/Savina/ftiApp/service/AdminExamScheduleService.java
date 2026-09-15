@@ -33,9 +33,6 @@ public class AdminExamScheduleService {
         "Korrik", "Gusht", "Shtator", "Tetor", "Nentor", "Dhjetor"
     };
 
-    /**
-     * Merr listen e lendeve per nje program dhe semester te caktuar.
-     */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getCoursesForProgramAndSemester(Integer programId, String semester) {
         List<Course> allCourses = courseRepo.findByProgramProgramId(programId);
@@ -53,7 +50,6 @@ public class AdminExamScheduleService {
             result.add(map);
         }
 
-        // Rendit sipas vitit dhe emrit te lendes
         result.sort((a, b) -> {
             Integer y1 = (Integer) a.get("studyYear");
             Integer y2 = (Integer) b.get("studyYear");
@@ -133,9 +129,6 @@ public class AdminExamScheduleService {
         return "1";
     }
 
-    /**
-     * Merr listen e provimeve per nje program dhe sezon te caktuar.
-     */
     @Transactional(readOnly = true)
     public List<ExamScheduleDto> getExamsByProgramAndSeason(Integer programId, String season) {
         List<ExamSchedule> exams;
@@ -148,9 +141,6 @@ public class AdminExamScheduleService {
         return exams.stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
-    /**
-     * Ruan ose perditeson nje provim.
-     */
     @Transactional
     public ExamScheduleDto saveExam(ExamScheduleRequestDto req) {
         Course course = courseRepo.findById(req.getCourseId())
@@ -174,7 +164,6 @@ public class AdminExamScheduleService {
             endTime = startTime.plusHours(3);
         }
 
-        // KONTROLLI I KONFLIKTIT TE SALLAVE
         if (req.getRoomIds() != null && !req.getRoomIds().isEmpty()) {
             LocalDateTime startOfDay = date.atStartOfDay();
             LocalDateTime endOfDay = date.atTime(23, 59, 59);
@@ -221,7 +210,6 @@ public class AdminExamScheduleService {
         exam.setEndTime(endTime.format(DateTimeFormatter.ofPattern("HH:mm")));
         exam.setType(req.getSeason() != null ? req.getSeason().toUpperCase().trim() : "VJESHTE");
 
-        // Lidhja me sallat
         Set<Room> rooms = new HashSet<>();
         if (req.getRoomIds() != null && !req.getRoomIds().isEmpty()) {
             rooms.addAll(roomRepo.findAllById(req.getRoomIds()));
@@ -232,9 +220,6 @@ public class AdminExamScheduleService {
         return mapToDto(saved);
     }
 
-    /**
-     * Fshin nje provim.
-     */
     @Transactional
     public void deleteExam(Integer examId) {
         examScheduleRepo.deleteById(examId);
@@ -286,9 +271,6 @@ public class AdminExamScheduleService {
                 .build();
     }
 
-    /**
-     * Merr konfigurimin e datave te sezonit nga DB.
-     */
     public Savina.ftiApp.dto.responseDTO.ExamSeasonDto getSeasonDates(String academicYear, String seasonType, Integer programId) {
         String year = (academicYear != null && !academicYear.isBlank()) ? academicYear.trim() : "2025-2026";
         String type = (seasonType != null && !seasonType.isBlank()) ? seasonType.toUpperCase().trim() : "VJESHTE";
@@ -313,7 +295,6 @@ public class AdminExamScheduleService {
                     .build();
         }
 
-        // Defaults nese nuk eshte konfiguruar
         String defStart = "2025-09-08";
         String defEnd = "2025-09-18";
         if ("VERE".equalsIgnoreCase(type)) {
@@ -333,9 +314,6 @@ public class AdminExamScheduleService {
                 .build();
     }
 
-    /**
-     * Ruan ose perditeson konfigurimin e datave te sezonit ne DB.
-     */
     @Transactional
     public Savina.ftiApp.dto.responseDTO.ExamSeasonDto saveSeasonDates(Savina.ftiApp.dto.responseDTO.ExamSeasonDto dto) {
         if (dto.getStartDate() == null || dto.getEndDate() == null) {

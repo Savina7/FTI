@@ -15,5 +15,6 @@ public class ProfessorAdminDto {
     private String mbiemri;
     private String email;
     private String department;
-    private String status; // "PARAREGJISTRUAR" or "VERIFIKUAR"
+    private String status;
+    private String tempPassword;
 }

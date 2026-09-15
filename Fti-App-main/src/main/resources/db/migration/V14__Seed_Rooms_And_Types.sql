@@ -1,6 +1,3 @@
--- V14__Seed_Rooms_And_Types.sql
--- Sigurimi i te dhenave te plota per Sallat dhe Tipet e Kursit ne FTI
-
 MERGE INTO FTIAPP.COURSE_TYPES target
 USING (
     SELECT 'LEKSION' AS EMRI_TYPE FROM DUAL UNION ALL

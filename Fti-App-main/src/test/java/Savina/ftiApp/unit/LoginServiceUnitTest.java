@@ -84,7 +84,6 @@ class LoginServiceUnitTest {
         assertThat(response.getName()).isEqualTo("Agim Hoxha");
         assertThat(response.getRole()).isEqualTo("STUDENT");
 
-        // Verifiko qe u ruajt historia e logimit
         verify(loginHistoryRepo, times(1)).save(any(LoginHistory.class));
     }
 

@@ -19,10 +19,6 @@ public class EmailService {
     @Value("${spring.mail.username:noreply@fti.edu.al}")
     private String fromEmail;
 
-    /**
-     * Sends a 6-digit OTP verification code to the given email address via SMTP.
-     * Logs the code in console for easy local development testing if SMTP fails.
-     */
     public void sendVerificationCode(String toEmail, String recipientName, String code) {
         log.info("==================================================================");
         log.info(">>> KODI I VERIFIKIMIT PER [{}]: {} <<<", toEmail, code);
@@ -71,9 +67,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Sends a 6-digit OTP code to reset password via SMTP.
-     */
     public void sendPasswordResetCode(String toEmail, String recipientName, String code) {
         log.info("==================================================================");
         log.info(">>> KODI I RIVENDOSJES SE FJALEKALIMIT PER [{}]: {} <<<", toEmail, code);
@@ -121,6 +114,55 @@ public class EmailService {
 
         } catch (Exception e) {
             log.warn("Nuk u dergua dot email me SMTP (kontrolloni fjalekalimin te application.properties). Kodi per testim eshte i shfaqur me siper te konzola: {}", e.getMessage());
+        }
+    }
+
+    public void sendTemporaryPasswordEmail(String toEmail, String recipientName, String tempPassword) {
+        log.info("==================================================================");
+        log.info(">>> FJALEKALIMI I PERKOHSHEM PER [{}]: {} <<<", toEmail, tempPassword);
+        log.info("==================================================================");
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("FTI App — Llogaria juaj u Aktivizua");
+
+            String displayName = (recipientName != null && !recipientName.isBlank()) ? recipientName : "Perdorues";
+
+            String htmlContent = """
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <h2 style="color: #1a56db; margin: 0;">FTI App</h2>
+                            <p style="color: #6b7280; margin: 4px 0 0;">Sistemi Akademik</p>
+                        </div>
+                        <div style="background: #f9fafb; border-radius: 8px; padding: 24px; text-align: center;">
+                            <p style="color: #374151; margin: 0 0 16px;">Pershendetje, <strong>%s</strong>!</p>
+                            <p style="color: #374151; margin: 0 0 20px;">
+                                Llogaria juaj eshte aktivizuar nga administratori. Fjalekalimi juaj i perkohshem per hyrje eshte:
+                            </p>
+                            <div style="background: #1a56db; color: white; font-size: 24px; font-weight: bold;
+                                        letter-spacing: 4px; padding: 14px 20px; border-radius: 6px; display: inline-block; font-family: monospace;">
+                                %s
+                            </div>
+                            <p style="color: #dc2626; font-size: 13px; font-weight: 600; margin: 20px 0 0;">
+                                KUJDES: Ne hyrjen tuaj te pare do t'ju kerkohet detyrimisht te vendosni nje fjalekalim te ri personal.
+                            </p>
+                        </div>
+                        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 16px;">
+                            © FTI App — Fakulteti i Teknologjise se Informacionit
+                        </p>
+                    </div>
+                    """.formatted(displayName, tempPassword);
+
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+            log.info("Email me fjalekalimin e perkohshem u dergua me sukses te: {}", toEmail);
+
+        } catch (Exception e) {
+            log.warn("Nuk u dergua dot email me SMTP. Fjalekalimi eshte i afishuar ne konzole me siper: {}", e.getMessage());
         }
     }
 }

@@ -34,10 +34,10 @@ public class PedagogRegisterDto {
         private String emri;
         private String nrMatrikulimit;
         private BigDecimal grade;
-        private String status; // "P", "N", "-"
+        private String status;
         private boolean isPermiresim;
-        private Map<String, Boolean> attendance; // columnKey -> isPresent
-        private String examAttendanceStatus; // "present", "absent", null
+        private Map<String, Boolean> attendance;
+        private String examAttendanceStatus;
     }
 
     @Data

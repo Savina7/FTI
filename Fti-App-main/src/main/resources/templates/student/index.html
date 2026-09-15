@@ -6,17 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTI</title>
 
-    <!-- Favicon UPT SVG -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- Auth Interceptor -->
+<link rel="stylesheet" href="/css/style.css">
+    
     <script src="/js/app.js"></script>
     <script src="/js/auth-interceptor.js"></script>
 </head>
@@ -25,39 +22,33 @@
 
     <div class="d-flex" id="wrapper">
 
-        <!-- ================= SIDEBAR ================= -->
-        <aside id="sidebar-wrapper" class="bg-white border-end d-flex flex-column justify-content-between">
+<aside id="sidebar-wrapper" class="bg-white border-end d-flex flex-column justify-content-between">
 
-            <!-- Pjesa e Siperme: Logo + Navigimi -->
-            <div>
-                <!-- Header i Sidebar-it me Logo -->
+<div>
+                
                 <div class="sidebar-heading px-3 py-3 border-bottom text-center">
                     <a href="/student" class="d-block text-decoration-none">
                         <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
                     </a>
                 </div>
 
-                <!-- Menyte Kryesore -->
-                <div class="list-group list-group-flush py-3">
-                    <!-- Dashboard / Profili -->
+<div class="list-group list-group-flush py-3">
+                    
                     <a href="/student" class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
                         Profili
                     </a>
 
-                    <!-- Notat -->
-                    <a href="/nota" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+<a href="/nota" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
                         Notat
                     </a>
 
-                    <!-- Mungesat -->
-                    <a href="/mungesat" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
+<a href="/mungesat" class="list-group-item list-group-item-action border-0 px-4 py-2.5">
                         Mungesat
                     </a>
                 </div>
             </div>
 
-            <!-- Pjesa e Poshtme: Logout -->
-            <div class="p-3 border-top">
+<div class="p-3 border-top">
                 <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -66,35 +57,29 @@
 
         </aside>
 
-        <!-- ================= MAIN CONTENT AREA ================= -->
-        <div id="page-content-wrapper" class="w-100 bg-light">
+<div id="page-content-wrapper" class="w-100 bg-light">
 
-            <!-- HEADER TOP BAR -->
-            <header
+<header
                 class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between">
                 <div class="d-flex align-items-center">
                     <h6 class="mb-0 fw-bold text-secondary"></h6>
                 </div>
 
-                <!-- User Info -->
-                <div class="d-flex align-items-center gap-3">
+<div class="d-flex align-items-center gap-3">
                     <div class="text-end d-none d-sm-block">
                         <span class="d-block fw-bold small text-dark" id="headerStudentName">-</span>
                     </div>
                 </div>
             </header>
 
-            <!-- PERMBAJTJA E FAQES -->
-            <main class="container-fluid p-4">
+<main class="container-fluid p-4">
 
                 <div class="d-flex justify-content-center align-items-start pt-2">
 
-                    <!-- Karta me width: 100% dhe max-width me inline styles per te tejkaluar CSS-ne -->
-                    <div class="student-card shadow-sm border-0 bg-white rounded-3 p-4"
+<div class="student-card shadow-sm border-0 bg-white rounded-3 p-4"
                         style="width: 100% !important; max-width: 900px !important;">
 
-                        <!-- Kryet e kartes -->
-                        <div class="profile-header pb-3 mb-4 border-bottom">
+<div class="profile-header pb-3 mb-4 border-bottom">
                             <h4 class="fw-bold mb-1 text-dark-custom">
                                 <span class="text-muted fw-normal">Studenti :</span> <span id="cardStudentName">-</span>
                             </h4>
@@ -102,8 +87,7 @@
                                     id="cardMatrikulli">-</span></span>
                         </div>
 
-                        <!-- Lista e Informacioneve -->
-                        <div class="info-list d-flex flex-column gap-3">
+<div class="info-list d-flex flex-column gap-3">
 
                             <div class="info-item py-2">
                                 <span class="info-label fs-6">Programi i Studimit</span>
@@ -137,8 +121,7 @@
 
     </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>

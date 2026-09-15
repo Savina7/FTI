@@ -27,7 +27,6 @@ public class Attendance {
     @Column(name = "DATA_ATTENDANCE", nullable = false)
     private LocalDate dataAttendance;
 
-    // 1 = PRESENT, 0 = ABSENT
     @Column(name = "STATUS")
     private Integer status;
 }

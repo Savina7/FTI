@@ -1,7 +1,3 @@
--- =============================================================================
--- V16: Krijimi i tabeles EXAM_SEASONS per konfigurimin e datave te sezoneve
--- =============================================================================
-
 CREATE TABLE FTIAPP.EXAM_SEASONS (
     SEASON_ID       NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ACADEMIC_YEAR   VARCHAR2(20) NOT NULL,

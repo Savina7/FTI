@@ -22,7 +22,6 @@ public class VerificationService {
     private final StudentPreEnrollmentRepository studentPreEnrollmentRepo;
     private final ProfessorPreEnrollmentRepository professorPreEnrollmentRepo;
 
-    // ─── VERIFY CODE ────────────────────────────────────────────────────────────
     @Transactional
     public User verifyCode(Integer userId, String enteredCode) {
 
@@ -51,7 +50,6 @@ public class VerificationService {
         user.setCodeCreatedAt(null);
         userRepo.save(user);
 
-        // Update pre-enrollment status if exists
         if (user.getEmail() != null) {
             studentPreEnrollmentRepo.findByEmailIgnoreCase(user.getEmail().trim()).ifPresent(pe -> {
                 pe.setStatus("VERIFIKUAR");
@@ -63,7 +61,6 @@ public class VerificationService {
         return user;
     }
 
-    // ─── RESEND CODE ────────────────────────────────────────────────────────────
     @Transactional
     public void resendCode(Integer userId) {
 

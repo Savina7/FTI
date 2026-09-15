@@ -9,9 +9,7 @@ import java.util.List;
 @Repository
 public interface LoginHistoryRepository extends JpaRepository<LoginHistory, Long> {
 
-    // Historiku i hyrjeve per nje perdorues te caktuar
     List<LoginHistory> findByUser_UserIdOrderByLoginTimeDesc(Integer userId);
 
-    // Te gjitha hyrjet e fundit ne sistem
     List<LoginHistory> findAllByOrderByLoginTimeDesc();
 }

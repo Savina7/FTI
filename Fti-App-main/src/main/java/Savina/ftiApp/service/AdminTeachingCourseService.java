@@ -78,7 +78,6 @@ public class AdminTeachingCourseService {
         Integer seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : defaultHours;
         Integer labHours = req.getLabHours() != null ? req.getLabHours() : (req.getTotalHours() != null ? req.getTotalHours() : 15);
 
-        // Existing records for this course to update in-place (prevents ORA-02292 foreign key violations)
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
         List<TeachingCourse> existingLeksion = existing.stream()
                 .filter(tc -> "LEKSION".equalsIgnoreCase(tc.getRoleType()))
@@ -90,7 +89,6 @@ public class AdminTeachingCourseService {
                 .filter(tc -> "LABORATOR".equalsIgnoreCase(tc.getRoleType()))
                 .collect(Collectors.toList());
 
-        // 1. Lecture Professor (LEKSION)
         if (req.getLectureProfessorId() != null) {
             Professor prof = findOrCreateProfessor(req.getLectureProfessorId());
             if (prof != null) {
@@ -98,7 +96,7 @@ public class AdminTeachingCourseService {
                 if (req.getLectureClassIds() != null && !req.getLectureClassIds().isEmpty()) {
                     lectureClasses.addAll(classesRepository.findAllById(req.getLectureClassIds()));
                 } else if (course.getProgram() != null) {
-                    // Assign all classes of the course's program/year as default for Lektor
+
                     List<Classes> progClasses = classesRepository.findByProgram_ProgramId(course.getProgram().getProgramId());
                     if (progClasses != null) {
                         lectureClasses.addAll(progClasses);
@@ -128,7 +126,6 @@ public class AdminTeachingCourseService {
             }
         }
 
-        // 2. Seminar Professors (SEMINAR)
         if (req.getSeminars() != null) {
             for (TeachingAllocationRequest.SeminarAssignmentReq sem : req.getSeminars()) {
                 if (sem.getProfessorId() != null) {
@@ -161,7 +158,6 @@ public class AdminTeachingCourseService {
             }
         }
 
-        // 3. Lab Professors (LABORATOR)
         if (Boolean.TRUE.equals(req.getHasLab()) && req.getLabs() != null) {
             for (TeachingAllocationRequest.LabAssignmentReq lab : req.getLabs()) {
                 if (lab.getProfessorId() != null) {
@@ -194,7 +190,6 @@ public class AdminTeachingCourseService {
             }
         }
 
-        // Remove any unused remaining rows if any existed
         List<TeachingCourse> toDelete = new ArrayList<>();
         toDelete.addAll(existingLeksion);
         toDelete.addAll(existingSeminar);
@@ -209,7 +204,6 @@ public class AdminTeachingCourseService {
 
         teachingCourseRepository.flush();
 
-        // Re-fetch within same transaction to return saved data
         List<TeachingCourse> saved = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
         if (saved.isEmpty()) {
             return teachingCourseMapper.mapCourseToEmptyDto(course);

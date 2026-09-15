@@ -6,25 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTI</title>
 
-    <!-- Favicon UPT SVG -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- SheetJS (XLSX) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- jsPDF + html2canvas (lokal) -->
-    <script src="/js/html2canvas.min.js"></script>
+<script src="/js/html2canvas.min.js"></script>
     <script src="/js/jspdf.umd.min.js"></script>
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/stylepetagog.css">
-    <!-- Auth Interceptor -->
+    
     <script src="/js/auth-interceptor.js"></script>
 </head>
 
@@ -32,21 +27,19 @@
 
     <div class="d-flex vh-100 overflow-hidden" id="wrapper">
 
-        <!-- ================= SIDEBAR (FIKS) ================= -->
-        <aside id="sidebar-wrapper"
+<aside id="sidebar-wrapper"
             class="bg-white border-end d-flex flex-column justify-content-between h-100 flex-shrink-0"
             style="width: 250px;">
 
             <div>
-                <!-- Logo -->
+                
                 <div class="sidebar-heading px-3 py-3 border-bottom text-center">
                     <a href="#" class="d-block text-decoration-none">
                         <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo" style="max-height: 40px;">
                     </a>
                 </div>
 
-                <!-- Menyte e Pedagogut -->
-                <div class="list-group list-group-flush py-3" id="sidebarMenu">
+<div class="list-group list-group-flush py-3" id="sidebarMenu">
                     <a href="/rregjistri" id="menuLendet"
                         class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
                         Menaxhimi i lendeve
@@ -59,8 +52,7 @@
                 </div>
             </div>
 
-            <!-- Logout -->
-            <div class="p-3 border-top bg-white">
+<div class="p-3 border-top bg-white">
                 <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -69,11 +61,9 @@
 
         </aside>
 
-        <!-- ================= MAIN CONTENT AREA ================= -->
-        <div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
+<div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
 
-            <!-- HEADER TOP BAR (FIKS) -->
-            <header
+<header
                 class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between flex-shrink-0">
                 <div class="d-flex align-items-center">
                     <h6 class="mb-0 fw-bold text-dark" id="headerTitle"></h6>
@@ -86,22 +76,19 @@
                 </div>
             </header>
 
-            <!-- PERMBAJTJA E FAQES (SCROLLABLE) -->
-            <main class="flex-grow-1 overflow-y-auto p-4">
+<main class="flex-grow-1 overflow-y-auto p-4">
 
                 <div class="container-fluid py-2">
 
-                    <!-- ================= SEKSIONI: MENAXHIMI I LENDEVE ================= -->
-                    <div id="sectionMenaxhimiLendeve">
-                        <!-- KARTA E FILTRAVE -->
+<div id="sectionMenaxhimiLendeve">
+                        
                         <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
                             <h6 class="fw-bold mb-3 text-dark">Zgjidh rregjistrin</h6>
 
                             <form id="filterForm" onsubmit="harversoKerkimin(event)">
                                 <div class="row g-2 align-items-end">
 
-                                    <!-- 1. Viti Akademik -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectVitiAkademik" required>
                                             <option value="2025-2026" selected>Viti 2025-2026</option>
                                             <option value="2024-2025">Viti 2024-2025</option>
@@ -109,16 +96,14 @@
                                         </select>
                                     </div>
 
-                                    <!-- 2. Tipi i Ores (Seminar / Laborator) -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectTipiOres" required>
                                             <option value="Seminar" selected>Seminar</option>
                                             <option value="Laborator">Laborator</option>
                                         </select>
                                     </div>
 
-                                    <!-- 3. Departamenti -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectDepartamenti" required>
                                             <option value="Departamenti i Inxhinierise Kompjuterike" data-dept-id="1"
                                                 selected>Departamenti i Inxhinierise Kompjuterike</option>
@@ -128,8 +113,7 @@
                                         </select>
                                     </div>
 
-                                    <!-- 4. Lenda -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectLenda" required>
                                             <option value="Programim ne Web" data-course-id="1" selected>Programim ne
                                                 Web</option>
@@ -139,8 +123,7 @@
                                         </select>
                                     </div>
 
-                                    <!-- 5. Grupi / Klasa -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectKlasa" required>
                                             <option value="Inxhinieri Informatike - Grupi A" data-class-id="1" selected>
                                                 Inxhinieri Informatike - Grupi A</option>
@@ -151,8 +134,7 @@
                                         </select>
                                     </div>
 
-                                    <!-- Butoni Kerko -->
-                                    <div class="col-md-2">
+<div class="col-md-2">
                                         <button type="submit" class="btn btn-amber-light btn-sm w-100 fw-semibold">
                                             Kerko
                                         </button>
@@ -162,13 +144,11 @@
                             </form>
                         </div>
 
-                        <!-- ZONA E REZULTATEVE (TABET BRENDA KARTES TE BARDHE) -->
-                        <div id="searchResultsSection" class="d-none">
+<div id="searchResultsSection" class="d-none">
 
                             <div class="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
 
-                                <!-- HEADER I KARTES ME 4 TABET -->
-                                <div class="card-header bg-white border-bottom px-4 pt-3 pb-0">
+<div class="card-header bg-white border-bottom px-4 pt-3 pb-0">
                                     <ul class="nav custom-connected-tabs border-0" id="pedagogTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
                                             <button class="connected-tab-btn active" id="tema-tab" data-bs-toggle="tab"
@@ -198,12 +178,10 @@
                                     </ul>
                                 </div>
 
-                                <!-- BODY I KARTES (PERMBAJTJA E TABEVE) -->
-                                <div class="card-body p-4">
+<div class="card-body p-4">
                                     <div class="tab-content" id="pedagogTabsContent">
 
-                                        <!-- ================= TAB 1: TEMA ================= -->
-                                        <div class="tab-pane fade show active" id="tema-pane" role="tabpanel">
+<div class="tab-pane fade show active" id="tema-pane" role="tabpanel">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h6 class="fw-bold mb-0 text-dark"></h6>
                                                 <button type="button" class="btn btn-amber-light btn-sm fw-semibold"
@@ -224,14 +202,13 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody id="tematTableBody">
-                                                        <!-- Ngarkohet nga API dinamikisht -->
+                                                        
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
 
-                                        <!-- ================= TAB 2: REGJISTRI ================= -->
-                                        <div class="tab-pane fade" id="rregjistri-pane" role="tabpanel">
+<div class="tab-pane fade" id="rregjistri-pane" role="tabpanel">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h6 class="fw-bold mb-0 text-dark">Rregjistri i notave</h6>
 
@@ -304,8 +281,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- ================= TAB 3: MUNGESAT ================= -->
-                                        <div class="tab-pane fade" id="mungesat-pane" role="tabpanel">
+<div class="tab-pane fade" id="mungesat-pane" role="tabpanel">
                                             <div class="d-flex justify-content-end align-items-center mb-3">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div id="statusMungesatMsg" class="d-none"></div>
@@ -331,8 +307,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- ================= TAB 4: PROVIMI (EXAM ATTENDANCE) ================= -->
-                                        <div class="tab-pane fade" id="provimi-pane" role="tabpanel">
+<div class="tab-pane fade" id="provimi-pane" role="tabpanel">
                                             <div class="d-flex justify-content-end align-items-center mb-3">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div id="statusProvimiMsg" class="d-none"></div>
@@ -371,11 +346,7 @@
                                             </div>
                                         </div>
 
-
-
-
-
-                                    </div>
+</div>
                                 </div>
 
                             </div>
@@ -391,11 +362,9 @@
 
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JS Script per Menaxhimin e Regjistrit dhe Ngarkimin Dinamik te Filtrave nga API -->
-    <script>
+<script>
         const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
         let pedagogOptionsData = null;
         let currentRegisterData = null;
@@ -1797,8 +1766,7 @@
         }
     </script>
 
-    <!-- MODAL SHTO / EDIT TEMA -->
-    <div class="modal fade" id="modalTema" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalTema" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">

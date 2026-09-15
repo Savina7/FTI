@@ -46,7 +46,6 @@ class AcademicPromotionServiceUnitTest {
         student.setVitStudimit(1);
         student.setStatus("ACTIVE");
 
-        // Krijo lende me 35 kredite te kaluara
         Course c1 = new Course();
         c1.setCourseId(1);
         c1.setKredite(35);
@@ -77,7 +76,6 @@ class AcademicPromotionServiceUnitTest {
         student.setVitStudimit(1);
         student.setStatus("ACTIVE");
 
-        // Vetem 20 kredite (nuk mjaftojne per vitin 2)
         Course c1 = new Course();
         c1.setCourseId(1);
         c1.setKredite(20);

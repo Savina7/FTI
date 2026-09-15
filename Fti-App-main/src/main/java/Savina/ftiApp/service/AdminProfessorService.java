@@ -13,6 +13,7 @@ import Savina.ftiApp.repository.ProfessorPreEnrollmentRepository;
 import Savina.ftiApp.repository.ProfessorRepository;
 import Savina.ftiApp.repository.RoleRepository;
 import Savina.ftiApp.repository.UserRepository;
+import Savina.ftiApp.util.PasswordGeneratorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,13 +39,13 @@ public class AdminProfessorService {
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final ProfessorMapper professorMapper;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<ProfessorAdminDto> getAllProfessors() {
         List<ProfessorAdminDto> result = new ArrayList<>();
         Set<String> verifiedEmails = new HashSet<>();
 
-        // 1. Fetch active verified professors
         List<Professor> professors = profRepo.findAll();
         for (Professor p : professors) {
             ProfessorAdminDto dto = professorMapper.toDto(p);
@@ -54,7 +55,6 @@ public class AdminProfessorService {
             result.add(dto);
         }
 
-        // 2. Fetch pre-enrollment professors (not already verified in profRepo)
         List<ProfessorPreEnrollment> preEnrollments = profEnrollmentRepo.findAll();
         for (ProfessorPreEnrollment pe : preEnrollments) {
             String email = pe.getEmail() != null ? pe.getEmail().trim().toLowerCase() : "";
@@ -174,7 +174,8 @@ public class AdminProfessorService {
 
         String cleanEmail = pe.getEmail().trim().toLowerCase();
 
-        // 1. Check/create User in USERS
+        String tempPass = PasswordGeneratorUtil.generateRandomPassword(8);
+
         User user = userRepo.findByEmail(cleanEmail).orElse(null);
         if (user == null) {
             Role profRole = roleRepo.findByRoleName("PROFESSOR")
@@ -184,20 +185,24 @@ public class AdminProfessorService {
                     .emri(pe.getEmri())
                     .mbiemri(pe.getMbiemri())
                     .email(cleanEmail)
-                    .password(passwordEncoder.encode("Fti12345!"))
+                    .password(passwordEncoder.encode(tempPass))
                     .createdAt(LocalDate.now())
                     .status("ACTIVE")
                     .verified("Y")
+                    .changePass("YES")
                     .build();
             user.getRoles().add(profRole);
             user = userRepo.save(user);
         } else {
+            user.setPassword(passwordEncoder.encode(tempPass));
             user.setVerified("Y");
             user.setStatus("ACTIVE");
+            user.setChangePass("YES");
             user = userRepo.save(user);
         }
 
-        // 2. Check/create Professor in PROFESSORS
+        emailService.sendTemporaryPasswordEmail(cleanEmail, user.getEmri(), tempPass);
+
         final User finalUser = user;
         Professor prof = profRepo.findByUserUserId(finalUser.getUserId()).orElse(null);
         if (prof == null) {
@@ -215,9 +220,11 @@ public class AdminProfessorService {
             prof = profRepo.save(prof);
         }
 
-        log.info("Professor {} {} ({}) directly verified & registered into USERS & PROFESSORS",
+        log.info("Professor {} {} ({}) directly verified & registered into USERS & PROFESSORS with temp pass (changePass=YES)",
                 finalUser.getEmri(), finalUser.getMbiemri(), cleanEmail);
 
-        return professorMapper.toDto(prof);
+        ProfessorAdminDto dto = professorMapper.toDto(prof);
+        dto.setTempPassword(tempPass);
+        return dto;
     }
 }

@@ -14,10 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Kap çdo request HTTP per API-te, nxjerr JWT-in nga header-i "Authorization: Bearer <token>",
- * e verifikon me JwtService dhe ngarkon UserDetails nga DB per te populluar SecurityContext.
- */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -40,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 email = jwtService.extractEmail(jwt);
             } catch (Exception ignored) {
-                // Token i pavlefshem ose i skaduar
+
             }
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -58,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 } catch (Exception ignored) {
-                    // Perdoruesi nuk u gjet
+
                 }
             }
         }

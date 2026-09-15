@@ -17,14 +17,14 @@ public class ExamScheduleDto {
     private String courseName;
     private Integer programId;
     private String programName;
-    private String examDate;      // p.sh. "2025-09-08"
-    private String displayDate;   // p.sh. "8 Shtator"
-    private String startTime;     // p.sh. "09:00"
-    private String endTime;       // p.sh. "12:00"
-    private String timeRange;     // p.sh. "09:00-12:00"
-    private String roomNames;     // p.sh. "204, 205, 206"
+    private String examDate;
+    private String displayDate;
+    private String startTime;
+    private String endTime;
+    private String timeRange;
+    private String roomNames;
     private List<Integer> roomIds;
-    private String season;        // p.sh. "VJESHTE"
+    private String season;
     private Integer studyYear;
     private String semester;
 }

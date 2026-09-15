@@ -25,9 +25,6 @@ public class AdminExamScheduleController {
     private final RoomRepository roomRepo;
     private final Savina.ftiApp.repository.ProgramRepository programRepo;
 
-    /**
-     * Merr listen e programeve/degeve per dropdown-in e provimeve.
-     */
     @GetMapping("/programs")
     public ResponseEntity<List<Map<String, Object>>> getPrograms() {
         List<Savina.ftiApp.entity.Program> list = programRepo.findAll();
@@ -43,9 +40,6 @@ public class AdminExamScheduleController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * Merr listen e lendeve automatikisht sipas programit dhe semestrit.
-     */
     @GetMapping("/courses")
     public ResponseEntity<List<Map<String, Object>>> getCourses(
             @RequestParam Integer programId,
@@ -53,9 +47,6 @@ public class AdminExamScheduleController {
         return ResponseEntity.ok(examScheduleService.getCoursesForProgramAndSemester(programId, semester));
     }
 
-    /**
-     * Merr provimet per programin dhe sezonin e caktuar.
-     */
     @GetMapping
     public ResponseEntity<List<ExamScheduleDto>> getExams(
             @RequestParam Integer programId,
@@ -63,34 +54,22 @@ public class AdminExamScheduleController {
         return ResponseEntity.ok(examScheduleService.getExamsByProgramAndSeason(programId, season));
     }
 
-    /**
-     * Ruan ose ndryshon nje provim.
-     */
     @PostMapping
     public ResponseEntity<ExamScheduleDto> saveExam(@RequestBody ExamScheduleRequestDto req) {
         return ResponseEntity.ok(examScheduleService.saveExam(req));
     }
 
-    /**
-     * Fshin nje provim nga orari.
-     */
     @DeleteMapping("/{examId}")
     public ResponseEntity<Map<String, String>> deleteExam(@PathVariable Integer examId) {
         examScheduleService.deleteExam(examId);
         return ResponseEntity.ok(Map.of("message", "Provimi u fshi me sukses"));
     }
 
-    /**
-     * Merr listen e sallave per zgjedhje ne modal.
-     */
     @GetMapping("/rooms")
     public ResponseEntity<List<Room>> getRooms() {
         return ResponseEntity.ok(roomRepo.findAll());
     }
 
-    /**
-     * Merr konfigurimin e datave te sezonit nga DB.
-     */
     @GetMapping("/season-dates")
     public ResponseEntity<Savina.ftiApp.dto.responseDTO.ExamSeasonDto> getSeasonDates(
             @RequestParam(required = false) String academicYear,
@@ -99,9 +78,6 @@ public class AdminExamScheduleController {
         return ResponseEntity.ok(examScheduleService.getSeasonDates(academicYear, season, programId));
     }
 
-    /**
-     * Ruan konfigurimin e datave te sezonit ne DB.
-     */
     @PostMapping("/season-dates")
     public ResponseEntity<Savina.ftiApp.dto.responseDTO.ExamSeasonDto> saveSeasonDates(
             @RequestBody Savina.ftiApp.dto.responseDTO.ExamSeasonDto dto) {

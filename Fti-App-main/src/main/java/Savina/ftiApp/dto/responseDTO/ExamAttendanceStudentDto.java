@@ -13,5 +13,5 @@ public class ExamAttendanceStudentDto {
     private Integer studentId;
     private String studentName;
     private String matrikulli;
-    private String status; // "present" ose "absent"
+    private String status;
 }

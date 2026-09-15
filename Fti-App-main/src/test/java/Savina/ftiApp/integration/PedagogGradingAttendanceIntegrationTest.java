@@ -79,7 +79,6 @@ public class PedagogGradingAttendanceIntegrationTest {
         long suffix = System.currentTimeMillis() % 1000000;
         String studentEmail = "student.grade" + suffix + "@fti.edu.al";
 
-        // Krijojme nje student te lidhur me kete klase dhe lende
         User user = userRepository.save(User.builder()
                 .emri("Gentian")
                 .mbiemri("Kola")
@@ -108,9 +107,6 @@ public class PedagogGradingAttendanceIntegrationTest {
                         .roleType("LEKSION")
                         .build()));
 
-        // =========================================================================
-        // HAPI 1: Pedagogu regjistron temen mesimore per Javen 1
-        // =========================================================================
         TopicDto topicDto = TopicDto.builder()
                 .courseId(course.getCourseId())
                 .teachingCourseId(tc.getTeachingCourseId())
@@ -127,9 +123,6 @@ public class PedagogGradingAttendanceIntegrationTest {
                 .andExpect(jsonPath("$.title").value("Java 1: Hyrje ne Lende"))
                 .andExpect(jsonPath("$.weekNumber").value(1));
 
-        // =========================================================================
-        // HAPI 2: Pedagogu hap regjistrin me GET dhe verifikon qe u shfaq kolona e mungeses se Javes 1
-        // =========================================================================
         mockMvc.perform(get("/api/pedagog/register")
                         .param("courseId", String.valueOf(course.getCourseId()))
                         .param("classId", String.valueOf(clazz.getClassId()))
@@ -138,9 +131,6 @@ public class PedagogGradingAttendanceIntegrationTest {
                 .andExpect(jsonPath("$.attendanceColumns").isArray())
                 .andExpect(jsonPath("$.attendanceColumns[0].title").value(containsString("Jave 1")));
 
-        // =========================================================================
-        // HAPI 3: Pedagogu vendos noten per studentin (Nota 9.5 - KALUAR)
-        // =========================================================================
         SaveGradesRequest.StudentGradeEntry gradeEntry = SaveGradesRequest.StudentGradeEntry.builder()
                 .studentId(student.getStudentId())
                 .grade(new BigDecimal("9.5"))
@@ -159,9 +149,6 @@ public class PedagogGradingAttendanceIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Notat u ruajten me sukses."));
 
-        // =========================================================================
-        // HAPI 3: Pedagogu vendos mungesat per studentin
-        // =========================================================================
         SaveAttendanceRequest.StudentAttendanceEntry attendanceEntry = SaveAttendanceRequest.StudentAttendanceEntry.builder()
                 .studentId(student.getStudentId())
                 .attendance(Map.of("J1_L", true, "J2_L", false))
@@ -179,17 +166,11 @@ public class PedagogGradingAttendanceIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Mungesat u ruajten me sukses."));
 
-        // =========================================================================
-        // HAPI 4: Studenti sheh noten e re ne profilin e tij
-        // =========================================================================
         mockMvc.perform(get("/api/student/grades")
                         .param("email", studentEmail))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
 
-        // =========================================================================
-        // HAPI 5: Studenti sheh mungesat e tij
-        // =========================================================================
         mockMvc.perform(get("/api/student/mungesat")
                         .param("email", studentEmail))
                 .andExpect(status().isOk())

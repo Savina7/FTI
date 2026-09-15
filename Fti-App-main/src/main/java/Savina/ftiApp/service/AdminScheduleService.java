@@ -70,7 +70,6 @@ public class AdminScheduleService {
             progs = programRepository.findAll();
         }
 
-        // Return unique by specializimi & programId
         return progs.stream().map(p -> {
             Map<String, Object> map = new HashMap<>();
             map.put("programId", p.getProgramId());
@@ -223,12 +222,10 @@ public class AdminScheduleService {
             }
         }
 
-        // If no exact match for roleType, pick the first available professor for this course
         if (defaultProf == null && !profList.isEmpty()) {
             defaultProf = profList.get(0);
         }
 
-        // Nese lenda nuk ka asnje alokim ne DB (si Praktike, Diplome etj.), lihet BOSH (null)
         response.put("defaultProfessor", defaultProf);
         response.put("professors", profList);
         return response;
@@ -251,7 +248,6 @@ public class AdminScheduleService {
                 }
             }
 
-            // If this program has no classes, return empty list
             if (list == null || list.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -270,7 +266,6 @@ public class AdminScheduleService {
             return Collections.emptyList();
         }
 
-        // Distinct by class group name to prevent duplicate group names
         Map<String, Classes> unique = new LinkedHashMap<>();
         for (Classes c : list) {
             if (c != null && c.getEmriClass() != null && !c.getEmriClass().isBlank()) {
@@ -329,7 +324,6 @@ public class AdminScheduleService {
 
         String dayKey = extractDayKey(dayOfWeek);
 
-        // 1. Kontrollojme Sallen
         if (roomId != null) {
             Optional<Room> rOpt = roomRepository.findById(roomId);
             if (rOpt.isPresent()) {
@@ -359,7 +353,6 @@ public class AdminScheduleService {
             }
         }
 
-        // 2. Kontrollojme Pedagogun
         if (professorId != null) {
             Optional<Professor> pOpt = professorRepository.findById(professorId);
             if (pOpt.isPresent()) {
@@ -416,7 +409,6 @@ public class AdminScheduleService {
 
         String dayKey = extractDayKey(req.getDayOfWeek());
 
-        // Room conflict check
         List<CourseSchedule> overlaps = courseScheduleRepository.findOverlappingRoomSchedules(
                 req.getRoomId(), req.getDayOfWeek().trim(), dayKey, sTime, eTime, req.getScheduleId()
         );
@@ -426,7 +418,6 @@ public class AdminScheduleService {
             throw new RuntimeException(rName + " eshte e zene ne kete orar! Ju lutem zgjidhni nje salle tjeter ose ndryshoni orarin.");
         }
 
-        // Professor conflict check
         if (req.getProfessorId() != null) {
             List<CourseSchedule> profOverlaps = courseScheduleRepository.findOverlappingProfessorSchedules(
                     req.getProfessorId(), req.getDayOfWeek().trim(), dayKey, sTime, eTime, req.getScheduleId()
@@ -441,7 +432,6 @@ public class AdminScheduleService {
         Course course = courseRepository.findById(req.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Lenda nuk u gjet."));
 
-        // Professor & TeachingCourse
         TeachingCourse tc = null;
         if (req.getProfessorId() != null) {
             Professor prof = professorRepository.findById(req.getProfessorId()).orElse(null);
@@ -484,7 +474,6 @@ public class AdminScheduleService {
             }
         }
 
-        // Classes / Group
         Classes cls = null;
         if (req.getClassId() != null) {
             cls = classesRepository.findById(req.getClassId()).orElse(null);

@@ -15,12 +15,12 @@ public class ScheduleRequest {
     private Integer programId;
     private Integer studyYear;
     private Integer courseId;
-    private String roleType; // LEKSION, SEMINAR, LABORATOR
+    private String roleType;
     private Integer professorId;
     private Integer classId;
-    private String dayOfWeek; // E Hene, E Marte, ...
-    private String startTime; // "08:00"
-    private String endTime;   // "10:00"
+    private String dayOfWeek;
+    private String startTime;
+    private String endTime;
     private Integer roomId;
     private String semester;
     private String academicYear;

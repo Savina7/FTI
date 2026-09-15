@@ -25,10 +25,6 @@ public class PasswordResetService {
 
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}$";
 
-    /**
-     * Finds the user by email, generates a 6-digit OTP, stores it in DB,
-     * and sends it to the user's email address.
-     */
     @Transactional
     public void sendResetCode(ForgotPasswordRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
@@ -36,7 +32,6 @@ public class PasswordResetService {
         User user = userRepo.findByEmailIgnoreCase(cleanEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Nuk ekziston asnje llogari me kete adrese email-i."));
 
-        // Generate a 6-digit random code
         String resetCode = String.valueOf(100000 + new SecureRandom().nextInt(900000));
         user.setVerificationCode(resetCode);
         user.setCodeCreatedAt(LocalDateTime.now());
@@ -51,9 +46,6 @@ public class PasswordResetService {
         log.info("Kodi i rivendosjes se fjalekalimit u dergua me sukses per: {}", cleanEmail);
     }
 
-    /**
-     * Verifies that the entered 6-digit OTP code matches and has not expired.
-     */
     @Transactional(readOnly = true)
     public void verifyResetCode(VerifyResetCodeRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
@@ -76,10 +68,6 @@ public class PasswordResetService {
         log.info("Kodi i rivendosjes u verifikua me sukses per: {}", cleanEmail);
     }
 
-    /**
-     * Verifies the OTP code, checks expiration (15 min), validates password complexity,
-     * hashes new password with BCrypt, and cleans the OTP.
-     */
     @Transactional
     public void resetPassword(ResetPasswordRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();

@@ -26,10 +26,9 @@ public class PedagogController {
             @RequestParam(required = false) Integer userId,
             @RequestParam(required = false) String email) {
 
-        // Gjithmon perdor SecurityContext (JWT e validuar) si burim primar
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            email = auth.getName(); // email-i i pedagogut nga JWT
+            email = auth.getName();
         }
 
         PedagogOptionsDto options = pedagogService.getPedagogOptions(userId, email);

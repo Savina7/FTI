@@ -22,6 +22,6 @@ public class SaveExamAttendanceRequest {
     @AllArgsConstructor
     public static class StudentStatusEntry {
         private Integer studentId;
-        private String status; // "present" ose "absent"
+        private String status;
     }
 }

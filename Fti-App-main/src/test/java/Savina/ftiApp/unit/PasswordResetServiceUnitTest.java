@@ -79,7 +79,6 @@ class PasswordResetServiceUnitTest {
         req.setEmail("user@fti.edu.al");
         req.setCode("654321");
 
-        // Nuk duhet te hedhe exception
         passwordResetService.verifyResetCode(req);
     }
 

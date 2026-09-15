@@ -46,6 +46,10 @@ public class User {
     private LocalDateTime codeCreatedAt;
 
     @Builder.Default
+    @Column(name = "CHANGE_PASS", length = 3)
+    private String changePass = "NO";
+
+    @Builder.Default
     @ToString.Exclude @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

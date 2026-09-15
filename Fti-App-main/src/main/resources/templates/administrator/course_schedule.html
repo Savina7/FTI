@@ -6,23 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FTI</title>
 
-  <!-- Favicon UPT SVG -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-  <!-- Bootstrap 5 CSS & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-  <!-- SheetJS per Importimin e Excel -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- jsPDF + html2canvas per shkarkimin direkt ne PDF -->
-  <script src="/js/html2canvas.min.js"></script>
+<script src="/js/html2canvas.min.js"></script>
   <script src="/js/jspdf.umd.min.js"></script>
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="/css/styleadm.css" />
-  <!-- Auth Interceptor -->
+<link rel="stylesheet" href="/css/styleadm.css" />
+  
   <script src="/js/auth-interceptor.js"></script>
 
   <style>
@@ -466,7 +461,7 @@
 
 <body>
   <div id="wrapper">
-    <!-- ================= SIDEBAR NAV ================= -->
+    
     <aside id="sidebar-wrapper">
       <div>
         <div class="sidebar-heading px-3 py-3 border-bottom text-center">
@@ -493,8 +488,7 @@
       </div>
     </aside>
 
-    <!-- ================= MAIN CONTENT ================= -->
-    <div id="page-content-wrapper">
+<div id="page-content-wrapper">
       <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
         <h6 class="mb-0 fw-bold text-dark"></h6>
         <div class="d-flex align-items-center gap-3">
@@ -505,9 +499,9 @@
       </header>
 
       <div id="page-wrapper" class="p-3">
-        <!-- Veprimet lart me Toggle Tabs per 2 opsionet -->
+        
         <div class="d-flex justify-content-between align-items-center mb-3 action-buttons-bar flex-wrap gap-2">
-          <!-- TOGGLE ME 2 OPSIONE (ORARI MESIMOR / ORARI I PROVIMEVE) -->
+          
           <div class="schedule-view-toggle" id="scheduleViewToggle">
             <button type="button" class="btn-tab active" id="tabBtnMesimor" onclick="switchScheduleView('mesimor')">
               Orari mesimor
@@ -517,8 +511,7 @@
             </button>
           </div>
 
-          <!-- BUTONAT PER ORARIN MESIMOR -->
-          <div class="d-flex gap-2" id="mesimorActions">
+<div class="d-flex gap-2" id="mesimorActions">
             <button class="btn btn-outline-secondary btn-sm fw-semibold" id="btnShkarkoPdf"
               onclick="shkarkoOrarinPdf()">
               <i class="bi bi-file-earmark-pdf me-1 text-danger"></i> Shkarko orarin
@@ -528,8 +521,7 @@
             </button>
           </div>
 
-          <!-- BUTONAT PER ORARIN E PROVIMEVE -->
-          <div class="d-flex gap-2 d-none" id="provimeActions">
+<div class="d-flex gap-2 d-none" id="provimeActions">
             <button class="btn btn-outline-secondary btn-sm fw-semibold" onclick="openModalKonfiguroDatat()">
               Konfiguro datat
             </button>
@@ -542,8 +534,7 @@
           </div>
         </div>
 
-        <!-- ================= PAMJA 1: ORARI ZYRTAR MESIMOR I FTI ================= -->
-        <div id="viewOrariMesimor">
+<div id="viewOrariMesimor">
           <div class="mb-4" id="ftiScheduleExportArea">
             <div class="fti-schedule-header">
               <h5></h5>
@@ -562,9 +553,8 @@
           </div>
         </div>
 
-        <!-- ================= PAMJA 2: ORARI ZYRTAR I PROVIMEVE (IDENTIK SI PDF) ================= -->
-        <div id="viewOrariProvimeve" class="d-none">
-          <!-- Paneli i Filtrave te Provimeve -->
+<div id="viewOrariProvimeve" class="d-none">
+          
           <div class="card border-0 shadow-sm rounded-3 mb-3">
             <div class="card-body p-2 d-flex flex-wrap align-items-center gap-3">
               <div style="min-width: 260px;">
@@ -596,8 +586,7 @@
             </div>
           </div>
 
-          <!-- Zona e Eksportit te Provimeve -->
-          <div class="mb-4 p-2 bg-white" id="examScheduleExportArea">
+<div class="mb-4 p-2 bg-white" id="examScheduleExportArea">
             <div class="exam-schedule-header text-center mb-3">
               <div class="fw-bold text-dark text-uppercase" id="examHeaderSezoni"
                 style="font-size: 13px; letter-spacing: 0.5px;">
@@ -622,8 +611,7 @@
     </div>
   </div>
 
-  <!-- ================= POPUP-I I SHTIMIT TE ORARIT (VERTIKALE, MINIMALISTE, SHKRIM I VOGEL) ================= -->
-  <div class="modal fade" id="modalShtoOrar" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalShtoOrar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md" id="modalScheduleDialog">
       <div class="modal-content border shadow-sm">
         <div class="modal-header py-2 bg-white text-dark border-bottom-0 d-flex justify-content-end align-items-center">
@@ -631,10 +619,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-        <!-- ================= HAPI 1: ZGJEDHJA E DEGES, VITIT, KLASES (VERTIKALE ONLY) ================= -->
-        <div id="modalStep1" class="p-3">
+<div id="modalStep1" class="p-3">
           <div class="row g-2">
-            <!-- Departamenti -->
+            
             <div class="col-12">
               <label class="form-label mb-1"
                 style="font-size: 0.82rem; font-weight: 600; color: #334155;">Departamenti</label>
@@ -644,8 +631,7 @@
               </select>
             </div>
 
-            <!-- Niveli -->
-            <div class="col-12">
+<div class="col-12">
               <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Cikli
               </label>
               <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalNiveli"
@@ -654,8 +640,7 @@
               </select>
             </div>
 
-            <!-- Semestri -->
-            <div class="col-12">
+<div class="col-12">
               <label class="form-label mb-1"
                 style="font-size: 0.82rem; font-weight: 600; color: #334155;">Semestri</label>
               <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalSemestri" required>
@@ -664,8 +649,7 @@
               </select>
             </div>
 
-            <!-- Dega -->
-            <div class="col-12">
+<div class="col-12">
               <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Dega</label>
               <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalDega"
                 onchange="onModalDegaChange()" required disabled>
@@ -673,8 +657,7 @@
               </select>
             </div>
 
-            <!-- Viti -->
-            <div class="col-12">
+<div class="col-12">
               <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Viti</label>
               <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalViti"
                 onchange="onModalVitiChange()" required disabled>
@@ -682,8 +665,7 @@
               </select>
             </div>
 
-            <!-- Grupi / Klasa -->
-            <div class="col-12">
+<div class="col-12">
               <label class="form-label mb-1" style="font-size: 0.82rem; font-weight: 600; color: #334155;">Grupi
               </label>
               <select class="form-select form-select-sm py-1" style="font-size: 0.82rem;" id="modalKlasa" required
@@ -703,24 +685,22 @@
           </div>
         </div>
 
-        <!-- ================= HAPI 2: SIDEBAR ME TE GJITHA LENDET (MAJTAS) + DETANET (DJATHTAS) ================= -->
-        <div id="modalStep2" class="p-3 d-none">
+<div id="modalStep2" class="p-3 d-none">
           <div class="row g-2">
-            <!-- SIDEBAR ME LENDET NE TE MAJTE TE POPUP-IT (col-5) -->
+            
             <div class="col-5 border-end pe-2">
-              <!-- Lista e Lendeve -->
+              
               <div id="modalCoursesListContainer" class="d-flex flex-column gap-1"
                 style="max-height: 340px; overflow-y: auto;"></div>
             </div>
 
-            <!-- DETANET E LENDES SE PERZGJEDHUR (DJATHTAS col-7) -->
-            <div class="col-7 ps-2">
+<div class="col-7 ps-2">
               <div id="modalCourseConfigArea" class="px-1 py-1 bg-white">
                 <div id="modalAlertSaveError" class="alert alert-light border py-1 px-2 small d-none mb-2 text-danger">
                 </div>
 
                 <div class="row g-2">
-                  <!-- 1. NDARJA LEKSION / SEMINAR -->
+                  
                   <div class="col-md-12 mb-1">
                     <div class="btn-group btn-group-sm btn-group-amber" style="max-width: 210px; width: 100%;"
                       role="group">
@@ -738,8 +718,7 @@
                     </div>
                   </div>
 
-                  <!-- 2. PEDAGOGU (READ ONLY NGA DB) -->
-                  <div class="col-md-12 mb-1">
+<div class="col-md-12 mb-1">
                     <label class="form-label d-block mb-1"
                       style="font-size: 0.74rem; font-weight: 600; color: #475569;">
                       Pedagogu
@@ -752,8 +731,7 @@
                       style="max-width: 210px;"></div>
                   </div>
 
-                  <!-- 3. DITA E JAVES -->
-                  <div class="col-md-4 mb-1">
+<div class="col-md-4 mb-1">
                     <label class="form-label d-block mb-1"
                       style="font-size: 0.74rem; font-weight: 600; color: #475569;">Dita</label>
                     <select class="form-select form-select-sm"
@@ -767,8 +745,7 @@
                     </select>
                   </div>
 
-                  <!-- 4. ORA E FILLIMIT DHE MBARIMIT (MAX 15:00 / 3 PM) -->
-                  <div class="col-md-4 mb-1">
+<div class="col-md-4 mb-1">
                     <label class="form-label d-block mb-1"
                       style="font-size: 0.74rem; font-weight: 600; color: #475569;">Fillon</label>
                     <input type="time" class="form-control form-control-sm"
@@ -784,8 +761,7 @@
                       value="10:00" min="08:00" max="15:00" onchange="triggerModalRoomCheck()" required>
                   </div>
 
-                  <!-- 5. SALLA NGA DB ME KONTROLL LIVE -->
-                  <div class="col-md-12 mb-1">
+<div class="col-md-12 mb-1">
                     <label class="form-label d-block mb-1"
                       style="font-size: 0.74rem; font-weight: 600; color: #475569;">
                       Salla
@@ -819,8 +795,7 @@
     </div>
   </div>
 
-  <!-- ================= POPUP-I: SHTO / CAKTO PROVIM ================= -->
-  <div class="modal fade" id="modalShtoProvim" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalShtoProvim" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
       <div class="modal-content border shadow-sm">
         <div class="modal-header py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
@@ -831,21 +806,18 @@
           <form id="formShtoProvim" onsubmit="return false;">
             <input type="hidden" id="examModalEditId" value="" />
 
-            <!-- Lenda -->
-            <div class="mb-2">
+<div class="mb-2">
               <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Lenda</label>
               <select class="form-select form-select-sm" id="examModalCourse" required></select>
             </div>
 
-            <!-- Data -->
-            <div class="mb-2">
+<div class="mb-2">
               <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Data e
                 provimit</label>
               <input type="date" class="form-control form-control-sm" id="examModalDate" required />
             </div>
 
-            <!-- Ora Fillimit dhe Mbarimit -->
-            <div class="row g-2 mb-2">
+<div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">Ora e
                   fillimit</label>
@@ -859,16 +831,15 @@
               </div>
             </div>
 
-            <!-- Sallat -->
-            <div class="mb-3">
+<div class="mb-3">
               <label class="form-label mb-1 small fw-semibold text-dark" style="font-size: 0.76rem;">
                 <span>Sallat e provimit</span>
               </label>
               <div id="examModalRoomsContainer" class="d-flex flex-wrap gap-2 p-2 border rounded bg-light"
                 style="max-height: 120px; overflow-y: auto;">
-                <!-- Dinamikisht nga sallat e DB -->
+                
               </div>
-              <!-- MESAZHI I GABIMIT / KONFLIKTIT POSHTE SALLAVE -->
+              
               <div id="examModalErrorAlert"
                 class="mt-2 p-2 bg-danger-subtle text-danger border border-danger-subtle rounded d-none"
                 style="font-size: 0.75rem; line-height: 1.35;">
@@ -887,8 +858,7 @@
     </div>
   </div>
 
-  <!-- ================= POPUP-I: KONFIGURO DATAT E SEZONIT ================= -->
-  <div class="modal fade" id="modalKonfiguroDatat" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalKonfiguroDatat" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
       <div class="modal-content border shadow-sm">
         <div class="modal-header py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
@@ -917,8 +887,7 @@
       </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>

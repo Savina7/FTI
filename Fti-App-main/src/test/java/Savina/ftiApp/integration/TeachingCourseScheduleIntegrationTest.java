@@ -66,9 +66,6 @@ public class TeachingCourseScheduleIntegrationTest {
         Room room = roomRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new IllegalStateException("Nuk u gjet asnje salle ne DB per testim."));
 
-        // =========================================================================
-        // HAPI 1: Admini kryen alokimin e plote te lendes (Leksion, Seminar, Lab, Oret)
-        // =========================================================================
         TeachingAllocationRequest.SeminarAssignmentReq seminarReq = TeachingAllocationRequest.SeminarAssignmentReq.builder()
                 .professorId(professor.getProfessorId())
                 .classGroup("Grupi A")
@@ -97,18 +94,12 @@ public class TeachingCourseScheduleIntegrationTest {
                 .andExpect(jsonPath("$.courseId").value(course.getCourseId()))
                 .andExpect(jsonPath("$.lectureHours").value(30));
 
-        // =========================================================================
-        // HAPI 2: Leximi i alokimit nga DB me GET
-        // =========================================================================
         mockMvc.perform(get("/api/admin/teaching-courses/" + course.getCourseId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.courseId").value(course.getCourseId()))
                 .andExpect(jsonPath("$.lectureHours").value(30))
                 .andExpect(jsonPath("$.seminarHours").value(15));
 
-        // =========================================================================
-        // HAPI 3: Verifikimi i disponueshmerise se salles perpara caktimit te orarit
-        // =========================================================================
         mockMvc.perform(get("/api/admin/schedules/check-room")
                         .param("roomId", String.valueOf(room.getRoomId()))
                         .param("dayOfWeek", "E Hene")
@@ -117,9 +108,6 @@ public class TeachingCourseScheduleIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.available").value(true));
 
-        // =========================================================================
-        // HAPI 4: Krijimi i ores mesimore ne orar
-        // =========================================================================
         ScheduleRequest schedReq = ScheduleRequest.builder()
                 .courseId(course.getCourseId())
                 .professorId(professor.getProfessorId())
@@ -145,17 +133,11 @@ public class TeachingCourseScheduleIntegrationTest {
         JsonNode root = objectMapper.readTree(schedResult.getResponse().getContentAsString());
         int scheduleId = root.get("scheduleId").asInt();
 
-        // =========================================================================
-        // HAPI 5: Testimi i zbulimit te konfliktit (E njejta salle & orar -> 400 Bad Request)
-        // =========================================================================
         mockMvc.perform(post("/api/admin/schedules")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(schedReq)))
                 .andExpect(status().isBadRequest());
 
-        // =========================================================================
-        // HAPI 6: Fshirja e ores nga orari dhe fshirja e alokimit
-        // =========================================================================
         mockMvc.perform(delete("/api/admin/schedules/" + scheduleId))
                 .andExpect(status().isOk());
 

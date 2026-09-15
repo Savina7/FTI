@@ -34,4 +34,3 @@ public class StudentPreEnrollmentRequest {
     private Boolean doubleDegree;
     private String status;
 }
-

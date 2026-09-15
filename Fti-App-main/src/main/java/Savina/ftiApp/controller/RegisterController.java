@@ -28,7 +28,6 @@ public class RegisterController {
     private final JwtService          jwtService;
     private final DepartmentRepository departmentRepo;
 
-    // ─── GET DEPARTMENTS ───────────────────────────────────────────────────────
     @GetMapping("/departments")
     public List<DepartmentDto> getDepartments() {
         return departmentRepo.findAll().stream()
@@ -36,21 +35,18 @@ public class RegisterController {
                 .collect(Collectors.toList());
     }
 
-    // ─── REGISTER STUDENT (JSON) ───────────────────────────────────────────────
     @PostMapping("/register/student")
     public AuthResponse registerStudent(@Valid @RequestBody StudentRegisterRequest req) {
         Integer userId = registerService.registerStudent(req);
         return new AuthResponse(null, userId, req.getEmail(), "STUDENT", "Regjistrimi u krye me sukses. Kontrolloni email-in per kodin e verifikimit.");
     }
 
-    // ─── REGISTER PROFESSOR (JSON) ─────────────────────────────────────────────
     @PostMapping("/register/professor")
     public AuthResponse registerProfessor(@Valid @RequestBody ProfessorRegisterRequest req) {
         Integer userId = registerService.registerProfessor(req);
         return new AuthResponse(null, userId, req.getEmail(), "PROFESSOR", "Regjistrimi u krye me sukses. Kontrolloni email-in per kodin e verifikimit.");
     }
 
-    // ─── VERIFY CODE (JSON -> returns JWT Token) ───────────────────────────────
     @PostMapping("/verify")
     public AuthResponse verifyCode(@Valid @RequestBody VerifyRequest req) {
         User user = verificationService.verifyCode(req.getUserId(), req.getCode());
@@ -65,7 +61,6 @@ public class RegisterController {
         return new AuthResponse(token, user.getUserId(), user.getEmail(), roleName, "Llogaria u verifikua me sukses!");
     }
 
-    // ─── RESEND CODE ───────────────────────────────────────────────────────────
     @PostMapping("/verify/resend")
     public AuthResponse resendCode(@RequestParam Integer userId) {
         if (userId == null) {

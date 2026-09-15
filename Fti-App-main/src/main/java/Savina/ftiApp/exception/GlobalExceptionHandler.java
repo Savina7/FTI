@@ -24,9 +24,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * 1. Burime statike ose faqe qe nuk gjenden (404)
-     */
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNoResourceFound(NoResourceFoundException ex) {
@@ -34,9 +31,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Burimi nuk u gjet: " + ex.getResourcePath(), 404);
     }
 
-    /**
-     * 2. Validimi i DTO-ve me @Valid (@NotBlank, @Size, @Email, etc.) (400)
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(MethodArgumentNotValidException ex) {
@@ -45,9 +39,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(msg != null ? msg : "Te dhenat e derguara jane te pavlefshme.", 400);
     }
 
-    /**
-     * 3. Validimet ne nivel parametri/entiteti me ConstraintViolationException (400)
-     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolation(ConstraintViolationException ex) {
@@ -58,9 +49,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(msg.isEmpty() ? "Kufizimet e validimit u shkelen." : msg, 400);
     }
 
-    /**
-     * 4. Gabime biznesi te hedhura me IllegalArgumentException (400)
-     */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
@@ -68,9 +56,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage(), 400);
     }
 
-    /**
-     * 5. Gabime gjendjeje te pavlefshme me IllegalStateException (400)
-     */
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalState(IllegalStateException ex) {
@@ -78,9 +63,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage(), 400);
     }
 
-    /**
-     * 6. Format i pasakte i trupit te kerkeses (JSON i pavlefshem) (400)
-     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMessageNotReadable(HttpMessageNotReadableException ex) {
@@ -88,9 +70,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Formati i te dhenave te kerkeses eshte i pasakte (JSON i pavlefshem).", 400);
     }
 
-    /**
-     * 7. Tip i pasakte parametri ne URL/Query (p.sh. shkronja ne vend te numrit per ID) (400)
-     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
@@ -99,9 +78,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Parametri '" + paramName + "' ka format ose tip te pasakte.", 400);
     }
 
-    /**
-     * 8. Mungese e nje parametri te detyrueshem ne query (@RequestParam required) (400)
-     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingParam(MissingServletRequestParameterException ex) {
@@ -109,9 +85,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Parametri i detyrueshem '" + ex.getParameterName() + "' mungon.", 400);
     }
 
-    /**
-     * 9. Konflikte ne Databaze (Unique constraints, Foreign Keys) (400)
-     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleDataIntegrity(DataIntegrityViolationException ex) {
@@ -119,9 +92,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Ky veprim nuk mund te kryhet sepse te dhenat jane te lidhura me rekorde te tjera ose ekzistojne tashme ne sistem.", 400);
     }
 
-    /**
-     * 10. Akses i ndaluar nga Spring Security (403)
-     */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleAccessDenied(AccessDeniedException ex) {
@@ -129,9 +99,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Nuk keni te drejta te mjaftueshme per te kryer kete veprim.", 403);
     }
 
-    /**
-     * 11. Autentifikim i deshtuar (401)
-     */
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleAuthenticationException(AuthenticationException ex) {
@@ -139,9 +106,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Autentifikimi deshtoi. Kredencialet jane te pasakta ose sesioni ka skaduar.", 401);
     }
 
-    /**
-     * 12. Madhesia e skedarit tejkalon limitin (400)
-     */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMaxUploadSize(MaxUploadSizeExceededException ex) {
@@ -149,9 +113,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Madhesia e skedarit tejkalon limitin maksimal te lejuar.", 400);
     }
 
-    /**
-     * 13. Metoda HTTP nuk mbeshtetet per endpoint-in (p.sh. POST ne vend te GET) (405)
-     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorResponse handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
@@ -159,9 +120,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Metoda HTTP '" + ex.getMethod() + "' nuk mbeshtetet per kete rruge.", 405);
     }
 
-    /**
-     * 14. RuntimeException biznesi (nga orElseThrow ose kontrolle ne service)
-     */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleRuntimeException(RuntimeException ex) {
@@ -172,9 +130,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(msg, 400);
     }
 
-    /**
-     * 15. Fallback per te gjitha gabimet e papritura te sistemit (500)
-     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneral(Exception ex) {

@@ -15,10 +15,10 @@ public class ExamScheduleRequestDto {
     private Integer examId;
     private Integer courseId;
     private Integer programId;
-    private String examDate;    // "YYYY-MM-DD"
-    private String startTime;   // "09:00"
-    private String endTime;     // "12:00"
-    private String season;      // "VJESHTE", "VERE", "DIMER"
+    private String examDate;
+    private String startTime;
+    private String endTime;
+    private String season;
     private List<Integer> roomIds;
-    private List<String> customRoomNames; // Nese vendosen salla me dore
+    private List<String> customRoomNames;
 }
