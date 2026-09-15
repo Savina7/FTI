@@ -62,7 +62,7 @@ public class AcademicPromotionService {
 
                     if (g.getGrade() != null && g.getGrade().compareTo(BigDecimal.valueOf(5.0)) >= 0) {
                         isPassed = true;
-                    } else if ("PASSED".equalsIgnoreCase(g.getStatus()) || "KALUAR".equalsIgnoreCase(g.getStatus())) {
+                    } else if ("PASSED".equalsIgnoreCase(g.getStatus()) || "KALUAR".equalsIgnoreCase(g.getStatus()) || "PERMIRESUAR".equalsIgnoreCase(g.getStatus())) {
                         isPassed = true;
                     }
 

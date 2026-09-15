@@ -333,7 +333,10 @@ public class StudentService {
 
         if (isImprovement) {
             long currentImprovements = studentGrades.stream()
-                    .filter(g -> "IMPROVED".equalsIgnoreCase(g.getStatus()) || "PERMIRESIM".equalsIgnoreCase(g.getStatus()) || "P".equalsIgnoreCase(g.getStatus()))
+                    .filter(g -> "IMPROVED".equalsIgnoreCase(g.getStatus()) 
+                              || "PERMIRESIM".equalsIgnoreCase(g.getStatus()) 
+                              || "P".equalsIgnoreCase(g.getStatus())
+                              || "PERMIRESUAR".equalsIgnoreCase(g.getStatus()))
                     .count();
             if (currentImprovements >= 2) {
                 throw new IllegalArgumentException("Keni arritur limitin maksimal prej 2 lendesh per permiresim.");
@@ -351,12 +354,17 @@ public class StudentService {
 
         if (targetGrade != null) {
             if (isImprovement) {
+                if ("PERMIRESUAR".equalsIgnoreCase(targetGrade.getStatus())) {
+                    throw new IllegalArgumentException("Kjo lëndë është përmirësuar tashmë.");
+                }
                 if (targetGrade.getGrade() != null && targetGrade.getGrade().doubleValue() < 5.0) {
                     throw new IllegalArgumentException("Nuk lejohet permiresimi per noten ngelese.");
                 }
                 targetGrade.setStatus("IMPROVED");
             } else {
-                targetGrade.setStatus("PASSED");
+                if ("IMPROVED".equalsIgnoreCase(targetGrade.getStatus())) {
+                    targetGrade.setStatus("PASSED");
+                }
             }
             gradeRepo.save(targetGrade);
             log.info("Student ID={} ndryshoi statusin e permiresimit per lenden ID={} ne {}", student.getStudentId(), courseId, isImprovement);

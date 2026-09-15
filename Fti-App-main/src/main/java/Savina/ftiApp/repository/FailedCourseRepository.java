@@ -13,5 +13,8 @@ public interface FailedCourseRepository extends JpaRepository<FailedCourse, Inte
 
     List<FailedCourse> findByStudent_StudentId(Integer studentId);
 
+    List<FailedCourse> findByTeachingCourse_Course_CourseId(Integer courseId);
+
     Optional<FailedCourse> findByStudent_StudentIdAndTeachingCourse_TeachingCourseId(Integer studentId, Integer teachingCourseId);
 }
+

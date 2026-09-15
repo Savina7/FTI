@@ -213,25 +213,12 @@
                                                 <h6 class="fw-bold mb-0 text-dark">Rregjistri i notave</h6>
 
                                                 <div class="dropdown">
-                                                    <input type="file" id="excelFileInput" accept=".xlsx, .xls"
-                                                        class="d-none" onchange="lexoExcelNotat(event)">
-
                                                     <button
                                                         class="btn btn-outline-amber-light btn-sm fw-semibold dropdown-toggle"
                                                         type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                         Veprime me Excel
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                                                        <li>
-                                                            <a class="dropdown-item small fw-semibold text-dark"
-                                                                href="#"
-                                                                onclick="document.getElementById('excelFileInput').click(); return false;">
-                                                                <i class="bi bi-upload me-2"></i> Ngarko Excel
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <hr class="dropdown-divider">
-                                                        </li>
                                                         <li><a class="dropdown-item small text-dark fw-semibold"
                                                                 href="#"
                                                                 onclick="shkarkoExcelNotat('gjitha'); return false;"><i
@@ -1134,7 +1121,7 @@
             }
         }
 
-        // 5. EXCEL VEPRIME (EXPORT & IMPORT)
+        // 5. EXCEL VEPRIME (EXPORT)
         function shkarkoExcelNotat(filterType) {
             const rows = document.querySelectorAll('#rregjistriTableBody tr');
             const data = [];
@@ -1150,7 +1137,7 @@
                 data.push(["Nr.", "Student", "Nr. Matrikullimit", "Nota", "Statusi"]);
             }
 
-            let idxCount = 1;
+            const items = [];
             rows.forEach(tr => {
                 const emri = tr.querySelector('.student-emri')?.textContent.trim() || '';
                 const amza = tr.querySelector('.student-amza')?.textContent.trim() || '';
@@ -1167,210 +1154,33 @@
                 else if (filterType === 'ngelasa_permiresime' && (isNgeles || isPermiresim)) include = true;
 
                 if (include) {
-                    if (filterType === 'gjitha') {
-                        data.push([emri, nota !== '' ? Number(nota) : '']);
-                    } else if (isVetEmri) {
-                        data.push([emri]);
-                    } else {
-                        data.push([idxCount++, emri, amza, nota !== '' ? Number(nota) : '', status]);
-                    }
+                    items.push({ emri, amza, nota, status });
                 }
             });
 
-            if (data.length <= 1) {
+            if (items.length === 0) {
                 alert("Nuk ka te dhena per filtrin e zgjedhur.");
                 return;
             }
+
+            // Renditja gjithmone alfabetikisht sipas emrit
+            items.sort((a, b) => (a.emri || '').localeCompare(b.emri || '', 'sq', { sensitivity: 'base' }));
+
+            let idxCount = 1;
+            items.forEach(item => {
+                if (filterType === 'gjitha') {
+                    data.push([item.emri, item.nota !== '' ? Number(item.nota) : '']);
+                } else if (isVetEmri) {
+                    data.push([item.emri]);
+                } else {
+                    data.push([idxCount++, item.emri, item.amza, item.nota !== '' ? Number(item.nota) : '', item.status]);
+                }
+            });
 
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Notat");
             XLSX.writeFile(wb, `Notat_${filterType}.xlsx`);
-        }
-
-        function normalizeName(str) {
-            if (!str) return '';
-            return str.toString()
-                .toLowerCase()
-                .replace(/e/g, 'e')
-                .replace(/ç/g, 'c')
-                .replace(/[^a-z0-9\s]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
-
-        function namesMatch(name1, name2) {
-            const n1 = normalizeName(name1);
-            const n2 = normalizeName(name2);
-            if (!n1 || !n2) return false;
-            if (n1 === n2) return true;
-
-            const parts1 = n1.split(' ').sort().join(' ');
-            const parts2 = n2.split(' ').sort().join(' ');
-            if (parts1 === parts2) return true;
-
-            const tokens1 = n1.split(' ');
-            const tokens2 = n2.split(' ');
-            if (tokens1.length >= 2 && tokens2.length >= 2) {
-                const all1In2 = tokens1.every(t => tokens2.includes(t));
-                const all2In1 = tokens2.every(t => tokens1.includes(t));
-                if (all1In2 || all2In1) return true;
-            }
-
-            return false;
-        }
-
-        function lexoExcelNotat(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const firstSheet = workbook.Sheets[firstSheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
-
-                    if (!jsonData || jsonData.length === 0) {
-                        alert("Skedari Excel eshte bosh.");
-                        return;
-                    }
-
-                    const rows = document.querySelectorAll('#rregjistriTableBody tr');
-                    if (rows.length === 0) {
-                        alert("Ju lutem zgjidhni dhe kerkoni fillimisht lenden dhe klasen ne faqe.");
-                        return;
-                    }
-
-                    // 1. FORMAT FIKS: Kolona e 1-re (0) = Studenti, Kolona e 2-te (1) = Nota
-                    const colEmri = 0;
-                    const colNota = 1;
-                    let startRow = 0;
-
-                    const firstCellText = (jsonData[0][0] || '').toString().trim().toLowerCase();
-                    const secondCellText = (jsonData[0][1] || '').toString().trim().toLowerCase();
-                    const secondCellNum = parseFloat(secondCellText.replace(',', '.'));
-
-                    // Nese rreshti i pare eshte Header (p.sh. shkruan 'Student', 'Emri', ose nota nuk eshte numer 4-10)
-                    const isHeader = firstCellText.includes('student') ||
-                        firstCellText.includes('emer') ||
-                        firstCellText.includes('emer') ||
-                        secondCellText.includes('not') ||
-                        secondCellText.includes('grade') ||
-                        (isNaN(secondCellNum) || secondCellNum < 4 || secondCellNum > 10);
-
-                    if (isHeader) {
-                        startRow = 1;
-                    } else {
-                        startRow = 0;
-                    }
-
-                    // 2. Mblidh te gjitha notat nga Excel dhe grupoji sipas studentit
-                    // Map<normalizedKey, { originalName: string, grades: number[] }>
-                    const excelStudentMap = new Map();
-                    const invalidGrades = [];
-
-                    for (let i = startRow; i < jsonData.length; i++) {
-                        const row = jsonData[i];
-                        if (!row || row.length === 0) continue;
-
-                        const rawName = (row[colEmri] != null ? row[colEmri].toString().trim() : '');
-                        const rawGrade = (row[colNota] != null ? row[colNota].toString().trim() : '');
-
-                        if (!rawName) continue;
-
-                        // Nese fusha e notes eshte bosh per kete student ne Excel -> lihet ashtu siç eshte
-                        if (rawGrade === '') {
-                            const key = normalizeName(rawName);
-                            if (!excelStudentMap.has(key)) {
-                                excelStudentMap.set(key, { originalName: rawName, grades: [] });
-                            }
-                            continue;
-                        }
-
-                        const gradeNum = parseFloat(rawGrade.replace(',', '.'));
-
-                        // KONTROLLI I SAKTESISE: Duhet te jete numer midis 4 dhe 10!
-                        // Çdo gje tjeter (p.sh. tekst "dfjdk", vlera random "382329", nen 4 apo mbi 10) shperfillet plotesisht.
-                        if (isNaN(gradeNum) || gradeNum < 4 || gradeNum > 10) {
-                            invalidGrades.push({ name: rawName, val: rawGrade });
-                            continue;
-                        }
-
-                        const key = normalizeName(rawName);
-                        if (!excelStudentMap.has(key)) {
-                            excelStudentMap.set(key, { originalName: rawName, grades: [gradeNum] });
-                        } else {
-                            excelStudentMap.get(key).grades.push(gradeNum);
-                        }
-                    }
-
-                    // 3. Perputh te dhenat e Excel-it me rreshtat e tabeles ekzistuese
-                    let updatedCount = 0;
-                    const duplicatesHandled = [];
-                    const untouchedStudents = [];
-                    const matchedExcelKeys = new Set();
-
-                    rows.forEach(tr => {
-                        const trEmri = tr.querySelector('.student-emri')?.textContent.trim() || '';
-                        const inputNota = tr.querySelector('.student-nota');
-                        if (!trEmri || !inputNota) return;
-
-                        // Nota aktuale qe studenti ka tashme ne tabele (nese ka)
-                        const existingValRaw = inputNota.value.trim();
-                        const existingVal = existingValRaw !== '' && !isNaN(parseFloat(existingValRaw)) ? parseFloat(existingValRaw) : null;
-
-                        let matchedEntry = null;
-                        let matchedKey = null;
-
-                        for (const [key, entry] of excelStudentMap.entries()) {
-                            if (namesMatch(trEmri, entry.originalName) || namesMatch(trEmri, key)) {
-                                matchedEntry = entry;
-                                matchedKey = key;
-                                break;
-                            }
-                        }
-
-                        if (matchedEntry && matchedEntry.grades.length > 0) {
-                            matchedExcelKeys.add(matchedKey);
-                            const gradesList = matchedEntry.grades;
-
-                            // Nota nga skedari Excel (nese eshte perseritur disa here ne Excel, merr me te larten)
-                            const finalGrade = Math.max(...gradesList);
-
-                            // Nese nota e vjeter dhe e re eshte e njejte, nuk bejme asnje ndryshim
-                            if (existingVal !== null && existingVal === finalGrade) {
-                                untouchedStudents.push(trEmri);
-                                return;
-                            }
-
-                            inputNota.value = finalGrade;
-                            perditesoStatusin(inputNota);
-                            updatedCount++;
-                        } else {
-                            // Studenti nuk ka note ne kete Excel ose nuk eshte ne liste -> lihet ekzaktesisht siç eshte
-                            untouchedStudents.push(trEmri);
-                        }
-                    });
-
-                    // 4. Emra ne Excel qe nuk u gjeten ne kete grup studentesh
-                    const notFoundInGroup = [];
-                    for (const [key, entry] of excelStudentMap.entries()) {
-                        if (!matchedExcelKeys.has(key) && entry.grades.length > 0) {
-                            notFoundInGroup.push({ name: entry.originalName, grades: entry.grades.join(', ') });
-                        }
-                    }
-
-                    console.log(`[Excel Import] U perditesuan ${updatedCount} nota.`);
-                } catch (err) {
-                    console.error("Gabim leximi Excel:", err);
-                } finally {
-                    event.target.value = '';
-                }
-            };
-            reader.readAsArrayBuffer(file);
         }
 
         // 6. PDF EXPORT

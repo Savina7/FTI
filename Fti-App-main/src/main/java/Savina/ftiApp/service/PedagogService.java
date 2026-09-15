@@ -1,28 +1,69 @@
 package Savina.ftiApp.service;
 
-import Savina.ftiApp.dto.responseDTO.BranchStatsDto;
-import Savina.ftiApp.dto.responseDTO.PedagogOptionsDto;
-import Savina.ftiApp.dto.responseDTO.PedagogRegisterDto;
-import Savina.ftiApp.dto.responseDTO.ExamAttendancePageDto;
-import Savina.ftiApp.dto.responseDTO.ExamAttendanceStudentDto;
-import Savina.ftiApp.dto.requestDTO.SaveAttendanceRequest;
-import Savina.ftiApp.dto.requestDTO.SaveGradesRequest;
-import Savina.ftiApp.dto.requestDTO.SaveExamAttendanceRequest;
-import Savina.ftiApp.entity.*;
-import Savina.ftiApp.mapper.PedagogMapper;
-import Savina.ftiApp.repository.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import Savina.ftiApp.dto.requestDTO.SaveAttendanceRequest;
+import Savina.ftiApp.dto.requestDTO.SaveExamAttendanceRequest;
+import Savina.ftiApp.dto.requestDTO.SaveGradesRequest;
+import Savina.ftiApp.dto.responseDTO.BranchStatsDto;
+import Savina.ftiApp.dto.responseDTO.ExamAttendancePageDto;
+import Savina.ftiApp.dto.responseDTO.ExamAttendanceStudentDto;
+import Savina.ftiApp.dto.responseDTO.PedagogOptionsDto;
+import Savina.ftiApp.dto.responseDTO.PedagogRegisterDto;
+import Savina.ftiApp.entity.Attendance;
+import Savina.ftiApp.entity.Classes;
+import Savina.ftiApp.entity.Course;
+import Savina.ftiApp.entity.Department;
+import Savina.ftiApp.entity.ExamAttendance;
+import Savina.ftiApp.entity.ExamSchedule;
+import Savina.ftiApp.entity.FailedCourse;
+import Savina.ftiApp.entity.Grade;
+import Savina.ftiApp.entity.Professor;
+import Savina.ftiApp.entity.Program;
+import Savina.ftiApp.entity.Room;
+import Savina.ftiApp.entity.Student;
+import Savina.ftiApp.entity.TeachingCourse;
+import Savina.ftiApp.entity.Topic;
+import Savina.ftiApp.entity.User;
+import Savina.ftiApp.mapper.PedagogMapper;
+import Savina.ftiApp.repository.AttendanceRepository;
+import Savina.ftiApp.repository.ClassesRepository;
+import Savina.ftiApp.repository.CourseRepository;
+import Savina.ftiApp.repository.CourseScheduleRepository;
+import Savina.ftiApp.repository.DepartmentRepository;
+import Savina.ftiApp.repository.ExamAttendanceRepository;
+import Savina.ftiApp.repository.ExamScheduleRepository;
+import Savina.ftiApp.repository.FailedCourseRepository;
+import Savina.ftiApp.repository.GradeRepository;
+import Savina.ftiApp.repository.ProfessorRepository;
+import Savina.ftiApp.repository.ProgramRepository;
+import Savina.ftiApp.repository.StudentRepository;
+import Savina.ftiApp.repository.TeachingCourseRepository;
+import Savina.ftiApp.repository.TopicRepository;
+import Savina.ftiApp.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -44,6 +85,7 @@ public class PedagogService {
     private final PedagogMapper pedagogMapper;
     private final ExamScheduleRepository examScheduleRepo;
     private final ExamAttendanceRepository examAttendanceRepo;
+    private final FailedCourseRepository failedCourseRepo;
 
     @Transactional(readOnly = true)
     public PedagogOptionsDto getPedagogOptions(Integer userId, String email) {
@@ -305,15 +347,17 @@ public class PedagogService {
 
         List<Student> students = new ArrayList<>();
         if (classId != null) {
-            students = studentRepo.findByClasses_ClassId(classId);
+            students.addAll(studentRepo.findByClasses_ClassId(classId));
         }
         if (students.isEmpty() && course != null && course.getProgram() != null) {
-            students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+            students.addAll(studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId()));
         }
         if (students.isEmpty()) {
-            students = studentRepo.findAll();
-            if (students.size() > 15) {
-                students = students.subList(0, 15);
+            List<Student> all = studentRepo.findAll();
+            if (all.size() > 15) {
+                students.addAll(all.subList(0, 15));
+            } else {
+                students.addAll(all);
             }
         }
 
@@ -358,6 +402,41 @@ public class PedagogService {
             }
         }
 
+        Set<Integer> studentIds = students.stream()
+                .map(Student::getStudentId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<Integer> failedStudentIds = new HashSet<>();
+
+        if (courseId != null) {
+            List<FailedCourse> failedCourses = failedCourseRepo.findByTeachingCourse_Course_CourseId(courseId);
+            for (FailedCourse fc : failedCourses) {
+                if (fc.getStudent() != null && fc.getStudent().getStudentId() != null) {
+                    failedStudentIds.add(fc.getStudent().getStudentId());
+                    if (!studentIds.contains(fc.getStudent().getStudentId())) {
+                        studentIds.add(fc.getStudent().getStudentId());
+                        students.add(fc.getStudent());
+                    }
+                }
+            }
+
+            for (Grade g : existingGrades) {
+                if (g.getStudent() != null && g.getStudent().getStudentId() != null) {
+                    boolean isFailed = (g.getGrade() != null && g.getGrade().compareTo(new BigDecimal("5.0")) < 0)
+                            || "FAILED".equalsIgnoreCase(g.getStatus())
+                            || "NP".equalsIgnoreCase(g.getStatus());
+                    if (isFailed) {
+                        failedStudentIds.add(g.getStudent().getStudentId());
+                        if (!studentIds.contains(g.getStudent().getStudentId())) {
+                            studentIds.add(g.getStudent().getStudentId());
+                            students.add(g.getStudent());
+                        }
+                    }
+                }
+            }
+        }
+
         List<PedagogRegisterDto.StudentRowDto> studentRows = new ArrayList<>();
         List<BigDecimal> allGradeValues = new ArrayList<>();
 
@@ -393,12 +472,16 @@ public class PedagogService {
             }
 
             String status = "-";
-            boolean isPermiresim = (g != null && "IMPROVED".equalsIgnoreCase(g.getStatus()));
+            boolean isPermiresim = (g != null && ("IMPROVED".equalsIgnoreCase(g.getStatus()) || "PERMIRESUAR".equalsIgnoreCase(g.getStatus())));
             if (isPermiresim) {
                 status = "P";
-            } else if (g != null && ("ABSENT".equalsIgnoreCase(g.getStatus()) || "NP".equalsIgnoreCase(g.getStatus()))) {
+            } else if (g != null && "NP".equalsIgnoreCase(g.getStatus())) {
                 status = "NP";
             } else if (gradeVal != null && gradeVal.compareTo(new BigDecimal("5.0")) < 0) {
+                status = "N";
+            } else if (g != null && "FAILED".equalsIgnoreCase(g.getStatus())) {
+                status = "N";
+            } else if (failedStudentIds.contains(s.getStudentId()) && gradeVal == null) {
                 status = "N";
             }
 
@@ -497,13 +580,13 @@ public class PedagogService {
                         .build();
             }
 
-            if ("NP".equalsIgnoreCase(entry.getStatus()) || "ABSENT".equalsIgnoreCase(entry.getStatus())) {
+            if ("NP".equalsIgnoreCase(entry.getStatus())) {
                 grade.setGrade(null);
-                grade.setStatus("ABSENT");
+                grade.setStatus("NP");
             } else {
                 grade.setGrade(entry.getGrade());
-                if ("P".equalsIgnoreCase(entry.getStatus())) {
-                    grade.setStatus("IMPROVED");
+                if ("P".equalsIgnoreCase(entry.getStatus()) || "IMPROVED".equalsIgnoreCase(grade.getStatus()) || "PERMIRESUAR".equalsIgnoreCase(grade.getStatus())) {
+                    grade.setStatus("PERMIRESUAR");
                 } else if (entry.getGrade() != null && entry.getGrade().compareTo(new BigDecimal("5.0")) < 0) {
                     grade.setStatus("FAILED");
                 } else {
@@ -655,7 +738,7 @@ public class PedagogService {
             }
         }
 
-        if (targetStudentsMap.isEmpty() && course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
+        if (course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
             List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
             for (Student s : progStudents) {
                 if (s.getStudentId() != null) {
@@ -670,6 +753,51 @@ public class PedagogService {
             if (g.getStudent() != null && g.getStudent().getStudentId() != null) {
                 gradeByStudentId.put(g.getStudent().getStudentId(), g);
                 targetStudentsMap.putIfAbsent(g.getStudent().getStudentId(), g.getStudent());
+            }
+        }
+
+        Set<Integer> failedStudentIds = new HashSet<>();
+        if (course != null) {
+            List<FailedCourse> failedCourses = failedCourseRepo.findByTeachingCourse_Course_CourseId(course.getCourseId());
+            for (FailedCourse fc : failedCourses) {
+                if (fc.getStudent() != null && fc.getStudent().getStudentId() != null) {
+                    failedStudentIds.add(fc.getStudent().getStudentId());
+                    targetStudentsMap.putIfAbsent(fc.getStudent().getStudentId(), fc.getStudent());
+                }
+            }
+        }
+
+        if (targetStudentsMap.isEmpty() && dept != null && dept.getDepartmentId() != null) {
+            List<Program> deptProgs = programRepo.findByDepartmentDepartmentId(dept.getDepartmentId());
+            for (Program dp : deptProgs) {
+                if (dp.getProgramId() != null) {
+                    List<Student> progStudents = studentRepo.findByProgram_ProgramId(dp.getProgramId());
+                    for (Student s : progStudents) {
+                        if (s.getStudentId() != null) {
+                            targetStudentsMap.put(s.getStudentId(), s);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (targetStudentsMap.isEmpty()) {
+            List<Student> allStudents = studentRepo.findAll();
+            for (Student s : allStudents) {
+                if (s.getStudentId() != null) {
+                    targetStudentsMap.put(s.getStudentId(), s);
+                }
+            }
+        }
+
+        for (Grade g : grades) {
+            if (g.getStudent() != null && g.getStudent().getStudentId() != null) {
+                boolean isFailed = (g.getGrade() != null && g.getGrade().compareTo(BigDecimal.valueOf(5.0)) < 0)
+                        || "FAILED".equalsIgnoreCase(g.getStatus())
+                        || "NP".equalsIgnoreCase(g.getStatus());
+                if (isFailed) {
+                    failedStudentIds.add(g.getStudent().getStudentId());
+                }
             }
         }
 
@@ -702,9 +830,20 @@ public class PedagogService {
                 }
             }
 
-            if (matchDega && matchYear) {
+            Grade g = gradeByStudentId.get(s.getStudentId());
+            boolean hasCourseGrade = (g != null && g.getGrade() != null);
+            boolean isFailedStudent = failedStudentIds.contains(s.getStudentId())
+                    || (g != null && (g.getGrade() == null || g.getGrade().compareTo(BigDecimal.valueOf(5.0)) < 0
+                    || "FAILED".equalsIgnoreCase(g.getStatus())
+                    || "NP".equalsIgnoreCase(g.getStatus())));
+
+            if (matchDega && (matchYear || isFailedStudent || hasCourseGrade)) {
                 finalStudents.add(s);
             }
+        }
+
+        if (finalStudents.isEmpty() && !targetStudentsMap.isEmpty()) {
+            finalStudents.addAll(targetStudentsMap.values());
         }
 
         List<BranchStatsDto.StudentExportItem> studentExportList = new ArrayList<>();
@@ -735,6 +874,10 @@ public class PedagogService {
                 } else {
                     status = "Ngeles";
                 }
+            } else if (g != null && ("FAILED".equalsIgnoreCase(g.getStatus()) || "NP".equalsIgnoreCase(g.getStatus()))) {
+                status = "Ngeles";
+            } else if (failedStudentIds.contains(s.getStudentId())) {
+                status = "Ngeles";
             }
 
             studentExportList.add(BranchStatsDto.StudentExportItem.builder()
@@ -754,7 +897,7 @@ public class PedagogService {
         int totalStudents = finalStudents.size();
 
         if (studentExportList.isEmpty() || allGradesList.isEmpty()) {
-            return pedagogMapper.buildEmptyBranchStats(actualCourseName, deptName, actualDega, actualYear, totalStudents, studentExportList, groupGradesMap.keySet());
+            return pedagogMapper.buildEmptyBranchStats(actualCourseName, deptName, actualDega, actualYear, totalStudents, studentExportList, groupStudentCountMap.keySet());
         }
 
         double sumPassing = 0.0;

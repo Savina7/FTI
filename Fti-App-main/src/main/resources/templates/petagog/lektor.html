@@ -144,13 +144,7 @@
                                 </h6>
 
                                 <div class="d-flex align-items-center gap-2">
-                                    
-                                    <button class="btn btn-outline-amber-light btn-sm fw-semibold"
-                                        onclick="shkarkoExcelDega('gjitha'); return false;">
-                                        <i class="bi bi-file-earmark-excel me-1"></i> Shkarko Excel
-                                    </button>
-
-<button id="btnShkarkoPDF" class="btn btn-outline-amber-light btn-sm fw-semibold"
+                                    <button id="btnShkarkoPDF" class="btn btn-outline-amber-light btn-sm fw-semibold"
                                         onclick="shkarkoStatistikatLektoriPDF()">
                                         <i class="bi bi-file-earmark-pdf me-1"></i> Shkarko PDF
                                     </button>
@@ -358,11 +352,18 @@
                 };
             }
 
-            // Shfaq ose fshih menute ne sidebar
+            // Shfaq ose fshih menute ne sidebar (Statistikat e deges dalin vetem nese eshte lektor)
+            const isLektor = Boolean(pedagogOptionsData && pedagogOptionsData.isLektor);
             const menuLektor = document.getElementById('menuLektor');
             if (menuLektor) {
-                menuLektor.style.display = '';
+                menuLektor.style.display = isLektor ? '' : 'none';
             }
+
+            if (!isLektor) {
+                window.location.href = '/petagog/rregjistri';
+                return;
+            }
+
             const menuLendet = document.getElementById('menuLendet');
             if (menuLendet) {
                 menuLendet.style.display = '';
@@ -716,59 +717,9 @@
                 btn.disabled = false;
             }
         }
-
-        // 7. SHKARKIMI NE EXCEL I TE DHENAVE TE DEGES
-        function shkarkoExcelDega(tipi) {
-            const lenda = document.getElementById('selectLenda').value || "Lenda";
-            const dega = document.getElementById('selectDega').value || "Dega";
-            const viti = document.getElementById('selectViti').value || "Viti";
-
-            const teDhenatStudentet = currentBranchStudents || [];
-
-            let meFiltruar = [];
-            let emriSkedarit = "";
-
-            if (tipi === 'ngelasa') {
-                meFiltruar = teDhenatStudentet.filter(s => s.nota == null || s.nota <= 4 || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("nuk ka"))));
-                emriSkedarit = `Ngelsat_${dega}_${viti}.xlsx`;
-            } else if (tipi === 'permiresime') {
-                meFiltruar = teDhenatStudentet.filter(s => s.statusi && s.statusi.toLowerCase().includes("permiresim"));
-                emriSkedarit = `Permiresimet_${dega}_${viti}.xlsx`;
-            } else if (tipi === 'ngelasa_permiresime') {
-                meFiltruar = teDhenatStudentet.filter(s => s.nota == null || s.nota <= 4 || (s.statusi && (s.statusi.toLowerCase().includes("ngel") || s.statusi.toLowerCase().includes("nuk ka") || s.statusi.toLowerCase().includes("permiresim"))));
-                emriSkedarit = `Ngelsa_Permiresime_${dega}_${viti}.xlsx`;
-            } else {
-                meFiltruar = teDhenatStudentet;
-                emriSkedarit = `Gjithe_Studentet_${dega}_${viti}.xlsx`;
-            }
-
-            if (meFiltruar.length === 0) {
-                alert("Nuk u gjeten te dhena per filtrin e zgjedhur!");
-                return;
-            }
-
-            // Formatimi per kolonat e Excel-it (Per ngelsat dhe permiresimet VETEM Student)
-            const isVetEmri = (tipi === 'permiresime' || tipi === 'ngelasa' || tipi === 'ngelasa_permiresime');
-            const rowsForExcel = meFiltruar.map(s => {
-                if (isVetEmri) {
-                    return {
-                        "Student": s.emri || ""
-                    };
-                }
-                return {
-                    "Student": s.emri || "",
-                    "Nota": s.nota != null ? s.nota : ""
-                };
-            });
-
-            const worksheet = XLSX.utils.json_to_sheet(rowsForExcel);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Statistikat e Deges");
-
-            XLSX.writeFile(workbook, emriSkedarit.replace(/[\s\(\)]+/g, '_'));
-        }
     </script>
 
 </body>
 
 </html>
+

@@ -228,9 +228,12 @@
                                 yearWeightedSum += (gradeNum * kredite);
                             }
 
+                            const isPermiresuar = (g.status === 'PERMIRESUAR');
                             const isImprovedInDb = (g.status === 'IMPROVED' || g.status === 'PERMIRESIM' || g.status === 'P');
 
-                            if (isImprovedInDb) {
+                            if (isPermiresuar) {
+                                notaCellContent = `<span class="fw-bold text-dark" title="Notë e përmirësuar">${g.nota} / P</span>`;
+                            } else if (isImprovedInDb) {
                                 improvementRequestedSubjects.add(g.emriLende);
                                 notaCellContent = `
                                     <div class="grade-cell-content">
@@ -269,7 +272,7 @@
                     let yearAverageStr = '0.00';
                     if (yearKrediteFituara > 0) {
                         const avg = yearWeightedSum / yearKrediteFituara;
-                        yearAverageStr = avg.toFixed(2);
+                        yearAverageStr = formatMesatarja(avg);
                     }
 
                     const yearBlockHtml = `
@@ -302,6 +305,16 @@
             } catch (e) {
                 console.error("Gabim gjate ngarkimit te notave te studentit:", e);
             }
+        }
+
+        function formatMesatarja(avg) {
+            if (!avg || isNaN(avg) || avg <= 0) return '0.00';
+            // Ekuivalenti i saktë i DecimalFormat("0.00#") me RoundingMode.HALF_UP (njësoj si te profili)
+            const rounded3 = (Math.round((avg + Number.EPSILON) * 1000) / 1000).toFixed(3);
+            if (rounded3.endsWith('0')) {
+                return rounded3.slice(0, -1);
+            }
+            return rounded3;
         }
 
         const improvementRequestedSubjects = new Set();
