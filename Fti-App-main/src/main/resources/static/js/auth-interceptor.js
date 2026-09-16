@@ -66,7 +66,7 @@
     function isPathAllowedForRole(path, role) {
         var p = path.toLowerCase();
 
-        var adminPaths = ['/administrator', '/dashboard_reports', '/course_schedule', '/adm', '/std', '/lende', '/tc'];
+        var adminPaths = ['/administrator', '/dashboard_reports', '/course_schedule', '/adm', '/std', '/lende', '/tc', '/evidenca'];
         var profPaths = ['/petagog', '/rregjistri', '/lektor'];
         var studentPaths = ['/student', '/nota', '/mungesat', '/sidebar', '/orari'];
 

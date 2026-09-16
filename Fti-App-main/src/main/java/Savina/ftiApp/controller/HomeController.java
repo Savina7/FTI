@@ -127,4 +127,9 @@ public class HomeController {
     public String course_schedule() {
         return "administrator/course_schedule";
     }
+
+    @GetMapping("/evidenca")
+    public String evidenca() {
+        return "administrator/evidenca";
+    }
 }

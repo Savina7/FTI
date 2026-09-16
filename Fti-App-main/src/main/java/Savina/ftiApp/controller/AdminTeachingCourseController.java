@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/teaching-courses")
@@ -36,5 +37,10 @@ public class AdminTeachingCourseController {
     public ResponseEntity<Void> deleteAllocation(@PathVariable Integer courseId) {
         adminTeachingCourseService.deleteAllocationByCourseId(courseId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/evidenca")
+    public ResponseEntity<List<Map<String, Object>>> getEvidenca(@RequestParam(required = false) Integer professorId) {
+        return ResponseEntity.ok(adminTeachingCourseService.getEvidenca(professorId));
     }
 }

@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTI</title>
 
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
-<link rel="stylesheet" href="/css/styleadm.css">
-    
+    <link rel="stylesheet" href="/css/styleadm.css">
+
     <script src="/js/app.js"></script>
     <script src="/js/auth-interceptor.js"></script>
 </head>
@@ -24,17 +24,17 @@
 
     <div id="wrapper">
 
-<aside id="sidebar-wrapper">
+        <aside id="sidebar-wrapper">
 
             <div>
-                
+
                 <div class="sidebar-heading px-3 py-3 border-bottom text-center">
                     <a href="/std" class="d-block text-decoration-none">
                         <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
                     </a>
                 </div>
 
-<div class="list-group list-group-flush py-3">
+                <div class="list-group list-group-flush py-3">
                     <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
                         Dashboard
                     </a>
@@ -53,10 +53,13 @@
                     <a href="/course_schedule" class="list-group-item list-group-item-action px-4">
                         Orare
                     </a>
+                    <a href="/evidenca" class="list-group-item list-group-item-action px-4">
+                        Evidenca
+                    </a>
                 </div>
             </div>
 
-<div class="p-3 border-top">
+            <div class="p-3 border-top">
                 <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -65,9 +68,9 @@
 
         </aside>
 
-<div id="page-content-wrapper">
+        <div id="page-content-wrapper">
 
-<header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
                 <h6 class="mb-0 fw-bold text-dark"></h6>
                 <div class="d-flex align-items-center gap-3">
                     <div class="text-end d-none d-sm-block">
@@ -78,13 +81,13 @@
 
             <div id="page-wrapper" class="courses-container">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold text-dark mb-1"></h3>
                         <p class="text-muted small mb-0"></p>
                     </div>
                     <div>
-                        
+
                         <button class="btn btn-dark fw-semibold px-3" id="btnOpenShtoModal" data-bs-toggle="modal"
                             data-bs-target="#modalShtoCourse">
                             <i class="bi bi-plus"></i>
@@ -94,7 +97,7 @@
                     </div>
                 </div>
 
-<div class="ibox mb-4">
+                <div class="ibox mb-4">
                     <div class="ibox-content rounded">
                         <form id="filterFormCourses" onsubmit="return false;">
                             <div class="row g-3">
@@ -138,7 +141,7 @@
                     </div>
                 </div>
 
-<div class="ibox">
+                <div class="ibox">
 
                     <div class="ibox-content p-0">
                         <div class="table-responsive p-3">
@@ -162,7 +165,7 @@
                     </div>
                 </div>
 
-<div class="modal fade modal-courses" id="modalShtoCourse" tabindex="-1" aria-hidden="true">
+                <div class="modal fade modal-courses" id="modalShtoCourse" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -173,34 +176,34 @@
                             <div class="modal-body">
                                 <div id="modalCourseAlert" class="alert alert-danger small d-none mb-3"></div>
                                 <form id="formCourse">
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label small fw-semibold">Lenda</label>
                                         <input type="text" class="form-control form-control-sm" name="EMRI_COURSE"
                                             required>
                                     </div>
 
-<div class="mb-3">
+                                    <div class="mb-3">
                                         <label class="form-label small fw-semibold">Dega</label>
                                         <select class="form-select form-select-sm" name="PROGRAM_ID"
                                             id="modalProgramSelect" required>
                                         </select>
                                     </div>
 
-<div class="mb-3">
+                                    <div class="mb-3">
                                         <label class="form-label small fw-semibold">Viti</label>
                                         <input type="number" class="form-control form-control-sm" name="STUDY_YEAR"
                                             min="1" max="3" placeholder="" required>
                                     </div>
 
                                     <div class="row g-2 mb-3">
-                                        
+
                                         <div class="col-md-6">
                                             <label class="form-label small fw-semibold">Kredite</label>
                                             <input type="number" class="form-control form-control-sm" name="KREDITE"
                                                 min="1" max="30" placeholder="6" required>
                                         </div>
-                                        
+
                                         <div class="col-md-6">
                                             <label class="form-label small fw-semibold">Statusi</label>
                                             <select class="form-select form-select-sm" name="STATUS" required>
@@ -221,7 +224,7 @@
                     </div>
                 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
                 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>

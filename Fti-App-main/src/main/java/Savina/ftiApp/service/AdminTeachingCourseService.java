@@ -1,13 +1,25 @@
 package Savina.ftiApp.service;
 
-import Savina.ftiApp.dto.responseDTO.TeachingAllocationDto;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import Savina.ftiApp.dto.requestDTO.TeachingAllocationRequest;
+import Savina.ftiApp.dto.responseDTO.TeachingAllocationDto;
 import Savina.ftiApp.entity.Classes;
 import Savina.ftiApp.entity.Course;
 import Savina.ftiApp.entity.Professor;
-import Savina.ftiApp.entity.TeachingCourse;
 import Savina.ftiApp.entity.ProfessorPreEnrollment;
 import Savina.ftiApp.entity.Role;
+import Savina.ftiApp.entity.TeachingCourse;
 import Savina.ftiApp.entity.User;
 import Savina.ftiApp.mapper.TeachingCourseMapper;
 import Savina.ftiApp.repository.ClassesRepository;
@@ -18,11 +30,6 @@ import Savina.ftiApp.repository.RoleRepository;
 import Savina.ftiApp.repository.TeachingCourseRepository;
 import Savina.ftiApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -223,7 +230,9 @@ public class AdminTeachingCourseService {
     }
 
     private Professor findOrCreateProfessor(Integer profId) {
-        if (profId == null) return null;
+        if (profId == null) {
+            return null;
+        }
 
         Optional<Professor> pOpt = professorRepository.findById(profId);
         if (pOpt.isPresent()) {
@@ -276,7 +285,9 @@ public class AdminTeachingCourseService {
             }
 
             if (classGroup == null || classGroup.isBlank() || "Te gjitha klasat".equalsIgnoreCase(classGroup) || "Klasa A & B".equalsIgnoreCase(classGroup)) {
-                if (progClasses != null) classesSet.addAll(progClasses);
+                if (progClasses != null) {
+                    classesSet.addAll(progClasses);
+                }
                 return classesSet;
             }
 
@@ -310,5 +321,66 @@ public class AdminTeachingCourseService {
             }
         }
         return classesSet;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getEvidenca(Integer professorId) {
+        List<TeachingAllocationDto> all = getAllAllocations();
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (TeachingAllocationDto alloc : all) {
+            boolean hasLecture = alloc.getLectureProfessor() != null &&
+                    (professorId == null || professorId.equals(alloc.getLectureProfessor().getProfessorId()));
+            boolean hasSeminar = alloc.getSeminarProfessors() != null && alloc.getSeminarProfessors().stream()
+                    .anyMatch(sp -> professorId == null || professorId.equals(sp.getProfessorId()));
+            boolean hasLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream()
+                    .anyMatch(lp -> professorId == null || professorId.equals(lp.getProfessorId()));
+
+            if (professorId != null) {
+                if (hasLecture || hasSeminar || hasLab) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("professorId", professorId);
+                    map.put("courseId", alloc.getCourseId());
+                    map.put("courseEmri", alloc.getCourseEmri());
+                    map.put("programEmri", alloc.getProgramName());
+                    map.put("kredite", alloc.getCourseKredite());
+                    map.put("oreLeksion", hasLecture ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
+                    map.put("oreSeminar", hasSeminar ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
+                    map.put("oreLaborator", hasLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
+                    list.add(map);
+                }
+            } else {
+                Set<Integer> pIds = new HashSet<>();
+                if (alloc.getLectureProfessor() != null && alloc.getLectureProfessor().getProfessorId() != null) {
+                    pIds.add(alloc.getLectureProfessor().getProfessorId());
+                }
+                if (alloc.getSeminarProfessors() != null) {
+                    alloc.getSeminarProfessors().forEach(sp -> {
+                        if (sp.getProfessorId() != null) pIds.add(sp.getProfessorId());
+                    });
+                }
+                if (alloc.getLabProfessors() != null) {
+                    alloc.getLabProfessors().forEach(lp -> {
+                        if (lp.getProfessorId() != null) pIds.add(lp.getProfessorId());
+                    });
+                }
+                for (Integer pId : pIds) {
+                    boolean pLec = alloc.getLectureProfessor() != null && pId.equals(alloc.getLectureProfessor().getProfessorId());
+                    boolean pSem = alloc.getSeminarProfessors() != null && alloc.getSeminarProfessors().stream().anyMatch(sp -> pId.equals(sp.getProfessorId()));
+                    boolean pLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream().anyMatch(lp -> pId.equals(lp.getProfessorId()));
+
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("professorId", pId);
+                    map.put("courseId", alloc.getCourseId());
+                    map.put("courseEmri", alloc.getCourseEmri());
+                    map.put("programEmri", alloc.getProgramName());
+                    map.put("kredite", alloc.getCourseKredite());
+                    map.put("oreLeksion", pLec ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
+                    map.put("oreSeminar", pSem ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
+                    map.put("oreLaborator", pLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
+                    list.add(map);
+                }
+            }
+        }
+        return list;
     }
 }

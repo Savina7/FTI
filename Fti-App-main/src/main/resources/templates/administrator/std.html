@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTI</title>
 
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
-<link rel="stylesheet" href="/css/styleadm.css">
-    
+    <link rel="stylesheet" href="/css/styleadm.css">
+
     <script src="/js/app.js"></script>
     <script src="/js/auth-interceptor.js"></script>
 </head>
@@ -24,17 +24,17 @@
 
     <div id="wrapper">
 
-<aside id="sidebar-wrapper">
+        <aside id="sidebar-wrapper">
 
             <div>
-                
+
                 <div class="sidebar-heading px-3 py-3 border-bottom text-center">
                     <a href="/std" class="d-block text-decoration-none">
                         <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo">
                     </a>
                 </div>
 
-<div class="list-group list-group-flush py-3">
+                <div class="list-group list-group-flush py-3">
                     <a href="/dashboard_reports" class="list-group-item list-group-item-action px-4">
                         Dashboard
                     </a>
@@ -51,10 +51,11 @@
                         Alokimi
                     </a>
                     <a href="/course_schedule" class="list-group-item list-group-item-action px-4">Orare</a>
+                    <a href="/evidenca" class="list-group-item list-group-item-action px-4">Evidenca</a>
                 </div>
             </div>
 
-<div class="p-3 border-top">
+            <div class="p-3 border-top">
                 <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 rounded-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -62,9 +63,9 @@
             </div>
         </aside>
 
-<div id="page-content-wrapper">
+        <div id="page-content-wrapper">
 
-<header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
+            <header class="navbar navbar-light bg-white border-bottom px-4 py-2 d-flex justify-content-between">
                 <h6 class="mb-0 fw-bold text-dark"></h6>
                 <div class="d-flex align-items-center gap-3">
                     <div class="text-end d-none d-sm-block">
@@ -75,7 +76,7 @@
 
             <div id="page-wrapper">
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <div>
                         <h3 class="fw-bold text-dark mb-1"></h3>
                         <p class="text-muted small mb-0">
@@ -92,11 +93,11 @@
                     </div>
                 </div>
 
-<div class="ibox mb-4">
+                <div class="ibox mb-4">
                     <div class="ibox-content rounded">
                         <form id="filterFormStudentet" onsubmit="return false;">
                             <div class="row g-2">
-                                
+
                                 <div class="col-md-3">
                                     <label class="form-label small fw-semibold text-muted">Studenti</label>
                                     <div class="input-group input-group-sm">
@@ -106,14 +107,14 @@
                                     </div>
                                 </div>
 
-<div class="col-md-2">
+                                <div class="col-md-2">
                                     <label class="form-label small fw-semibold text-muted">Niveli</label>
                                     <select id="filterNiveli" class="form-select form-select-sm">
                                         <option value="">Te gjitha</option>
                                     </select>
                                 </div>
 
-<div class="col-md-2">
+                                <div class="col-md-2">
                                     <label class="form-label small fw-semibold text-muted">Viti</label>
                                     <select id="filterViti" class="form-select form-select-sm">
                                         <option value="">Te gjithe</option>
@@ -123,7 +124,7 @@
                                     </select>
                                 </div>
 
-<div class="col-md-2">
+                                <div class="col-md-2">
                                     <label class="form-label small fw-semibold text-muted">Grupi</label>
                                     <select id="filterGrupi" class="form-select form-select-sm">
                                         <option value="">Te gjitha</option>
@@ -134,14 +135,14 @@
                                     </select>
                                 </div>
 
-<div class="col-md-3">
+                                <div class="col-md-3">
                                     <label class="form-label small fw-semibold text-muted">Dega</label>
                                     <select id="filterDega" class="form-select form-select-sm">
                                         <option value="">Te gjitha</option>
                                     </select>
                                 </div>
 
-<div class="col-md-12 text-end mt-3">
+                                <div class="col-md-12 text-end mt-3">
                                     <button type="button" id="btnReset" class="btn btn-outline-secondary btn-sm me-1">
                                         Refresh
                                     </button>
@@ -155,7 +156,7 @@
                     </div>
                 </div>
 
-<div class="ibox">
+                <div class="ibox">
                     <div class="ibox-content p-0">
                         <div class="table-responsive p-2">
                             <table id="tabelaStudenteve"
@@ -187,7 +188,7 @@
 
     </div>
 
-<div class="modal fade" id="modalShtoStudent" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalShtoStudent" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom">
@@ -288,7 +289,7 @@
         </div>
     </div>
 
-<div class="modal fade" id="modalEditoStudent" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalEditoStudent" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom">
@@ -392,7 +393,7 @@
         </div>
     </div>
 
-<div class="modal fade" id="modalConfirmPromote" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalConfirmPromote" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom bg-light">
@@ -402,26 +403,34 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="alert alert-primary border-0 d-flex gap-3 mb-3" style="background-color: #f0f7ff; color: #004085;">
+                    <div class="alert alert-primary border-0 d-flex gap-3 mb-3"
+                        style="background-color: #f0f7ff; color: #004085;">
                         <i class="bi bi-info-circle-fill fs-5 mt-1"></i>
                         <div class="small">
                             <strong class="d-block mb-1">Kriteret Akademike të Kalimit:</strong>
                             <ul class="mb-0 ps-3">
-                                <li><strong>Viti I → Viti II:</strong> Kërkohen të paktën <strong>30 kredite</strong> nga Viti I.</li>
-                                <li><strong>Viti II → Viti III:</strong> Kërkohen të paktën <strong>80 kredite gjithsej</strong> (Viti I + II).</li>
-                                <li><strong>Viti III:</strong> Studentët me të paktën <strong>180 kredite</strong> diplomohen.</li>
-                                <li>Studentët që nuk i plotësojnë kreditet mbeten <strong>përsëritës</strong> në të njëjtin vit.</li>
+                                <li><strong>Viti I → Viti II:</strong> Kërkohen të paktën <strong>30 kredite</strong>
+                                    nga Viti I.</li>
+                                <li><strong>Viti II → Viti III:</strong> Kërkohen të paktën <strong>80 kredite
+                                        gjithsej</strong> (Viti I + II).</li>
+                                <li><strong>Viti III:</strong> Studentët me të paktën <strong>180 kredite</strong>
+                                    diplomohen.</li>
+                                <li>Studentët që nuk i plotësojnë kreditet mbeten <strong>përsëritës</strong> në të
+                                    njëjtin vit.</li>
                             </ul>
                         </div>
                     </div>
                     <p class="small text-muted mb-0">
-                        Ky veprim do të rillogarisë automatikisht kreditet e të gjithë studentëve bazuar në notat e marra dhe do të përditësojë vitin e studimit, klasën dhe statusin e tyre. A dëshironi të vazhdoni?
+                        Ky veprim do të rillogarisë automatikisht kreditet e të gjithë studentëve bazuar në notat e
+                        marra dhe do të përditësojë vitin e studimit, klasën dhe statusin e tyre. A dëshironi të
+                        vazhdoni?
                     </p>
                     <div id="promoteErrorAlert" class="alert alert-danger small py-2 px-3 mt-3 d-none"></div>
                 </div>
                 <div class="modal-footer border-top bg-light py-2">
                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Anulo</button>
-                    <button type="button" class="btn btn-primary btn-sm fw-semibold d-flex align-items-center gap-2" id="btnExecutePromotion">
+                    <button type="button" class="btn btn-primary btn-sm fw-semibold d-flex align-items-center gap-2"
+                        id="btnExecutePromotion">
                         <span class="spinner-border spinner-border-sm d-none" id="promoteSpinner"></span>
                         <i class="bi bi-check2-circle" id="promoteIcon"></i>
                         <span id="promoteBtnText">Konfirmo & Ekzekuto</span>
@@ -431,12 +440,12 @@
         </div>
     </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
-<script>
+    <script>
         const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
         var dataTable;
 
