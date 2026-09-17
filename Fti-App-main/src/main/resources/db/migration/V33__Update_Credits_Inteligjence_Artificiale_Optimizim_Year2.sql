@@ -1,0 +1,155 @@
+-- Përditësimi i krediteve të detajuara për lëndët e Vitit 2 (Inteligjencë Artificiale dhe Optimizim - Master Shkencor)
+
+-- 1. Modelimi i Ngjarjeve të Pasigurta [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 1.5,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 164 OR (LOWER(c.EMRI_COURSE) LIKE '%ngjarjeve%pasigurta%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 2. Optimizim [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 0.5,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 165 OR (LOWER(c.EMRI_COURSE) LIKE '%optimizim%' AND c.STUDY_YEAR = 2 AND LOWER(c.EMRI_COURSE) NOT LIKE '%siguri%' AND LOWER(c.EMRI_COURSE) NOT LIKE '%diskrete%'))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 3. Analizë të Dhënash dhe Statistikë e Avancuar [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 166 OR (LOWER(c.EMRI_COURSE) LIKE '%analiz%dh%nash%statistik%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 4. Deep Learning [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 1.5,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 167 OR (LOWER(c.EMRI_COURSE) LIKE '%deep%learning%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 5. Modelimi dhe Optimizimi i Sistemeve Diskrete [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 1.5,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 168 OR (LOWER(c.EMRI_COURSE) LIKE '%sistemeve%diskrete%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 6. Teoria e Vendimit për Ngjarjet e Pasigurta [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 1.5,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 169 OR (LOWER(c.EMRI_COURSE) LIKE '%teoria%vendimit%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 7. Optimizimi me Siguri të Lartë [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 0.5,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 170 OR (LOWER(c.EMRI_COURSE) LIKE '%siguri%lart%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 8. Projekt Ndërdiciplinor [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 0.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 4.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 171 OR (LOWER(c.EMRI_COURSE) LIKE '%projekt%nd%rdiciplinor%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 9. Inovacion dhe Start Up në TIK [Totali: 3]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 3,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 172 OR (LOWER(c.EMRI_COURSE) LIKE '%inovacion%start%up%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 10. Praktikë [Totali: 12]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 12,
+    c.KREDITE_LEKSION = 0.0,
+    c.KREDITE_SEMINAR = 0.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 12.0
+WHERE (c.COURSE_ID = 173 OR (LOWER(c.EMRI_COURSE) LIKE '%praktik%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));
+
+-- 11. Diploma [Totali: 18]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 18,
+    c.KREDITE_LEKSION = 0.0,
+    c.KREDITE_SEMINAR = 0.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 174 OR (LOWER(c.EMRI_COURSE) LIKE '%diplom%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%inteligjenc%optimizim%' OR p.PROGRAM_ID = 7
+  ));

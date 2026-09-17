@@ -27,10 +27,27 @@ public class TeachingAllocationDto {
     private Integer lectureHours;
     private Integer seminarHours;
     private Integer labHours;
+    private Integer courseWorkHours;
+    private Integer practiceHours;
+
+    private Integer weeklyHours;
+    private Integer weeklyLectureHours;
+    private Integer weeklySeminarHours;
+    private Integer weeklyLabHours;
+    private Integer weeklyCourseWorkHours;
+    private Integer weeklyPracticeHours;
+
+    private Double krediteLeksion;
+    private Double krediteSeminar;
+    private Double krediteLaborator;
+    private Double krediteDetyreKursi;
+    private Double kreditePraktike;
 
     private ProfessorAssignment lectureProfessor;
     private List<ProfessorAssignment> seminarProfessors;
     private List<ProfessorAssignment> labProfessors;
+    private List<ProfessorAssignment> courseWorkProfessors;
+    private List<ProfessorAssignment> practiceProfessors;
 
     @Data
     @Builder

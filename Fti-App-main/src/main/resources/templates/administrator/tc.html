@@ -124,7 +124,9 @@
         }
 
         #modalTcStep2 .seminar-row,
-        #modalTcStep2 .lab-row {
+        #modalTcStep2 .lab-row,
+        #modalTcStep2 .coursework-row,
+        #modalTcStep2 .practice-row {
             margin-bottom: 3px !important;
         }
 
@@ -346,17 +348,16 @@
 
                                             <input type="hidden" id="inputOreGjithsej" value="30">
 
-                                            <div class="mb-2">
+                                            <div class="mb-2" id="sectionLeksion">
                                                 <label class="form-label small fw-semibold text-dark mb-1"
                                                     style="font-size: 0.74rem;">Pedagogu i leksionit</label>
                                                 <select class="form-select form-select-sm py-0"
-                                                    style="height: 28px; font-size: 0.76rem;" id="selectLeksionProf"
-                                                    required>
+                                                    style="height: 28px; font-size: 0.76rem;" id="selectLeksionProf">
                                                     <option value=""></option>
                                                 </select>
                                             </div>
 
-                                            <div class="mb-2">
+                                            <div class="mb-2" id="sectionSeminar">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                     <label class="form-label small fw-semibold text-dark mb-0"
                                                         style="font-size: 0.74rem;">Pedagogu i seminarit</label>
@@ -370,14 +371,14 @@
                                                 </div>
                                             </div>
 
-                                            <div class="mb-2">
+                                            <div class="mb-2" id="sectionLab">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                     <div class="form-check form-switch mb-0">
                                                         <input class="form-check-input" type="checkbox"
                                                             id="hasLabSwitch" onchange="toggleLabSection()">
                                                         <label class="form-check-label small fw-semibold text-dark"
-                                                            style="font-size: 0.74rem;" for="hasLabSwitch">Kjo lende ka
-                                                            laborator</label>
+                                                            style="font-size: 0.74rem;"
+                                                            for="hasLabSwitch">Laborator</label>
                                                     </div>
                                                 </div>
 
@@ -394,52 +395,111 @@
                                                 </div>
                                             </div>
 
-                                            <div class="pt-2 border-top mt-3">
-                                                <div class="row g-2 mb-2">
-                                                    <div id="colOreLeksion" class="col-6">
-                                                        <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Ore leksion</label>
-                                                        <input type="number"
-                                                            class="form-control form-control-sm py-0 text-center"
-                                                            style="height: 28px; font-size: 0.76rem;"
-                                                            id="inputOreLeksion" value="30" min="0" required>
-                                                    </div>
-                                                    <div id="colOreSeminar" class="col-6">
-                                                        <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Ore seminar</label>
-                                                        <input type="number"
-                                                            class="form-control form-control-sm py-0 text-center"
-                                                            style="height: 28px; font-size: 0.76rem;"
-                                                            id="inputOreSeminar" value="30" min="0" required>
-                                                    </div>
-                                                    <div id="colOreLab" class="col-4 d-none">
-                                                        <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Ore laborator</label>
-                                                        <input type="number"
-                                                            class="form-control form-control-sm py-0 text-center"
-                                                            style="height: 28px; font-size: 0.76rem;" id="inputOreLab"
-                                                            value="15" min="0">
+                                            <div class="mb-2" id="sectionCourseWork">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="hasCourseWorkSwitch"
+                                                            onchange="toggleCourseWorkSection()">
+                                                        <label class="form-check-label small fw-semibold text-dark"
+                                                            style="font-size: 0.74rem;" for="hasCourseWorkSwitch">Detyrë
+                                                            Kursi</label>
                                                     </div>
                                                 </div>
 
-                                                <div class="row g-2">
-                                                    <div class="col-6">
-                                                        <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Semestri</label>
-                                                        <select class="form-select form-select-sm py-0"
-                                                            style="height: 28px; font-size: 0.76rem;"
-                                                            id="step2Semestri">
-                                                            <option value="1">Semestri 1</option>
-                                                            <option value="2">Semestri 2</option>
-                                                        </select>
+                                                <div id="courseWorkSection" class="d-none mt-1">
+                                                    <div class="d-flex justify-content-end align-items-center mb-1">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-amber-soft py-0 px-2 fw-semibold"
+                                                            style="font-size: 0.70rem;" onclick="addCourseWorkRow()">+
+                                                            Shto
+                                                            detyrë kursi</button>
                                                     </div>
-                                                    <div class="col-6">
-                                                        <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Kohezgjatja (Jave)</label>
-                                                        <input type="number" class="form-control form-control-sm py-0"
-                                                            style="height: 28px; font-size: 0.76rem;"
-                                                            id="inputKohezgjatja" value="18" required>
+                                                    <div id="courseWorkContainer">
+
                                                     </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-2" id="sectionPractice">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="hasPracticeSwitch" onchange="togglePracticeSection()">
+                                                        <label class="form-check-label small fw-semibold text-dark"
+                                                            style="font-size: 0.74rem;"
+                                                            for="hasPracticeSwitch">Praktikë</label>
+                                                    </div>
+                                                </div>
+
+                                                <div id="practiceSection" class="d-none mt-1">
+                                                    <div class="d-flex justify-content-end align-items-center mb-1">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-amber-soft py-0 px-2 fw-semibold"
+                                                            style="font-size: 0.70rem;" onclick="addPracticeRow()">+
+                                                            Shto
+                                                            pedagog / drejtues</button>
+                                                    </div>
+                                                    <div id="practiceContainer">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-2 border-top mt-3">
+                                                <div class="row g-2 mb-2" id="rowHoursBreakdown">
+                                                    <div id="colOreLeksion" class="col-6">
+                                                        <label class="form-label small fw-semibold text-dark mb-1"
+                                                            style="font-size: 0.72rem;">Orë javore leksion</label>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm py-0 text-center"
+                                                            style="height: 28px; font-size: 0.76rem;"
+                                                            id="inputWeeklyOreLeksion" value="2" min="0">
+                                                    </div>
+                                                    <div id="colOreSeminar" class="col-6">
+                                                        <label class="form-label small fw-semibold text-dark mb-1"
+                                                            style="font-size: 0.72rem;">Orë javore seminar</label>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm py-0 text-center"
+                                                            style="height: 28px; font-size: 0.76rem;"
+                                                            id="inputWeeklyOreSeminar" value="2" min="0">
+                                                    </div>
+                                                    <div id="colOreLab" class="col-6 d-none">
+                                                        <label class="form-label small fw-semibold text-dark mb-1"
+                                                            style="font-size: 0.72rem;">Orë javore laborator</label>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm py-0 text-center"
+                                                            style="height: 28px; font-size: 0.76rem;"
+                                                            id="inputWeeklyOreLab" value="1" min="0">
+                                                    </div>
+                                                    <div id="colOreCourseWork" class="col-6 d-none">
+                                                        <label class="form-label small fw-semibold text-dark mb-1"
+                                                            style="font-size: 0.72rem;">Orë javore detyrë kursi</label>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm py-0 text-center"
+                                                            style="height: 28px; font-size: 0.76rem;"
+                                                            id="inputWeeklyOreCourseWork" value="1" min="0">
+                                                    </div>
+                                                    <div id="colOrePractice" class="col-6 d-none">
+                                                        <label class="form-label small fw-semibold text-dark mb-1"
+                                                            style="font-size: 0.72rem;">Orë javore praktikë</label>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm py-0 text-center"
+                                                            style="height: 28px; font-size: 0.76rem;"
+                                                            id="inputWeeklyOrePractice" value="2" min="0">
+                                                    </div>
+                                                </div>
+
+                                                <div class="p-2 rounded bg-light border d-flex justify-content-between align-items-center mt-2"
+                                                    style="font-size: 0.74rem;">
+                                                    <span class="text-muted"><i
+                                                            class="bi bi-calendar3 me-1"></i>Semestri: <strong
+                                                            class="text-dark" id="step2SemestriDisplay">Semestri
+                                                            1</strong></span>
+                                                    <span class="text-muted"><i
+                                                            class="bi bi-clock-history me-1"></i>Kohezgjatja: <strong
+                                                            class="text-dark" id="step2DurationDisplay">14
+                                                            Jave</strong></span>
                                                 </div>
                                             </div>
 
@@ -779,15 +839,27 @@
 
                                 const lHours = item.lectureHours != null ? item.lectureHours : (item.totalHours || 30);
                                 const sHours = item.seminarHours != null ? item.seminarHours : (item.totalHours || 30);
-                                const hasLab = item.labProfessors && item.labProfessors.length > 0;
-                                const lbHours = item.labHours != null ? item.labHours : (hasLab ? (item.totalHours || 15) : 0);
-                                const totalSum = lHours + sHours + (hasLab ? lbHours : 0);
+                                const hasLab = (item.labProfessors && item.labProfessors.length > 0) || (item.krediteLaborator != null && item.krediteLaborator > 0);
+                                const lbHours = item.labHours != null ? item.labHours : 15;
+                                const hasCw = (item.courseWorkProfessors && item.courseWorkProfessors.length > 0) || (item.krediteDetyreKursi != null && item.krediteDetyreKursi > 0);
+                                const cwHours = item.courseWorkHours != null ? item.courseWorkHours : 15;
+                                const hasPr = (item.practiceProfessors && item.practiceProfessors.length > 0) || (item.kreditePraktike != null && item.kreditePraktike > 0);
+                                const prHours = item.practiceHours != null ? item.practiceHours : 30;
+
+                                const showL = item.lectureProfessor != null || (item.krediteLeksion != null ? item.krediteLeksion > 0 : true);
+                                const showS = (item.seminarProfessors && item.seminarProfessors.length > 0) || (item.krediteSeminar != null ? item.krediteSeminar > 0 : true);
+
+                                let hoursItemsHtml = '';
+                                if (showL) hoursItemsHtml += `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Leksion:</span> <span class='fw-semibold'>${item.weeklyLectureHours || 2} orë/j (${lHours} gjithsej)</span></div>`;
+                                if (showS) hoursItemsHtml += `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Seminar:</span> <span class='fw-semibold'>${item.weeklySeminarHours || 2} orë/j (${sHours} gjithsej)</span></div>`;
+                                if (hasLab) hoursItemsHtml += `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Laborator:</span> <span class='fw-semibold'>${item.weeklyLabHours || 1} orë/j (${lbHours} gjithsej)</span></div>`;
+                                if (hasCw) hoursItemsHtml += `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Detyrë Kursi:</span> <span class='fw-semibold'>${item.weeklyCourseWorkHours || 1} orë/j (${cwHours} gjithsej)</span></div>`;
+                                if (hasPr) hoursItemsHtml += `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Praktikë:</span> <span class='fw-semibold'>${item.weeklyPracticeHours || 2} orë/j (${prHours} gjithsej)</span></div>`;
+                                if (!hoursItemsHtml) hoursItemsHtml = `<div class='text-muted'>-</div>`;
 
                                 const hoursPopoverContent = `
-                                    <div style='font-size: 11.5px; color: #1e293b; line-height: 1.4; min-width: 110px;'>
-                                        <div class='d-flex justify-content-between gap-3 py-0.5'><span>Leksion:</span> <span class='fw-semibold'>${lHours} orë</span></div>
-                                        <div class='d-flex justify-content-between gap-3 py-0.5'><span>Seminar:</span> <span class='fw-semibold'>${sHours} orë</span></div>
-                                        ${hasLab ? `<div class='d-flex justify-content-between gap-3 py-0.5'><span>Laborator:</span> <span class='fw-semibold'>${lbHours} orë</span></div>` : ''}
+                                    <div style='font-size: 11.5px; color: #1e293b; line-height: 1.4; min-width: 125px;'>
+                                        ${hoursItemsHtml}
                                     </div>
                                 `;
 
@@ -835,9 +907,37 @@
                                         return `<div>${l.professorName} &rarr; ${grp}</div>`;
                                     }).join('');
                                     popoverContent += `
-                                        <div class='mb-1' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                        <div class='mb-2' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
                                             <div class='fw-bold'>Laborator</div>
                                             <div>${labRows}</div>
+                                        </div>
+                                    `;
+                                }
+                                if (item.courseWorkProfessors && item.courseWorkProfessors.length > 0) {
+                                    let cwRows = item.courseWorkProfessors.map(cw => {
+                                        let grp = (cw.classNames && cw.classNames.length > 0)
+                                            ? [...new Set(cw.classNames)].join(', ')
+                                            : (cw.classGroup ? [...new Set(cw.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A');
+                                        return `<div>${cw.professorName} &rarr; ${grp}</div>`;
+                                    }).join('');
+                                    popoverContent += `
+                                        <div class='mb-2' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                            <div class='fw-bold'>Detyrë Kursi</div>
+                                            <div>${cwRows}</div>
+                                        </div>
+                                    `;
+                                }
+                                if (item.practiceProfessors && item.practiceProfessors.length > 0) {
+                                    let prRows = item.practiceProfessors.map(pr => {
+                                        let grp = (pr.classNames && pr.classNames.length > 0)
+                                            ? [...new Set(pr.classNames)].join(', ')
+                                            : (pr.classGroup ? [...new Set(pr.classGroup.split(',').map(x => x.trim()))].join(', ') : 'Klasa A');
+                                        return `<div>${pr.professorName} &rarr; ${grp}</div>`;
+                                    }).join('');
+                                    popoverContent += `
+                                        <div class='mb-1' style='font-size: 13px; color: #1e293b; line-height: 1.4;'>
+                                            <div class='fw-bold'>Praktikë</div>
+                                            <div>${prRows}</div>
                                         </div>
                                     `;
                                 }
@@ -910,6 +1010,10 @@
                     currentEditingCourseId = null;
                     $('#modalTitle').text("");
                     $('#formTeaching')[0].reset();
+                    $('#seminarContainer').empty();
+                    $('#labContainer').empty();
+                    $('#courseWorkContainer').empty();
+                    $('#practiceContainer').empty();
 
                     $('#selectDepartamenti').val('');
                     $('#selectNiveli').val('');
@@ -1059,20 +1163,73 @@
                     $(`.modal-course-item[data-course-id="${courseId}"]`).addClass('active');
 
                     $('#selectLenda').val(course.courseId);
-                    $('#step2ActiveCourseTitle').text(course.emriCourse);
-                    $('#step2ActiveCourseKredite').text(`${course.kredite || 0} Kredite`);
-
-                    $('#inputKohezgjatja').val('18');
-                    $('#inputOreGjithsej').val('30');
-                    $('#inputOreLeksion').val('30');
-                    $('#inputOreSeminar').val('30');
-                    $('#inputOreLab').val('15');
+                    const semVal = course.semester || '1';
+                    const defaultWeeks = (course.programNivel && course.programNivel.toLowerCase().includes('master')) ? 12 : 14;
+                    const durVal = course.durationWeeks || defaultWeeks;
+                    $('#step2SemestriDisplay').text(`Semestri ${semVal}`);
+                    $('#step2DurationDisplay').text(`${durVal} Jave`);
+                    $('#inputWeeklyOreLeksion').val('2');
+                    $('#inputWeeklyOreSeminar').val('2');
+                    $('#inputWeeklyOreLab').val('1');
+                    $('#inputWeeklyOreCourseWork').val('1');
+                    $('#inputWeeklyOrePractice').val('2');
                     $('#selectLeksionProf').val('');
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();
-                    addSeminarRow();
+                    $('#courseWorkContainer').empty();
+                    $('#practiceContainer').empty();
+
+                    const kL = (course.krediteLeksion != null) ? Number(course.krediteLeksion) : 0;
+                    const kS = (course.krediteSeminar != null) ? Number(course.krediteSeminar) : 0;
+                    const kLb = (course.krediteLaborator != null) ? Number(course.krediteLaborator) : 0;
+                    const kDk = (course.krediteDetyreKursi != null) ? Number(course.krediteDetyreKursi) : 0;
+                    const kPr = (course.kreditePraktike != null) ? Number(course.kreditePraktike) : 0;
+
+                    // 1. Leksion
+                    if (kL > 0) {
+                        $('#sectionLeksion').removeClass('d-none');
+                        $('#colOreLeksion').removeClass('d-none');
+                    } else {
+                        $('#sectionLeksion').addClass('d-none');
+                        $('#colOreLeksion').addClass('d-none');
+                    }
+
+                    // 2. Seminar
+                    if (kS > 0) {
+                        $('#sectionSeminar').removeClass('d-none');
+                        $('#colOreSeminar').removeClass('d-none');
+                        addSeminarRow();
+                    } else {
+                        $('#sectionSeminar').addClass('d-none');
+                        $('#colOreSeminar').addClass('d-none');
+                    }
+
+                    // 3. Laborator
+                    if (kLb > 0) {
+                        $('#sectionLab').removeClass('d-none');
+                    } else {
+                        $('#sectionLab').addClass('d-none');
+                    }
                     $('#hasLabSwitch').prop('checked', false);
                     toggleLabSection();
+
+                    // 4. Detyre Kursi
+                    if (kDk > 0) {
+                        $('#sectionCourseWork').removeClass('d-none');
+                    } else {
+                        $('#sectionCourseWork').addClass('d-none');
+                    }
+                    $('#hasCourseWorkSwitch').prop('checked', false);
+                    toggleCourseWorkSection();
+
+                    // 5. Praktike
+                    if (kPr > 0) {
+                        $('#sectionPractice').removeClass('d-none');
+                    } else {
+                        $('#sectionPractice').addClass('d-none');
+                    }
+                    $('#hasPracticeSwitch').prop('checked', false);
+                    togglePracticeSection();
 
                     await checkExistingCourseAllocation(course.courseId);
                 }
@@ -1083,6 +1240,8 @@
                     $('#formTeaching')[0].reset();
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();
+                    $('#courseWorkContainer').empty();
+                    $('#practiceContainer').empty();
 
                     try {
                         const targetCourse = allCourses.find(c => String(c.courseId) === String(courseId));
@@ -1120,16 +1279,41 @@
                 }
 
                 function toggleLabSection() {
-                    if ($('#hasLabSwitch').is(':checked')) {
+                    if ($('#hasLabSwitch').is(':checked') && !$('#sectionLab').hasClass('d-none')) {
                         $('#labSection').removeClass('d-none');
                         $('#colOreLab').removeClass('d-none');
-                        $('#colOreLeksion').removeClass('col-6').addClass('col-4');
-                        $('#colOreSeminar').removeClass('col-6').addClass('col-4');
+                        if ($('#labContainer .lab-row').length === 0) {
+                            addLabRow();
+                        }
                     } else {
                         $('#labSection').addClass('d-none');
                         $('#colOreLab').addClass('d-none');
-                        $('#colOreLeksion').removeClass('col-4').addClass('col-6');
-                        $('#colOreSeminar').removeClass('col-4').addClass('col-6');
+                    }
+                }
+
+                function toggleCourseWorkSection() {
+                    if ($('#hasCourseWorkSwitch').is(':checked') && !$('#sectionCourseWork').hasClass('d-none')) {
+                        $('#courseWorkSection').removeClass('d-none');
+                        $('#colOreCourseWork').removeClass('d-none');
+                        if ($('#courseWorkContainer .coursework-row').length === 0) {
+                            addCourseWorkRow();
+                        }
+                    } else {
+                        $('#courseWorkSection').addClass('d-none');
+                        $('#colOreCourseWork').addClass('d-none');
+                    }
+                }
+
+                function togglePracticeSection() {
+                    if ($('#hasPracticeSwitch').is(':checked') && !$('#sectionPractice').hasClass('d-none')) {
+                        $('#practiceSection').removeClass('d-none');
+                        $('#colOrePractice').removeClass('d-none');
+                        if ($('#practiceContainer .practice-row').length === 0) {
+                            addPracticeRow();
+                        }
+                    } else {
+                        $('#practiceSection').addClass('d-none');
+                        $('#colOrePractice').addClass('d-none');
                     }
                 }
 
@@ -1189,6 +1373,62 @@
                     $('#labContainer').append(html);
                 }
 
+                function addCourseWorkRow(selectedProfId = "", selectedGroup = "", selectedClassIds = []) {
+                    let profOpts = '<option value=""></option>';
+                    allProfessors.forEach(p => {
+                        const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
+                        profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
+                    });
+
+                    const classOpts = buildClassOptionsHtml(selectedGroup, selectedClassIds, false);
+
+                    let html = `
+                    <div class="row g-1 mb-1 align-items-center coursework-row">
+                        <div class="col-md-8 col-7">
+                            <select class="form-select form-select-sm py-0 select-coursework-prof">
+                                ${profOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-4">
+                            <select class="form-select form-select-sm py-0 select-coursework-group">
+                                ${classOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" style="font-size: 0.76rem;" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                    $('#courseWorkContainer').append(html);
+                }
+
+                function addPracticeRow(selectedProfId = "", selectedGroup = "", selectedClassIds = []) {
+                    let profOpts = '<option value=""></option>';
+                    allProfessors.forEach(p => {
+                        const sel = (selectedProfId && p.id == selectedProfId) ? 'selected' : '';
+                        profOpts += `<option value="${p.id}" ${sel}>${p.emri} ${p.mbiemri}</option>`;
+                    });
+
+                    const classOpts = buildClassOptionsHtml(selectedGroup, selectedClassIds, false);
+
+                    let html = `
+                    <div class="row g-1 mb-1 align-items-center practice-row">
+                        <div class="col-md-8 col-7">
+                            <select class="form-select form-select-sm py-0 select-practice-prof">
+                                ${profOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-4">
+                            <select class="form-select form-select-sm py-0 select-practice-group">
+                                ${classOpts}
+                            </select>
+                        </div>
+                        <div class="col-md-1 col-1 text-end">
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0" style="font-size: 0.76rem;" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                    $('#practiceContainer').append(html);
+                }
+
                 function removeRow(btn) {
                     $(btn).closest('.row').remove();
                 }
@@ -1200,45 +1440,56 @@
                         if (!res.ok) return;
                         const data = await res.json();
 
-                        if (data && (data.lectureProfessor || (data.seminarProfessors && data.seminarProfessors.length > 0) || (data.labProfessors && data.labProfessors.length > 0))) {
+                        if (data) {
                             if (data.semester) {
-                                $('#step2Semestri').val(data.semester);
+                                $('#step2SemestriDisplay').text(`Semestri ${data.semester}`);
                             }
-                            if (data.durationWeeks) $('#inputKohezgjatja').val(data.durationWeeks);
-                            if (data.totalHours) $('#inputOreGjithsej').val(data.totalHours);
+                            if (data.durationWeeks) {
+                                $('#step2DurationDisplay').text(`${data.durationWeeks} Jave`);
+                            }
 
-                            if (data.lectureHours) $('#inputOreLeksion').val(data.lectureHours);
-                            else if (data.totalHours) $('#inputOreLeksion').val(data.totalHours);
-
-                            if (data.seminarHours) $('#inputOreSeminar').val(data.seminarHours);
-                            else if (data.totalHours) $('#inputOreSeminar').val(data.totalHours);
-
-                            if (data.labHours) $('#inputOreLab').val(data.labHours);
-                            else if (data.totalHours) $('#inputOreLab').val(data.totalHours);
+                            if (data.weeklyLectureHours != null) $('#inputWeeklyOreLeksion').val(data.weeklyLectureHours);
+                            if (data.weeklySeminarHours != null) $('#inputWeeklyOreSeminar').val(data.weeklySeminarHours);
+                            if (data.weeklyLabHours != null) $('#inputWeeklyOreLab').val(data.weeklyLabHours);
+                            if (data.weeklyCourseWorkHours != null) $('#inputWeeklyOreCourseWork').val(data.weeklyCourseWorkHours);
+                            if (data.weeklyPracticeHours != null) $('#inputWeeklyOrePractice').val(data.weeklyPracticeHours);
 
                             if (data.lectureProfessor) {
                                 $('#selectLeksionProf').val(data.lectureProfessor.professorId);
                             }
 
-                            $('#seminarContainer').empty();
                             if (data.seminarProfessors && data.seminarProfessors.length > 0) {
+                                $('#seminarContainer').empty();
                                 data.seminarProfessors.forEach(s => {
                                     addSeminarRow(s.professorId, s.classGroup, s.classIds);
                                 });
-                            } else {
-                                addSeminarRow();
                             }
 
-                            $('#labContainer').empty();
                             if (data.labProfessors && data.labProfessors.length > 0) {
                                 $('#hasLabSwitch').prop('checked', true);
                                 toggleLabSection();
+                                $('#labContainer').empty();
                                 data.labProfessors.forEach(l => {
                                     addLabRow(l.professorId, l.classGroup, l.classIds);
                                 });
-                            } else {
-                                $('#hasLabSwitch').prop('checked', false);
-                                toggleLabSection();
+                            }
+
+                            if (data.courseWorkProfessors && data.courseWorkProfessors.length > 0) {
+                                $('#hasCourseWorkSwitch').prop('checked', true);
+                                toggleCourseWorkSection();
+                                $('#courseWorkContainer').empty();
+                                data.courseWorkProfessors.forEach(cw => {
+                                    addCourseWorkRow(cw.professorId, cw.classGroup, cw.classIds);
+                                });
+                            }
+
+                            if (data.practiceProfessors && data.practiceProfessors.length > 0) {
+                                $('#hasPracticeSwitch').prop('checked', true);
+                                togglePracticeSection();
+                                $('#practiceContainer').empty();
+                                data.practiceProfessors.forEach(pr => {
+                                    addPracticeRow(pr.professorId, pr.classGroup, pr.classIds);
+                                });
                             }
                         }
                     } catch (err) {
@@ -1246,23 +1497,41 @@
                     }
                 }
 
+                function openCreateModal() {
+                    currentEditingCourseId = null;
+                    $('#modalTitle').text("");
+                    $('#formTeaching')[0].reset();
+                    $('#seminarContainer').empty();
+                    $('#labContainer').empty();
+                    $('#courseWorkContainer').empty();
+                    $('#practiceContainer').empty();
+
+                    populateDepartmentDropdown();
+                    populateNiveliDropdown();
+                    populateProgramDropdown();
+                    populateVitiDropdown();
+
+                    goToModalStep1();
+                    const modal = new bootstrap.Modal(document.getElementById('modalTeaching'));
+                    modal.show();
+                }
+
                 async function saveAllocationData() {
-                    const courseIdVal = $('#selectLenda').val();
-                    const courseId = courseIdVal ? parseInt(courseIdVal) : null;
+                    $('#modalTcAlert').addClass('d-none').empty();
+
+                    const courseId = parseInt($('#selectLenda').val());
                     if (!courseId) {
-                        alert("Ju lutem zgjidhni një lëndë nga lista në të majtë.");
+                        $('#modalTcAlert').removeClass('d-none').text('Ju lutem zgjidhni lenden.');
                         return;
                     }
 
                     const lectureProfId = $('#selectLeksionProf').val() ? parseInt($('#selectLeksionProf').val()) : null;
 
                     const seminars = [];
-                    $('#seminarContainer .seminar-row').each(function () {
-                        const profId = $(this).find('.select-seminar-prof').val();
-                        const selEl = $(this).find('.select-seminar-group');
-                        const group = selEl.val();
-                        const classId = selEl.find('option:selected').data('class-id');
-                        const classIds = classId ? [parseInt(classId)] : [];
+                    $('#seminarContainer .row').each(function () {
+                        const profId = $(this).find('.seminar-prof-select').val();
+                        const group = $(this).find('.seminar-group-input').val();
+                        const classIds = $(this).find('.seminar-classes-select').val() ? $(this).find('.seminar-classes-select').val().map(Number) : [];
                         if (profId) {
                             seminars.push({
                                 professorId: parseInt(profId),
@@ -1275,12 +1544,10 @@
                     const hasLab = $('#hasLabSwitch').is(':checked');
                     const labs = [];
                     if (hasLab) {
-                        $('#labContainer .lab-row').each(function () {
-                            const profId = $(this).find('.select-lab-prof').val();
-                            const selEl = $(this).find('.select-lab-group');
-                            const group = selEl.val();
-                            const classId = selEl.find('option:selected').data('class-id');
-                            const classIds = classId ? [parseInt(classId)] : [];
+                        $('#labContainer .row').each(function () {
+                            const profId = $(this).find('.lab-prof-select').val();
+                            const group = $(this).find('.lab-group-input').val();
+                            const classIds = $(this).find('.lab-classes-select').val() ? $(this).find('.lab-classes-select').val().map(Number) : [];
                             if (profId) {
                                 labs.push({
                                     professorId: parseInt(profId),
@@ -1291,29 +1558,71 @@
                         });
                     }
 
-                    const semesterVal = $('#step2Semestri').val() || '1';
-                    const lectureHoursVal = $('#inputOreLeksion').val() !== '' ? parseInt($('#inputOreLeksion').val()) : 30;
-                    const seminarHoursVal = $('#inputOreSeminar').val() !== '' ? parseInt($('#inputOreSeminar').val()) : 30;
-                    const labHoursVal = $('#inputOreLab').val() !== '' ? parseInt($('#inputOreLab').val()) : 15;
+                    const hasCourseWork = $('#hasCourseWorkSwitch').is(':checked');
+                    const courseWorks = [];
+                    if (hasCourseWork) {
+                        $('#courseWorkContainer .row').each(function () {
+                            const profId = $(this).find('.cw-prof-select').val();
+                            const group = $(this).find('.cw-group-input').val();
+                            const classIds = $(this).find('.cw-classes-select').val() ? $(this).find('.cw-classes-select').val().map(Number) : [];
+                            if (profId) {
+                                courseWorks.push({
+                                    professorId: parseInt(profId),
+                                    classGroup: group,
+                                    classIds: classIds
+                                });
+                            }
+                        });
+                    }
+
+                    const hasPractice = $('#hasPracticeSwitch').is(':checked');
+                    const practices = [];
+                    if (hasPractice) {
+                        $('#practiceContainer .row').each(function () {
+                            const profId = $(this).find('.pr-prof-select').val();
+                            const group = $(this).find('.pr-group-input').val();
+                            const classIds = $(this).find('.pr-classes-select').val() ? $(this).find('.pr-classes-select').val().map(Number) : [];
+                            if (profId) {
+                                practices.push({
+                                    professorId: parseInt(profId),
+                                    classGroup: group,
+                                    classIds: classIds
+                                });
+                            }
+                        });
+                    }
+
+                    const weeklyL = $('#inputWeeklyOreLeksion').val() !== '' ? parseInt($('#inputWeeklyOreLeksion').val()) : 2;
+                    const weeklyS = $('#inputWeeklyOreSeminar').val() !== '' ? parseInt($('#inputWeeklyOreSeminar').val()) : 2;
+                    const weeklyLb = $('#inputWeeklyOreLab').val() !== '' ? parseInt($('#inputWeeklyOreLab').val()) : 1;
+                    const weeklyCw = $('#inputWeeklyOreCourseWork').val() !== '' ? parseInt($('#inputWeeklyOreCourseWork').val()) : 1;
+                    const weeklyPr = $('#inputWeeklyOrePractice').val() !== '' ? parseInt($('#inputWeeklyOrePractice').val()) : 2;
 
                     const payload = {
                         courseId: courseId,
-                        semester: semesterVal,
-                        durationWeeks: $('#inputKohezgjatja').val() !== '' ? parseInt($('#inputKohezgjatja').val()) : null,
-                        totalHours: lectureHoursVal,
-                        lectureHours: lectureHoursVal,
-                        seminarHours: seminarHoursVal,
-                        labHours: labHoursVal,
+                        weeklyLectureHours: weeklyL,
+                        weeklySeminarHours: weeklyS,
+                        weeklyLabHours: weeklyLb,
+                        weeklyCourseWorkHours: weeklyCw,
+                        weeklyPracticeHours: weeklyPr,
+                        weeklyHours: weeklyL,
                         lectureProfessorId: lectureProfId,
                         seminars: seminars,
                         hasLab: hasLab,
-                        labs: labs
+                        labs: labs,
+                        hasCourseWork: hasCourseWork,
+                        courseWorks: courseWorks,
+                        hasPractice: hasPractice,
+                        practices: practices
                     };
 
                     try {
                         const response = await fetch('/api/admin/teaching-courses', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '')
+                            },
                             body: JSON.stringify(payload)
                         });
 

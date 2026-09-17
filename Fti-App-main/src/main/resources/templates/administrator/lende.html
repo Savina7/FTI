@@ -153,6 +153,7 @@
                                         <th>Lenda</th>
                                         <th>Dega</th>
                                         <th class="text-center">Viti</th>
+                                        <th class="text-center">Sem</th>
                                         <th class="text-center">Kredite</th>
                                         <th class="text-center">Statusi</th>
                                         <th class="text-end text-nowrap" style="width: 120px;">Veprime</th>
@@ -167,45 +168,49 @@
 
                 <div class="modal fade modal-courses" id="modalShtoCourse" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h6 class="modal-title fw-bold" id="modalCourseTitle">Shto lende</h6>
+                        <div class="modal-content border-0 shadow rounded-3">
+                            <div class="modal-header border-bottom px-4 py-3">
+                                <h6 class="modal-title fw-bold text-dark" id="modalCourseTitle">Shto lende</h6>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <div id="modalCourseAlert" class="alert alert-danger small d-none mb-3"></div>
+                            <div class="modal-body p-4">
                                 <form id="formCourse">
-
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-semibold">Lenda</label>
-                                        <input type="text" class="form-control form-control-sm" name="EMRI_COURSE"
-                                            required>
+                                    <div id="modalCourseAlert" class="alert alert-danger d-none py-2 px-3 small mb-3">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label small fw-semibold">Dega</label>
+                                        <label class="form-label small fw-semibold text-muted mb-1">Lenda</label>
+                                        <input type="text" class="form-control form-control-sm" name="EMRI_COURSE" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-semibold text-muted mb-1">Dega</label>
                                         <select class="form-select form-select-sm" name="PROGRAM_ID"
                                             id="modalProgramSelect" required>
                                         </select>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-semibold">Viti</label>
-                                        <input type="number" class="form-control form-control-sm" name="STUDY_YEAR"
-                                            min="1" max="3" placeholder="" required>
-                                    </div>
-
                                     <div class="row g-2 mb-3">
-
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold">Kredite</label>
-                                            <input type="number" class="form-control form-control-sm" name="KREDITE"
-                                                min="1" max="30" placeholder="6" required>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-semibold text-muted mb-1">Viti</label>
+                                            <input type="number" class="form-control form-control-sm" name="STUDY_YEAR"
+                                                min="1" max="3" required>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label small fw-semibold">Statusi</label>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-semibold text-muted mb-1">Semestri</label>
+                                            <select class="form-select form-select-sm" name="SEMESTER" required>
+                                                <option value="1">Semestri 1</option>
+                                                <option value="2">Semestri 2</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-semibold text-muted mb-1">Javë</label>
+                                            <input type="number" class="form-control form-control-sm" name="DURATION_WEEKS"
+                                                min="1" max="30" value="14" required>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-semibold text-muted mb-1">Statusi</label>
                                             <select class="form-select form-select-sm" name="STATUS" required>
                                                 <option value="Active">Active</option>
                                                 <option value="Inactive">Inactive</option>
@@ -213,10 +218,45 @@
                                         </div>
                                     </div>
 
+                                    <!-- KUTIA E KREDITEVE (ECTS) -->
+                                    <div class="p-2 bg-light rounded-2 border mb-2">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <label class="form-label mb-0 fw-bold text-dark text-nowrap" style="font-size: 0.72rem;">Kredite gjithsej:</label>
+                                            <input type="number" min="1" max="30" class="form-control form-control-sm fw-bold bg-white" name="KREDITE" required style="font-size: 0.75rem; height: 26px; padding: 2px 6px; max-width: 90px;">
+                                        </div>
+
+                                        <div class="row g-1 row-cols-5">
+                                            <div class="col">
+                                                <label class="form-label mb-0 text-muted text-nowrap" style="font-size: 0.67rem;">Leksion</label>
+                                                <input type="number" step="0.5" min="0" max="30" class="form-control form-control-sm credit-calc" name="KREDITE_LEKSION" placeholder="0.0" style="font-size: 0.72rem; height: 25px; padding: 2px 4px;">
+                                            </div>
+                                            <div class="col">
+                                                <label class="form-label mb-0 text-muted text-nowrap" style="font-size: 0.67rem;">Seminar</label>
+                                                <input type="number" step="0.5" min="0" max="30" class="form-control form-control-sm credit-calc" name="KREDITE_SEMINAR" placeholder="0.0" style="font-size: 0.72rem; height: 25px; padding: 2px 4px;">
+                                            </div>
+                                            <div class="col">
+                                                <label class="form-label mb-0 text-muted text-nowrap" style="font-size: 0.67rem;">Laborator</label>
+                                                <input type="number" step="0.5" min="0" max="30" class="form-control form-control-sm credit-calc" name="KREDITE_LABORATOR" placeholder="0.0" style="font-size: 0.72rem; height: 25px; padding: 2px 4px;">
+                                            </div>
+                                            <div class="col">
+                                                <label class="form-label mb-0 text-muted text-nowrap" style="font-size: 0.67rem;">Detyrë Kursi</label>
+                                                <input type="number" step="0.5" min="0" max="30" class="form-control form-control-sm credit-calc" name="KREDITE_DETYRE_KURSI" placeholder="0.0" style="font-size: 0.72rem; height: 25px; padding: 2px 4px;">
+                                            </div>
+                                            <div class="col">
+                                                <label class="form-label mb-0 text-muted text-nowrap" style="font-size: 0.67rem;">Praktikë</label>
+                                                <input type="number" step="0.5" min="0" max="30" class="form-control form-control-sm credit-calc" name="KREDITE_PRAKTIKE" placeholder="0.0" style="font-size: 0.72rem; height: 25px; padding: 2px 4px;">
+                                            </div>
+                                        </div>
+
+                                        <div id="creditSumError" class="text-danger small mt-1 d-none" style="font-size: 0.72rem; line-height: 1.2;">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Kreditet nuk janë shpërndarë mirë
+                                        </div>
+                                    </div>
+
                                     <div class="text-end border-top pt-3">
-                                        <button type="button" class="btn btn-light btn-sm"
+                                        <button type="button" class="btn btn-light btn-sm px-3"
                                             data-bs-dismiss="modal">Anulo</button>
-                                        <button type="submit" class="btn btn-dark btn-sm fw-semibold">Ruaj</button>
+                                        <button type="submit" class="btn btn-amber-action btn-sm fw-semibold px-4">Ruaj</button>
                                     </div>
                                 </form>
                             </div>
@@ -244,11 +284,23 @@
                         loadProgramsForModal();
                         loadCourses();
 
+                        // Real-time validation and calculation of credits
+                        $('input[name="KREDITE"], .credit-calc').on('input', function () {
+                            validateAndRecalcCredits();
+                        });
+
                         $('#btnOpenShtoModal').on('click', function () {
                             currentEditingCourseId = null;
                             $('#modalCourseTitle').text("Shto lende");
                             $('#formCourse')[0].reset();
                             $('#modalCourseAlert').addClass('d-none');
+                            $('#creditSumError').addClass('d-none');
+                            $('input[name="KREDITE"], .credit-calc').removeClass('is-invalid');
+                            updateDurationWeeksFromProgram();
+                        });
+
+                        $('#modalProgramSelect').on('change', function () {
+                            updateDurationWeeksFromProgram();
                         });
 
                         $('#filterNiveli').on('change', function () {
@@ -279,12 +331,24 @@
                             const alertDiv = $('#modalCourseAlert');
                             alertDiv.addClass('d-none');
 
+                            if (!validateAndRecalcCredits()) {
+                                alertDiv.text("Kreditet nuk janë shpërndarë mirë.").removeClass('d-none');
+                                return;
+                            }
+
                             const form = this;
                             const payload = {
                                 emriCourse: form.elements['EMRI_COURSE'].value.trim(),
                                 programId: parseInt(form.elements['PROGRAM_ID'].value),
                                 studyYear: form.elements['STUDY_YEAR'].value ? parseInt(form.elements['STUDY_YEAR'].value) : null,
-                                kredite: parseInt(form.elements['KREDITE'].value),
+                                semester: form.elements['SEMESTER'].value || '1',
+                                durationWeeks: form.elements['DURATION_WEEKS'].value ? parseInt(form.elements['DURATION_WEEKS'].value) : 18,
+                                kredite: parseInt(form.elements['KREDITE'].value) || 0,
+                                krediteLeksion: form.elements['KREDITE_LEKSION'].value ? parseFloat(form.elements['KREDITE_LEKSION'].value) : 0.0,
+                                krediteSeminar: form.elements['KREDITE_SEMINAR'].value ? parseFloat(form.elements['KREDITE_SEMINAR'].value) : 0.0,
+                                krediteLaborator: form.elements['KREDITE_LABORATOR'].value ? parseFloat(form.elements['KREDITE_LABORATOR'].value) : 0.0,
+                                krediteDetyreKursi: form.elements['KREDITE_DETYRE_KURSI'].value ? parseFloat(form.elements['KREDITE_DETYRE_KURSI'].value) : 0.0,
+                                kreditePraktike: form.elements['KREDITE_PRAKTIKE'].value ? parseFloat(form.elements['KREDITE_PRAKTIKE'].value) : 0.0,
                                 status: form.elements['STATUS'].value
                             };
 
@@ -295,7 +359,10 @@
                             try {
                                 const response = await fetch(url, {
                                     method: method,
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '')
+                                    },
                                     body: JSON.stringify(payload)
                                 });
 
@@ -318,6 +385,26 @@
                         });
                     });
 
+                    function validateAndRecalcCredits() {
+                        const tot = parseFloat($('input[name="KREDITE"]').val()) || 0;
+                        const lek = parseFloat($('input[name="KREDITE_LEKSION"]').val()) || 0;
+                        const sem = parseFloat($('input[name="KREDITE_SEMINAR"]').val()) || 0;
+                        const lab = parseFloat($('input[name="KREDITE_LABORATOR"]').val()) || 0;
+                        const det = parseFloat($('input[name="KREDITE_DETYRE_KURSI"]').val()) || 0;
+                        const prk = parseFloat($('input[name="KREDITE_PRAKTIKE"]').val()) || 0;
+                        const sum = Math.round((lek + sem + lab + det + prk) * 10) / 10;
+
+                        if (tot > 0 && sum > tot) {
+                            $('#creditSumError').removeClass('d-none');
+                            $('input[name="KREDITE"], .credit-calc').addClass('is-invalid');
+                            return false;
+                        } else {
+                            $('#creditSumError').addClass('d-none');
+                            $('input[name="KREDITE"], .credit-calc').removeClass('is-invalid');
+                            return true;
+                        }
+                    }
+
                     async function loadProgramsForModal() {
                         try {
                             const res = await fetch('/api/admin/courses/programs', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
@@ -327,11 +414,21 @@
                             modalSelect.find('option:not(:first)').remove();
                             programs.forEach(p => {
                                 const optText = p.emri ? (p.nivel ? `${p.emri} (${p.nivel})` : p.emri) : `ID: ${p.programId}`;
-                                modalSelect.append(`<option value="${p.programId}">${optText}</option>`);
+                                modalSelect.append(`<option value="${p.programId}" data-nivel="${p.nivel || ''}">${optText}</option>`);
                             });
+                            updateDurationWeeksFromProgram();
                         } catch (err) {
                             console.error('Gabim ngarkimi programesh modal:', err);
                         }
+                    }
+
+                    function updateDurationWeeksFromProgram() {
+                        if (currentEditingCourseId != null) return; // mos mbishkruaj gjate editimit nese ka vlere ekzistuese
+                        const selOption = $('#modalProgramSelect option:selected');
+                        const nivel = selOption.data('nivel') || selOption.text() || '';
+                        const isMaster = nivel.toLowerCase().includes('master');
+                        const defaultWeeks = isMaster ? 12 : 14;
+                        $('input[name="DURATION_WEEKS"]').val(defaultWeeks);
                     }
 
                     function updateProgramDropdown() {
@@ -396,8 +493,16 @@
                             form.elements['EMRI_COURSE'].value = c.emriCourse || '';
                             form.elements['PROGRAM_ID'].value = c.programId || '';
                             form.elements['STUDY_YEAR'].value = c.studyYear || '';
+                            form.elements['SEMESTER'].value = c.semester || '1';
+                            form.elements['DURATION_WEEKS'].value = c.durationWeeks || 18;
+                            form.elements['KREDITE_LEKSION'].value = c.krediteLeksion != null ? c.krediteLeksion : '';
+                            form.elements['KREDITE_SEMINAR'].value = c.krediteSeminar != null ? c.krediteSeminar : '';
+                            form.elements['KREDITE_LABORATOR'].value = c.krediteLaborator != null ? c.krediteLaborator : '';
+                            form.elements['KREDITE_DETYRE_KURSI'].value = c.krediteDetyreKursi != null ? c.krediteDetyreKursi : '';
+                            form.elements['KREDITE_PRAKTIKE'].value = c.kreditePraktike != null ? c.kreditePraktike : '';
                             form.elements['KREDITE'].value = c.kredite || '';
                             form.elements['STATUS'].value = c.status || 'Active';
+                            validateAndRecalcCredits();
 
                             const modalEl = document.getElementById('modalShtoCourse');
                             const modal = new bootstrap.Modal(modalEl);
@@ -438,16 +543,18 @@
                             updateProgramDropdown();
 
                             if (!data || data.length === 0) {
-                                tbody.append(`<tr><td colspan="7" class="text-center text-muted">Nuk u gjet asnje lende ne bazen e te dhenave.</td></tr>`);
+                                tbody.append(`<tr><td colspan="8" class="text-center text-muted">Nuk u gjet asnje lende ne bazen e te dhenave.</td></tr>`);
                             } else {
                                 data.forEach((c, index) => {
                                     const progName = c.programEmri || '-';
+                                    const sem = c.semester ? `Sem ${c.semester}` : 'Sem 1';
                                     const row = `
                         <tr>
                             <td class="text-center">${index + 1}</td>
                             <td>${c.emriCourse || ''}</td>
                             <td>${progName}</td>
                             <td class="text-center">${c.studyYear != null ? c.studyYear : '-'}</td>
+                            <td class="text-center">${sem}</td>
                             <td class="text-center">${c.kredite || 0}</td>
                             <td class="text-center">${c.status || 'Active'}</td>
                             <td class="text-end text-nowrap">

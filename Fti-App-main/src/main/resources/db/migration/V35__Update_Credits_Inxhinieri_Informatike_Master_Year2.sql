@@ -1,0 +1,85 @@
+-- Përditësimi i krediteve të detajuara për lëndët e Vitit 2 (Inxhinieri Informatike - Master Shkencor)
+
+-- 1. Big Data: Arkitektura edhe Analiza e të Dhënave [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 147 OR (LOWER(c.EMRI_COURSE) LIKE '%big data%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 2. Teknologjitë e bazave të të dhënave [Totali: 8] (Ndryshuar nga 6 në 8 ECTS)
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 8,
+    c.KREDITE_LEKSION = 4.0,
+    c.KREDITE_SEMINAR = 2.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 148 OR (LOWER(c.EMRI_COURSE) LIKE '%teknologji%baza%dh%na%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 3. Arkitektura e sistemeve të përpunimit [Totali: 8]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 8,
+    c.KREDITE_LEKSION = 4.0,
+    c.KREDITE_SEMINAR = 2.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 149 OR (LOWER(c.EMRI_COURSE) LIKE '%arkitektur%sistemeve%p%rpunimit%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 4. Rrjetat e kompjuterave 2 [Totali: 8]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 8,
+    c.KREDITE_LEKSION = 4.0,
+    c.KREDITE_SEMINAR = 2.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 150 OR (LOWER(c.EMRI_COURSE) LIKE '%rrjetat%kompjuterave%2%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 5. Praktikë [Totali: 12]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 12,
+    c.KREDITE_LEKSION = 0.0,
+    c.KREDITE_SEMINAR = 0.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 12.0
+WHERE (c.COURSE_ID = 151 OR (LOWER(c.EMRI_COURSE) LIKE '%praktik%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 6. Diploma [Totali: 18]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 18,
+    c.KREDITE_LEKSION = 0.0,
+    c.KREDITE_SEMINAR = 0.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 152 OR (LOWER(c.EMRI_COURSE) LIKE '%diplom%' AND c.STUDY_YEAR = 2))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));

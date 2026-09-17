@@ -121,14 +121,8 @@ public class AdminScheduleService {
 
     public String determineCourseSemester(Course c) {
         if (c == null) return "1";
-
-        List<TeachingCourse> tcs = teachingCourseRepository.findByCourseCourseId(c.getCourseId());
-        for (TeachingCourse tc : tcs) {
-            if (tc.getSemester() != null && !tc.getSemester().isBlank()) {
-                String sem = tc.getSemester().trim();
-                if (sem.contains("2")) return "2";
-                if (sem.contains("1")) return "1";
-            }
+        if (c.getSemester() != null && !c.getSemester().isBlank()) {
+            return c.getSemester().trim();
         }
 
         String name = c.getEmriCourse() != null ? c.getEmriCourse().toLowerCase() : "";
@@ -448,8 +442,6 @@ public class AdminScheduleService {
                             .course(course)
                             .professor(prof)
                             .roleType(req.getRoleType() != null ? req.getRoleType() : "LEKSION")
-                            .semester(req.getSemester() != null ? req.getSemester() : "1")
-                            .durationWeeks(15)
                             .build();
                     tc = teachingCourseRepository.save(tc);
                 }
@@ -467,8 +459,6 @@ public class AdminScheduleService {
                         .course(course)
                         .professor(fallbackProf)
                         .roleType(req.getRoleType() != null ? req.getRoleType() : "LEKSION")
-                        .semester("1")
-                        .durationWeeks(15)
                         .build();
                 tc = teachingCourseRepository.save(tc);
             }
@@ -508,13 +498,7 @@ public class AdminScheduleService {
         schedule.setStartTime(sTime);
         schedule.setEndTime(eTime);
         schedule.setRoom(room);
-        String semesterToSave = (req.getSemester() != null && !req.getSemester().isBlank()) ? req.getSemester().trim() : "2";
         schedule.setAcademicYear(req.getAcademicYear() != null && !req.getAcademicYear().isBlank() ? req.getAcademicYear().trim() : "2025-2026");
-
-        if (tc != null) {
-            tc.setSemester(semesterToSave);
-            teachingCourseRepository.save(tc);
-        }
 
         CourseSchedule saved = courseScheduleRepository.save(schedule);
         return mapToDto(saved);
@@ -567,6 +551,9 @@ public class AdminScheduleService {
         String sTime = cs.getStartTime() != null ? cs.getStartTime() : "";
         String eTime = cs.getEndTime() != null ? cs.getEndTime() : "";
 
+        String semesterVal = (cs.getTeachingCourse() != null && cs.getTeachingCourse().getCourse() != null && cs.getTeachingCourse().getCourse().getSemester() != null)
+                ? cs.getTeachingCourse().getCourse().getSemester() : "";
+
         return ScheduleResponseDto.builder()
                 .scheduleId(cs.getScheduleId())
                 .courseId(courseId)
@@ -583,7 +570,7 @@ public class AdminScheduleService {
                 .endTime(eTime)
                 .roomId(roomId)
                 .roomName(roomName)
-                .semester(cs.getTeachingCourse() != null && cs.getTeachingCourse().getSemester() != null ? cs.getTeachingCourse().getSemester() : "")
+                .semester(semesterVal)
                 .academicYear(cs.getAcademicYear())
                 .build();
     }

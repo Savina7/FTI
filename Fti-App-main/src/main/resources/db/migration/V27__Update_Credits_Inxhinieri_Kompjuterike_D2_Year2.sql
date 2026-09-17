@@ -1,0 +1,122 @@
+-- Përditësimi i krediteve të detajuara për lëndët e Vitit 2 (Inxhinieri Kompjuterike - Diplomë e Dyfishtë)
+
+-- 1. Gjuhë e huaj 3 [Totali: 3]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 3,
+    KREDITE_LEKSION = 1.5,
+    KREDITE_SEMINAR = 0.0,
+    KREDITE_LABORATOR = 1.5,
+    KREDITE_DETYRE_KURSI = 0.0,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%gjuhe e huaj 3%' OR LOWER(EMRI_COURSE) LIKE '%gjuhë e huaj 3%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 2. Bazat e të dhënave [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%baza%te dhenave%' OR LOWER(EMRI_COURSE) LIKE '%baza%të dhënave%' OR LOWER(EMRI_COURSE) LIKE '%bazat e te dhenave%' OR LOWER(EMRI_COURSE) LIKE '%bazat e të dhënave%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 3. Programimi i orientuar nga objekti [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%orientuar nga objekti%' OR LOWER(EMRI_COURSE) LIKE '%poo%' OR LOWER(EMRI_COURSE) LIKE '%oop%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 4. Sinjale dhe Sisteme [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%sinjale dhe sisteme%' OR LOWER(EMRI_COURSE) LIKE '%sinjale e sisteme%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 5. Ekonomi dhe Menaxhim [Totali: 4]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 4,
+    KREDITE_LEKSION = 3.0,
+    KREDITE_SEMINAR = 1.0,
+    KREDITE_LABORATOR = 0.0,
+    KREDITE_DETYRE_KURSI = 0.0,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%ekonomi%menaxhim%' OR LOWER(EMRI_COURSE) LIKE '%ekonomi dhe menaxhim%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 6. Elementet dhe teknologjitë elektronike [Totali: 5]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 5,
+    KREDITE_LEKSION = 3.0,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.0,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%elementet dhe teknologjite%' OR LOWER(EMRI_COURSE) LIKE '%elementet dhe teknologjitë%' OR LOWER(EMRI_COURSE) LIKE '%teknologjite elektronike%' OR LOWER(EMRI_COURSE) LIKE '%teknologjitë elektronike%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 7. Arkitekturë e kompjuterave [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 2.0,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.0,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%arkitekture%kompjuter%' OR LOWER(EMRI_COURSE) LIKE '%arkitekturë%kompjuter%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 8. Algoritmikë dhe strukturë të dhënash [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%algoritmik%' OR LOWER(EMRI_COURSE) LIKE '%strukture te dhenash%' OR LOWER(EMRI_COURSE) LIKE '%strukturë të dhënash%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 9. Analizë numerike [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 2.0,
+    KREDITE_LABORATOR = 0.0,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%analize numerike%' OR LOWER(EMRI_COURSE) LIKE '%analizë numerike%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 10. Hyrje në Automatizim [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%automatizim%' OR LOWER(EMRI_COURSE) LIKE '%hyrje ne automatizim%' OR LOWER(EMRI_COURSE) LIKE '%hyrje në automatizim%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);
+
+-- 11. Probabiliteti dhe statistika [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.0,
+    KREDITE_SEMINAR = 2.5,
+    KREDITE_LABORATOR = 0.0,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%probabilitet%' OR LOWER(EMRI_COURSE) LIKE '%statistike%' OR LOWER(EMRI_COURSE) LIKE '%statistikë%')
+  AND (STUDY_YEAR = 2 OR STUDY_YEAR IS NULL);

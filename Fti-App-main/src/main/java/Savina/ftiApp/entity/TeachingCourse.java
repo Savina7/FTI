@@ -34,11 +34,8 @@ public class TeachingCourse {
     @Column(name = "ROLE_TYPE", length = 20)
     private String roleType;
 
-    @Column(name = "SEMESTER", length = 10)
-    private String semester;
-
-    @Column(name = "DURATION_WEEKS")
-    private Integer durationWeeks;
+    @Column(name = "WEEKLY_HOURS")
+    private Integer weeklyHours;
 
     @Column(name = "TOTAL_HOURS")
     private Integer totalHours;

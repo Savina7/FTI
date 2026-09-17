@@ -1,0 +1,89 @@
+-- Përditësimi i krediteve të detajuara për lëndët e Vitit 3 (Inxhinieri Kompjuterike)
+
+-- 1. Programim Web [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%programim%web%' OR LOWER(EMRI_COURSE) LIKE '%web%programim%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 2. Rrjetat e Kompjuterave [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%rrjeta%kompjuter%' OR LOWER(EMRI_COURSE) LIKE '%rrjetat e kompjuterave%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 3. Teknikat e përpunimit të të dhënave në Python [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%python%' OR LOWER(EMRI_COURSE) LIKE '%teknikat e perpunimit%' OR LOWER(EMRI_COURSE) LIKE '%teknikat e përpunimit%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 4. Inxhinieri Softi [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%inxhinieri soft%' OR LOWER(EMRI_COURSE) LIKE '%inxhinieri softueri%' OR LOWER(EMRI_COURSE) LIKE '%inxhinieri softi%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 5. Sistemet Operative [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%sistemet operative%' OR LOWER(LOWER(EMRI_COURSE)) LIKE '%sistem operativ%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 6. Shkenca kompjuterike [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%shkenca kompjuterike%' OR LOWER(EMRI_COURSE) LIKE '%shkence kompjuterike%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 7. Hyrje në Machine Learning [Totali: 3]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 3,
+    KREDITE_LEKSION = 2.0,
+    KREDITE_SEMINAR = 1.0,
+    KREDITE_LABORATOR = 0.0,
+    KREDITE_DETYRE_KURSI = 0.0,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%machine learning%' OR LOWER(EMRI_COURSE) LIKE '%hyrje ne machine learning%' OR LOWER(EMRI_COURSE) LIKE '%hyrje në machine learning%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);
+
+-- 8. Qarku i integruar dhe mikroprocesori [Totali: 6]
+UPDATE FTIAPP.COURSES 
+SET KREDITE = 6,
+    KREDITE_LEKSION = 3.5,
+    KREDITE_SEMINAR = 1.5,
+    KREDITE_LABORATOR = 0.5,
+    KREDITE_DETYRE_KURSI = 0.5,
+    KREDITE_PRAKTIKE = 0.0
+WHERE (LOWER(EMRI_COURSE) LIKE '%qarku i integruar%' OR LOWER(EMRI_COURSE) LIKE '%mikroprocesor%' OR LOWER(EMRI_COURSE) LIKE '%mikroprocesori%')
+  AND (STUDY_YEAR = 3 OR STUDY_YEAR IS NULL);

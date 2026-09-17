@@ -227,7 +227,7 @@ public class StudentService {
             if (a.getTeachingCourse() != null && a.getTeachingCourse().getCourse() != null) {
                 Integer courseId = a.getTeachingCourse().getCourse().getCourseId();
                 Integer tHours = a.getTeachingCourse().getTotalHours();
-                Integer duration = a.getTeachingCourse().getDurationWeeks();
+                Integer duration = a.getTeachingCourse().getCourse().getDurationWeeks();
                 int totalH = (tHours != null && tHours > 0) ? tHours : ((duration != null && duration > 0) ? duration : 15);
                 String roleType = a.getTeachingCourse().getRoleType() != null ? a.getTeachingCourse().getRoleType().toUpperCase() : "";
 

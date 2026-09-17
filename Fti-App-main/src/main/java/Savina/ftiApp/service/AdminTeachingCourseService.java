@@ -78,12 +78,28 @@ public class AdminTeachingCourseService {
         Course course = courseRepository.findById(req.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Lenda nuk u gjet me ID: " + req.getCourseId()));
 
-        String semester = req.getSemester() != null ? req.getSemester() : "1";
-        Integer duration = req.getDurationWeeks() != null ? req.getDurationWeeks() : 18;
-        Integer defaultHours = req.getTotalHours() != null ? req.getTotalHours() : 30;
-        Integer lectureHours = req.getLectureHours() != null ? req.getLectureHours() : defaultHours;
-        Integer seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : defaultHours;
-        Integer labHours = req.getLabHours() != null ? req.getLabHours() : (req.getTotalHours() != null ? req.getTotalHours() : 15);
+        if (req.getSemester() != null && !req.getSemester().isBlank()) {
+            course.setSemester(req.getSemester());
+        }
+        if (req.getDurationWeeks() != null) {
+            course.setDurationWeeks(req.getDurationWeeks());
+        }
+        courseRepository.save(course);
+
+        boolean isMaster = (course.getProgram() != null && course.getProgram().getNivel() != null && course.getProgram().getNivel().toLowerCase().contains("master"));
+        int durationWeeks = course.getDurationWeeks() != null ? course.getDurationWeeks() : (isMaster ? 12 : 14);
+
+        Integer weeklyLecture = req.getWeeklyLectureHours() != null ? req.getWeeklyLectureHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2);
+        Integer weeklySeminar = req.getWeeklySeminarHours() != null ? req.getWeeklySeminarHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2);
+        Integer weeklyLab = req.getWeeklyLabHours() != null ? req.getWeeklyLabHours() : 1;
+        Integer weeklyCourseWork = req.getWeeklyCourseWorkHours() != null ? req.getWeeklyCourseWorkHours() : 1;
+        Integer weeklyPractice = req.getWeeklyPracticeHours() != null ? req.getWeeklyPracticeHours() : 2;
+
+        Integer lectureHours = req.getLectureHours() != null ? req.getLectureHours() : (weeklyLecture * durationWeeks);
+        Integer seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : (weeklySeminar * durationWeeks);
+        Integer labHours = req.getLabHours() != null ? req.getLabHours() : (weeklyLab * durationWeeks);
+        Integer courseWorkHours = req.getCourseWorkHours() != null ? req.getCourseWorkHours() : (weeklyCourseWork * durationWeeks);
+        Integer practiceHours = req.getPracticeHours() != null ? req.getPracticeHours() : (weeklyPractice * durationWeeks);
 
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
         List<TeachingCourse> existingLeksion = existing.stream()
@@ -93,7 +109,13 @@ public class AdminTeachingCourseService {
                 .filter(tc -> "SEMINAR".equalsIgnoreCase(tc.getRoleType()))
                 .collect(Collectors.toList());
         List<TeachingCourse> existingLab = existing.stream()
-                .filter(tc -> "LABORATOR".equalsIgnoreCase(tc.getRoleType()))
+                .filter(tc -> "LABORATOR".equalsIgnoreCase(tc.getRoleType()) || "LAB".equalsIgnoreCase(tc.getRoleType()))
+                .collect(Collectors.toList());
+        List<TeachingCourse> existingCourseWork = existing.stream()
+                .filter(tc -> "DETYRE_KURSI".equalsIgnoreCase(tc.getRoleType()) || "DETYRE".equalsIgnoreCase(tc.getRoleType()) || "DETYRA".equalsIgnoreCase(tc.getRoleType()))
+                .collect(Collectors.toList());
+        List<TeachingCourse> existingPractice = existing.stream()
+                .filter(tc -> "PRAKTIKE".equalsIgnoreCase(tc.getRoleType()) || "PRAKTIK".equalsIgnoreCase(tc.getRoleType()))
                 .collect(Collectors.toList());
 
         if (req.getLectureProfessorId() != null) {
@@ -113,8 +135,7 @@ public class AdminTeachingCourseService {
                 if (!existingLeksion.isEmpty()) {
                     TeachingCourse tc = existingLeksion.remove(0);
                     tc.setProfessor(prof);
-                    tc.setSemester(semester);
-                    tc.setDurationWeeks(duration);
+                    tc.setWeeklyHours(weeklyLecture);
                     tc.setTotalHours(lectureHours);
                     tc.setClasses(lectureClasses);
                     teachingCourseRepository.save(tc);
@@ -123,8 +144,7 @@ public class AdminTeachingCourseService {
                             .course(course)
                             .professor(prof)
                             .roleType("LEKSION")
-                            .semester(semester)
-                            .durationWeeks(duration)
+                            .weeklyHours(weeklyLecture)
                             .totalHours(lectureHours)
                             .classes(lectureClasses)
                             .build();
@@ -143,8 +163,7 @@ public class AdminTeachingCourseService {
                         if (!existingSeminar.isEmpty()) {
                             TeachingCourse tc = existingSeminar.remove(0);
                             tc.setProfessor(prof);
-                            tc.setSemester(semester);
-                            tc.setDurationWeeks(duration);
+                            tc.setWeeklyHours(weeklySeminar);
                             tc.setTotalHours(seminarHours);
                             tc.setClasses(semClasses);
                             teachingCourseRepository.save(tc);
@@ -153,8 +172,7 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("SEMINAR")
-                                    .semester(semester)
-                                    .durationWeeks(duration)
+                                    .weeklyHours(weeklySeminar)
                                     .totalHours(seminarHours)
                                     .classes(semClasses)
                                     .build();
@@ -175,8 +193,7 @@ public class AdminTeachingCourseService {
                         if (!existingLab.isEmpty()) {
                             TeachingCourse tc = existingLab.remove(0);
                             tc.setProfessor(prof);
-                            tc.setSemester(semester);
-                            tc.setDurationWeeks(duration);
+                            tc.setWeeklyHours(weeklyLab);
                             tc.setTotalHours(labHours);
                             tc.setClasses(labClasses);
                             teachingCourseRepository.save(tc);
@@ -185,10 +202,69 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("LABORATOR")
-                                    .semester(semester)
-                                    .durationWeeks(duration)
+                                    .weeklyHours(weeklyLab)
                                     .totalHours(labHours)
                                     .classes(labClasses)
+                                    .build();
+                            teachingCourseRepository.save(tc);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Boolean.TRUE.equals(req.getHasCourseWork()) && req.getCourseWorks() != null) {
+            for (TeachingAllocationRequest.CourseWorkAssignmentReq cw : req.getCourseWorks()) {
+                if (cw.getProfessorId() != null) {
+                    Professor prof = findOrCreateProfessor(cw.getProfessorId());
+                    if (prof != null) {
+                        Set<Classes> cwClasses = resolveClassesForGroup(course, cw.getClassGroup(), cw.getClassIds());
+
+                        if (!existingCourseWork.isEmpty()) {
+                            TeachingCourse tc = existingCourseWork.remove(0);
+                            tc.setProfessor(prof);
+                            tc.setWeeklyHours(weeklyCourseWork);
+                            tc.setTotalHours(courseWorkHours);
+                            tc.setClasses(cwClasses);
+                            teachingCourseRepository.save(tc);
+                        } else {
+                            TeachingCourse tc = TeachingCourse.builder()
+                                    .course(course)
+                                    .professor(prof)
+                                    .roleType("DETYRE_KURSI")
+                                    .weeklyHours(weeklyCourseWork)
+                                    .totalHours(courseWorkHours)
+                                    .classes(cwClasses)
+                                    .build();
+                            teachingCourseRepository.save(tc);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (Boolean.TRUE.equals(req.getHasPractice()) && req.getPractices() != null) {
+            for (TeachingAllocationRequest.PracticeAssignmentReq pr : req.getPractices()) {
+                if (pr.getProfessorId() != null) {
+                    Professor prof = findOrCreateProfessor(pr.getProfessorId());
+                    if (prof != null) {
+                        Set<Classes> prClasses = resolveClassesForGroup(course, pr.getClassGroup(), pr.getClassIds());
+
+                        if (!existingPractice.isEmpty()) {
+                            TeachingCourse tc = existingPractice.remove(0);
+                            tc.setProfessor(prof);
+                            tc.setWeeklyHours(weeklyPractice);
+                            tc.setTotalHours(practiceHours);
+                            tc.setClasses(prClasses);
+                            teachingCourseRepository.save(tc);
+                        } else {
+                            TeachingCourse tc = TeachingCourse.builder()
+                                    .course(course)
+                                    .professor(prof)
+                                    .roleType("PRAKTIKE")
+                                    .weeklyHours(weeklyPractice)
+                                    .totalHours(practiceHours)
+                                    .classes(prClasses)
                                     .build();
                             teachingCourseRepository.save(tc);
                         }
@@ -201,6 +277,8 @@ public class AdminTeachingCourseService {
         toDelete.addAll(existingLeksion);
         toDelete.addAll(existingSeminar);
         toDelete.addAll(existingLab);
+        toDelete.addAll(existingCourseWork);
+        toDelete.addAll(existingPractice);
         for (TeachingCourse tc : toDelete) {
             tc.getClasses().clear();
             teachingCourseRepository.save(tc);
@@ -334,9 +412,13 @@ public class AdminTeachingCourseService {
                     .anyMatch(sp -> professorId == null || professorId.equals(sp.getProfessorId()));
             boolean hasLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream()
                     .anyMatch(lp -> professorId == null || professorId.equals(lp.getProfessorId()));
+            boolean hasCourseWork = alloc.getCourseWorkProfessors() != null && alloc.getCourseWorkProfessors().stream()
+                    .anyMatch(cp -> professorId == null || professorId.equals(cp.getProfessorId()));
+            boolean hasPractice = alloc.getPracticeProfessors() != null && alloc.getPracticeProfessors().stream()
+                    .anyMatch(pp -> professorId == null || professorId.equals(pp.getProfessorId()));
 
             if (professorId != null) {
-                if (hasLecture || hasSeminar || hasLab) {
+                if (hasLecture || hasSeminar || hasLab || hasCourseWork || hasPractice) {
                     Map<String, Object> map = new HashMap<>();
                     map.put("professorId", professorId);
                     map.put("courseId", alloc.getCourseId());
@@ -346,6 +428,8 @@ public class AdminTeachingCourseService {
                     map.put("oreLeksion", hasLecture ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
                     map.put("oreSeminar", hasSeminar ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
                     map.put("oreLaborator", hasLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
+                    map.put("oreDetyreKursi", hasCourseWork ? (alloc.getCourseWorkHours() != null ? alloc.getCourseWorkHours() : 15) : 0);
+                    map.put("orePraktike", hasPractice ? (alloc.getPracticeHours() != null ? alloc.getPracticeHours() : 30) : 0);
                     list.add(map);
                 }
             } else {
@@ -363,10 +447,22 @@ public class AdminTeachingCourseService {
                         if (lp.getProfessorId() != null) pIds.add(lp.getProfessorId());
                     });
                 }
+                if (alloc.getCourseWorkProfessors() != null) {
+                    alloc.getCourseWorkProfessors().forEach(cp -> {
+                        if (cp.getProfessorId() != null) pIds.add(cp.getProfessorId());
+                    });
+                }
+                if (alloc.getPracticeProfessors() != null) {
+                    alloc.getPracticeProfessors().forEach(pp -> {
+                        if (pp.getProfessorId() != null) pIds.add(pp.getProfessorId());
+                    });
+                }
                 for (Integer pId : pIds) {
                     boolean pLec = alloc.getLectureProfessor() != null && pId.equals(alloc.getLectureProfessor().getProfessorId());
                     boolean pSem = alloc.getSeminarProfessors() != null && alloc.getSeminarProfessors().stream().anyMatch(sp -> pId.equals(sp.getProfessorId()));
                     boolean pLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream().anyMatch(lp -> pId.equals(lp.getProfessorId()));
+                    boolean pCw = alloc.getCourseWorkProfessors() != null && alloc.getCourseWorkProfessors().stream().anyMatch(cp -> pId.equals(cp.getProfessorId()));
+                    boolean pPr = alloc.getPracticeProfessors() != null && alloc.getPracticeProfessors().stream().anyMatch(pp -> pId.equals(pp.getProfessorId()));
 
                     Map<String, Object> map = new HashMap<>();
                     map.put("professorId", pId);
@@ -377,6 +473,8 @@ public class AdminTeachingCourseService {
                     map.put("oreLeksion", pLec ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
                     map.put("oreSeminar", pSem ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
                     map.put("oreLaborator", pLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
+                    map.put("oreDetyreKursi", pCw ? (alloc.getCourseWorkHours() != null ? alloc.getCourseWorkHours() : 15) : 0);
+                    map.put("orePraktike", pPr ? (alloc.getPracticeHours() != null ? alloc.getPracticeHours() : 30) : 0);
                     list.add(map);
                 }
             }

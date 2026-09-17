@@ -19,8 +19,18 @@ public class CourseMapper {
         dto.setCourseId(c.getCourseId());
         dto.setEmriCourse(c.getEmriCourse());
         dto.setKredite(c.getKredite());
+        dto.setKrediteLeksion(c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : 0.0);
+        dto.setKrediteSeminar(c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : 0.0);
+        dto.setKrediteLaborator(c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : 0.0);
+        dto.setKrediteDetyreKursi(c.getKrediteDetyreKursi() != null ? c.getKrediteDetyreKursi().doubleValue() : 0.0);
+        dto.setKreditePraktike(c.getKreditePraktike() != null ? c.getKreditePraktike().doubleValue() : 0.0);
         dto.setStatus(c.getStatus() != null ? c.getStatus() : "Active");
         dto.setStudyYear(c.getStudyYear());
+        dto.setSemester(c.getSemester() != null ? c.getSemester() : "1");
+
+        boolean isMaster = (c.getProgram() != null && c.getProgram().getNivel() != null && c.getProgram().getNivel().toLowerCase().contains("master"));
+        int defaultWeeks = isMaster ? 12 : 14;
+        dto.setDurationWeeks(c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks);
 
         if (c.getProgram() != null) {
             dto.setProgramId(c.getProgram().getProgramId());
@@ -40,12 +50,22 @@ public class CourseMapper {
     public Course toEntity(CourseRequest req, Program program) {
         if (req == null) return null;
 
+        boolean isMaster = (program != null && program.getNivel() != null && program.getNivel().toLowerCase().contains("master"));
+        int defaultWeeks = isMaster ? 12 : 14;
+
         Course course = new Course();
         course.setEmriCourse(req.getEmriCourse());
         course.setProgram(program);
         course.setKredite(req.getKredite());
+        course.setKrediteLeksion(req.getKrediteLeksion() != null ? java.math.BigDecimal.valueOf(req.getKrediteLeksion()) : java.math.BigDecimal.ZERO);
+        course.setKrediteSeminar(req.getKrediteSeminar() != null ? java.math.BigDecimal.valueOf(req.getKrediteSeminar()) : java.math.BigDecimal.ZERO);
+        course.setKrediteLaborator(req.getKrediteLaborator() != null ? java.math.BigDecimal.valueOf(req.getKrediteLaborator()) : java.math.BigDecimal.ZERO);
+        course.setKrediteDetyreKursi(req.getKrediteDetyreKursi() != null ? java.math.BigDecimal.valueOf(req.getKrediteDetyreKursi()) : java.math.BigDecimal.ZERO);
+        course.setKreditePraktike(req.getKreditePraktike() != null ? java.math.BigDecimal.valueOf(req.getKreditePraktike()) : java.math.BigDecimal.ZERO);
         course.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
         course.setStudyYear(req.getStudyYear());
+        course.setSemester(req.getSemester() != null ? req.getSemester() : "1");
+        course.setDurationWeeks(req.getDurationWeeks() != null ? req.getDurationWeeks() : defaultWeeks);
         return course;
     }
 

@@ -1,0 +1,141 @@
+-- Përditësimi i krediteve të detajuara për lëndët e Vitit 1 (Inxhinieri Informatike - Master Shkencor)
+
+-- 1. Procese stokastike dhe Statistikë [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 2.0,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 137 OR (LOWER(c.EMRI_COURSE) LIKE '%procese%stokastike%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 2. Programim i avancuar [Totali: 8]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 8,
+    c.KREDITE_LEKSION = 4.0,
+    c.KREDITE_SEMINAR = 2.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 138 OR (LOWER(c.EMRI_COURSE) LIKE '%programim%avancuar%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 3. Inteligjenca Artificiale [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 139 OR (LOWER(c.EMRI_COURSE) LIKE '%inteligjenc%artificiale%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 4. Menaxhimi i projekteve [Totali: 4]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 4,
+    c.KREDITE_LEKSION = 2.0,
+    c.KREDITE_SEMINAR = 1.5,
+    c.KREDITE_LABORATOR = 0.0,
+    c.KREDITE_DETYRE_KURSI = 0.5,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 140 OR (LOWER(c.EMRI_COURSE) LIKE '%menaxhim%projekt%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 5. Cloud Computing [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 141 OR (LOWER(c.EMRI_COURSE) LIKE '%cloud%computing%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 6. Inxhinieri e software-it 2 [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 142 OR (LOWER(c.EMRI_COURSE) LIKE '%software%2%' OR LOWER(c.EMRI_COURSE) LIKE '%softuer%2%' OR LOWER(c.EMRI_COURSE) LIKE '%softi%2%') AND c.STUDY_YEAR = 1)
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 7. Kërkime Operacionale [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 143 OR (LOWER(c.EMRI_COURSE) LIKE '%k%rkime%operacionale%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 8. Machine Learning (Lëndë me zgjedhje 1) [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 144 OR (LOWER(c.EMRI_COURSE) LIKE '%machine%learning%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 9. Sisteme operative 2 [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 145 OR (LOWER(c.EMRI_COURSE) LIKE '%sisteme%operative%2%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));
+
+-- 10. Inxhinieria e Sistemeve Komplekse (Lëndë me zgjedhje 2) [Totali: 6]
+UPDATE FTIAPP.COURSES c
+SET c.KREDITE = 6,
+    c.KREDITE_LEKSION = 3.0,
+    c.KREDITE_SEMINAR = 1.0,
+    c.KREDITE_LABORATOR = 1.0,
+    c.KREDITE_DETYRE_KURSI = 1.0,
+    c.KREDITE_PRAKTIKE = 0.0
+WHERE (c.COURSE_ID = 146 OR (LOWER(c.EMRI_COURSE) LIKE '%sistemeve%komplekse%' AND c.STUDY_YEAR = 1))
+  AND (c.PROGRAM_ID IN (
+      SELECT p.PROGRAM_ID FROM FTIAPP.PROGRAMS p 
+      WHERE LOWER(p.SPECIALIZIMI) LIKE '%informatik%' AND LOWER(p.NIVEL) LIKE '%master%' AND p.PROGRAM_ID = 6
+  ));

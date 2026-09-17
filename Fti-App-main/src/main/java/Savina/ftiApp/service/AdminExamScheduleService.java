@@ -64,17 +64,9 @@ public class AdminExamScheduleService {
     }
 
     public String determineCourseSemester(Course c) {
-        List<TeachingCourse> tcs = teachingCourseRepo.findByCourseCourseId(c.getCourseId());
-        for (TeachingCourse tc : tcs) {
-            if (tc.getSemester() != null && !tc.getSemester().isBlank()) {
-                String sem = tc.getSemester().trim();
-                if (sem.contains("2")) {
-                    return "2";
-                }
-                if (sem.contains("1")) {
-                    return "1";
-                }
-            }
+        if (c == null) return "1";
+        if (c.getSemester() != null && !c.getSemester().isBlank()) {
+            return c.getSemester().trim();
         }
 
         String name = c.getEmriCourse() != null ? c.getEmriCourse().toLowerCase() : "";

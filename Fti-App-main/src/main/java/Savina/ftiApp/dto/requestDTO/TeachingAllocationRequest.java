@@ -19,6 +19,15 @@ public class TeachingAllocationRequest {
     private Integer lectureHours;
     private Integer seminarHours;
     private Integer labHours;
+    private Integer courseWorkHours;
+    private Integer practiceHours;
+
+    private Integer weeklyHours;
+    private Integer weeklyLectureHours;
+    private Integer weeklySeminarHours;
+    private Integer weeklyLabHours;
+    private Integer weeklyCourseWorkHours;
+    private Integer weeklyPracticeHours;
 
     private Integer lectureProfessorId;
     private List<Integer> lectureClassIds;
@@ -26,6 +35,10 @@ public class TeachingAllocationRequest {
     private List<SeminarAssignmentReq> seminars;
     private Boolean hasLab;
     private List<LabAssignmentReq> labs;
+    private Boolean hasCourseWork;
+    private List<CourseWorkAssignmentReq> courseWorks;
+    private Boolean hasPractice;
+    private List<PracticeAssignmentReq> practices;
 
     @Data
     @Builder
@@ -42,6 +55,26 @@ public class TeachingAllocationRequest {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class LabAssignmentReq {
+        private Integer professorId;
+        private String classGroup;
+        private List<Integer> classIds;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseWorkAssignmentReq {
+        private Integer professorId;
+        private String classGroup;
+        private List<Integer> classIds;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PracticeAssignmentReq {
         private Integer professorId;
         private String classGroup;
         private List<Integer> classIds;

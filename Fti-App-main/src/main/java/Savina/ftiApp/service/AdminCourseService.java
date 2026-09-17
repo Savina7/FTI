@@ -61,6 +61,11 @@ public class AdminCourseService {
         course.setEmriCourse(req.getEmriCourse());
         course.setProgram(program);
         course.setKredite(req.getKredite());
+        course.setKrediteLeksion(req.getKrediteLeksion() != null ? java.math.BigDecimal.valueOf(req.getKrediteLeksion()) : java.math.BigDecimal.ZERO);
+        course.setKrediteSeminar(req.getKrediteSeminar() != null ? java.math.BigDecimal.valueOf(req.getKrediteSeminar()) : java.math.BigDecimal.ZERO);
+        course.setKrediteLaborator(req.getKrediteLaborator() != null ? java.math.BigDecimal.valueOf(req.getKrediteLaborator()) : java.math.BigDecimal.ZERO);
+        course.setKrediteDetyreKursi(req.getKrediteDetyreKursi() != null ? java.math.BigDecimal.valueOf(req.getKrediteDetyreKursi()) : java.math.BigDecimal.ZERO);
+        course.setKreditePraktike(req.getKreditePraktike() != null ? java.math.BigDecimal.valueOf(req.getKreditePraktike()) : java.math.BigDecimal.ZERO);
         course.setStatus(req.getStatus() != null ? req.getStatus() : "Active");
         course.setStudyYear(req.getStudyYear());
 

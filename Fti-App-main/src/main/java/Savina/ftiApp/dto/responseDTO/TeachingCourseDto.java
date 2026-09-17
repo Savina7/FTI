@@ -23,5 +23,7 @@ public class TeachingCourseDto {
     private String professorDepartment;
     private String semester;
     private Integer durationWeeks;
+    private Integer weeklyHours;
+    private Integer totalHours;
     private List<String> classNames;
 }

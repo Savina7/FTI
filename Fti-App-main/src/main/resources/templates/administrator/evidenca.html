@@ -175,7 +175,7 @@
                             class="btn btn-amber-soft btn-sm w-100 shadow-sm py-1"
                             style="font-size: 0.76rem; height: 28px; border-radius: 5px; font-weight: 600;"
                             onclick="shkarkoCurrentProf()">
-                            Shkarko Evidencën
+                            Shkarko evidencën
                         </button>
                     </div>
                 </div>
@@ -516,6 +516,14 @@
                         byCourse[e.courseId].oreLaborator = (byCourse[e.courseId].oreLaborator || 0) + e.oreLaborator;
                         byCourse[e.courseId].grupiLaborator = mergeGroups(byCourse[e.courseId].grupiLaborator, e.grupiLaborator);
                     }
+                    if (e.oreDetyreKursi) {
+                        byCourse[e.courseId].oreDetyreKursi = (byCourse[e.courseId].oreDetyreKursi || 0) + e.oreDetyreKursi;
+                        byCourse[e.courseId].grupiDetyreKursi = mergeGroups(byCourse[e.courseId].grupiDetyreKursi, e.grupiDetyreKursi);
+                    }
+                    if (e.orePraktike) {
+                        byCourse[e.courseId].orePraktike = (byCourse[e.courseId].orePraktike || 0) + e.orePraktike;
+                        byCourse[e.courseId].grupiPraktike = mergeGroups(byCourse[e.courseId].grupiPraktike, e.grupiPraktike);
+                    }
                 }
             });
 
@@ -528,7 +536,9 @@
                     kredite: 6,
                     oreLeksion: 0,
                     oreSeminar: 0,
-                    oreLaborator: 0
+                    oreLaborator: 0,
+                    oreDetyreKursi: 0,
+                    orePraktike: 0
                 }];
             }
 
@@ -593,17 +603,23 @@
                 const hasLeksion = (Number(c.oreLeksion) || 0) > 0;
                 const hasSeminar = (Number(c.oreSeminar) || 0) > 0;
                 const hasLab = (Number(c.oreLaborator) || 0) > 0;
+                const hasDk = (Number(c.oreDetyreKursi) || 0) > 0;
+                const hasPr = (Number(c.orePraktike) || 0) > 0;
 
                 let mbulonParts = [];
                 if (hasLeksion) mbulonParts.push(`${Math.max(1, Math.round(c.oreLeksion / 15))} Leksion`);
                 if (hasSeminar) mbulonParts.push(`${Math.max(1, Math.round(c.oreSeminar / 15))} Seminar`);
                 if (hasLab) mbulonParts.push(`${Math.max(1, Math.round(c.oreLaborator / 15))} Laborator`);
-                const mbulonStr = mbulonParts.length ? mbulonParts.join(' + ') : '2 Seminar + 2 Laborator';
+                if (hasDk) mbulonParts.push(`Detyrë Kursi`);
+                if (hasPr) mbulonParts.push(`Praktikë`);
+                const mbulonStr = mbulonParts.length ? mbulonParts.join(' + ') : 'Mësimdhënie';
 
-                const totalCourseOre = (Number(c.oreLeksion) || 0) + (Number(c.oreSeminar) || 0) + (Number(c.oreLaborator) || 0);
+                const totalCourseOre = (Number(c.oreLeksion) || 0) + (Number(c.oreSeminar) || 0) + (Number(c.oreLaborator) || 0) + (Number(c.oreDetyreKursi) || 0) + (Number(c.orePraktike) || 0);
 
                 const cleanSeminar = formatGroupName(c.grupiSeminar);
                 const cleanLab = formatGroupName(c.grupiLaborator);
+                const cleanDk = formatGroupName(c.grupiDetyreKursi);
+                const cleanPr = formatGroupName(c.grupiPraktike);
                 let primaryGroup = 'A';
                 if (hasSeminar && hasLab) {
                     primaryGroup = formatGroupName(c.grupiSeminar + ', ' + c.grupiLaborator);
@@ -611,6 +627,10 @@
                     primaryGroup = cleanSeminar;
                 } else if (hasLab) {
                     primaryGroup = cleanLab;
+                } else if (hasDk) {
+                    primaryGroup = cleanDk;
+                } else if (hasPr) {
+                    primaryGroup = cleanPr;
                 } else if (hasLeksion) {
                     primaryGroup = 'Të gjithë';
                 }

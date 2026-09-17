@@ -21,7 +21,17 @@ public class CourseRequest {
     @NotNull(message = "Kredite jane te detyrueshme")
     private Integer kredite;
 
+    private Double krediteLeksion;
+    private Double krediteSeminar;
+    private Double krediteLaborator;
+    private Double krediteDetyreKursi;
+    private Double kreditePraktike;
+
     private String status;
 
     private Integer studyYear;
+
+    private String semester;
+
+    private Integer durationWeeks;
 }
