@@ -15,19 +15,19 @@ public class TeachingAllocationRequest {
     private Integer courseId;
     private String semester;
     private Integer durationWeeks;
-    private Integer totalHours;
-    private Integer lectureHours;
-    private Integer seminarHours;
-    private Integer labHours;
-    private Integer courseWorkHours;
-    private Integer practiceHours;
+    private Double totalHours;
+    private Double lectureHours;
+    private Double seminarHours;
+    private Double labHours;
+    private Double courseWorkHours;
+    private Double practiceHours;
 
-    private Integer weeklyHours;
-    private Integer weeklyLectureHours;
-    private Integer weeklySeminarHours;
-    private Integer weeklyLabHours;
-    private Integer weeklyCourseWorkHours;
-    private Integer weeklyPracticeHours;
+    private Double weeklyHours;
+    private Double weeklyLectureHours;
+    private Double weeklySeminarHours;
+    private Double weeklyLabHours;
+    private Double weeklyCourseWorkHours;
+    private Double weeklyPracticeHours;
 
     private Integer lectureProfessorId;
     private List<Integer> lectureClassIds;

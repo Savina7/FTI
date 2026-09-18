@@ -35,10 +35,10 @@ public class TeachingCourse {
     private String roleType;
 
     @Column(name = "WEEKLY_HOURS")
-    private Integer weeklyHours;
+    private Double weeklyHours;
 
     @Column(name = "TOTAL_HOURS")
-    private Integer totalHours;
+    private Double totalHours;
 
     @Builder.Default
     @ToString.Exclude

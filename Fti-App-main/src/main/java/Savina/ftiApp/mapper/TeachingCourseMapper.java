@@ -49,20 +49,42 @@ public class TeachingCourseMapper {
         dto.setProgramNivel(progNivel);
         boolean isMaster = (c.getProgram() != null && c.getProgram().getNivel() != null && c.getProgram().getNivel().toLowerCase().contains("master"));
         int defaultWeeks = isMaster ? 12 : 14;
+        int durationWeeks = c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks;
         dto.setSemester(c.getSemester() != null ? c.getSemester() : "1");
-        dto.setDurationWeeks(c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks);
-        dto.setWeeklyHours(2);
-        dto.setWeeklyLectureHours(2);
-        dto.setWeeklySeminarHours(2);
-        dto.setWeeklyLabHours(1);
-        dto.setWeeklyCourseWorkHours(1);
-        dto.setWeeklyPracticeHours(2);
-        dto.setTotalHours(2 * defaultWeeks);
-        dto.setLectureHours(2 * defaultWeeks);
-        dto.setSeminarHours(2 * defaultWeeks);
-        dto.setLabHours(1 * defaultWeeks);
-        dto.setCourseWorkHours(1 * defaultWeeks);
-        dto.setPracticeHours(2 * defaultWeeks);
+        dto.setDurationWeeks(durationWeeks);
+
+        double kL = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);
+        double kS = c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : 1.5;
+        double kLb = c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : 1.0;
+        double kDk = c.getKrediteDetyreKursi() != null ? c.getKrediteDetyreKursi().doubleValue() : 0.5;
+        double kPr = c.getKreditePraktike() != null ? c.getKreditePraktike().doubleValue() : 0.0;
+
+        // Bachelor: 1 cr Leksion = 12h, Seminar = 14h, Lab = 20h, DK = 5h
+        // Master:   1 cr Leksion = 10h, Seminar = 12h, Lab = 20h, DK = 5h
+        double factorLec = isMaster ? 10.0 : 12.0;
+        double factorSem = isMaster ? 12.0 : 14.0;
+        double factorLab = 20.0;
+        double factorCw = 5.0;
+
+        double totalLec = (c.getKrediteLeksion() != null && c.getKrediteLeksion().doubleValue() == 0.0) ? 0.0 : kL * factorLec;
+        double totalSem = (c.getKrediteSeminar() != null && c.getKrediteSeminar().doubleValue() == 0.0) ? 0.0 : kS * factorSem;
+        double totalLab = (c.getKrediteLaborator() != null && c.getKrediteLaborator().doubleValue() == 0.0) ? 0.0 : kLb * factorLab;
+        double totalCw = (c.getKrediteDetyreKursi() != null && c.getKrediteDetyreKursi().doubleValue() == 0.0) ? 0.0 : kDk * factorCw;
+        double totalPr = (c.getKreditePraktike() != null && c.getKreditePraktike().doubleValue() == 0.0) ? 0.0 : kPr * 20.0;
+
+        dto.setWeeklyHours(2.0);
+        dto.setWeeklyLectureHours(2.0);
+        dto.setWeeklySeminarHours(2.0);
+        dto.setWeeklyLabHours(1.0);
+        dto.setWeeklyCourseWorkHours(1.0);
+        dto.setWeeklyPracticeHours(2.0);
+
+        dto.setTotalHours(totalLec);
+        dto.setLectureHours(totalLec);
+        dto.setSeminarHours(totalSem);
+        dto.setLabHours(totalLab);
+        dto.setCourseWorkHours(totalCw);
+        dto.setPracticeHours(totalPr);
         dto.setLectureProfessor(null);
         dto.setSeminarProfessors(List.of());
         dto.setLabProfessors(List.of());
@@ -101,17 +123,17 @@ public class TeachingCourseMapper {
         List<TeachingAllocationDto.ProfessorAssignment> labs = new ArrayList<>();
         List<TeachingAllocationDto.ProfessorAssignment> courseWorks = new ArrayList<>();
         List<TeachingAllocationDto.ProfessorAssignment> practices = new ArrayList<>();
-        Integer lectureHours = null;
-        Integer seminarHours = null;
-        Integer labHours = null;
-        Integer courseWorkHours = null;
-        Integer practiceHours = null;
+        Double lectureHours = null;
+        Double seminarHours = null;
+        Double labHours = null;
+        Double courseWorkHours = null;
+        Double practiceHours = null;
 
-        Integer weeklyLectureHours = null;
-        Integer weeklySeminarHours = null;
-        Integer weeklyLabHours = null;
-        Integer weeklyCourseWorkHours = null;
-        Integer weeklyPracticeHours = null;
+        Double weeklyLectureHours = null;
+        Double weeklySeminarHours = null;
+        Double weeklyLabHours = null;
+        Double weeklyCourseWorkHours = null;
+        Double weeklyPracticeHours = null;
 
         for (TeachingCourse tc : tcs) {
             String role = tc.getRoleType() != null ? tc.getRoleType().toUpperCase() : "LEKSION";
@@ -193,22 +215,40 @@ public class TeachingCourseMapper {
         dto.setProgramName(progName);
         boolean isMaster = (c.getProgram() != null && c.getProgram().getNivel() != null && c.getProgram().getNivel().toLowerCase().contains("master"));
         int defaultWeeks = isMaster ? 12 : 14;
+        int durationWeeks = c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks;
         dto.setSemester(c.getSemester() != null ? c.getSemester() : "1");
-        dto.setDurationWeeks(c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks);
+        dto.setDurationWeeks(durationWeeks);
         
-        dto.setWeeklyHours(first.getWeeklyHours() != null ? first.getWeeklyHours() : 2);
-        dto.setWeeklyLectureHours(weeklyLectureHours != null ? weeklyLectureHours : 2);
-        dto.setWeeklySeminarHours(weeklySeminarHours != null ? weeklySeminarHours : 2);
-        dto.setWeeklyLabHours(weeklyLabHours != null ? weeklyLabHours : 1);
-        dto.setWeeklyCourseWorkHours(weeklyCourseWorkHours != null ? weeklyCourseWorkHours : 1);
-        dto.setWeeklyPracticeHours(weeklyPracticeHours != null ? weeklyPracticeHours : 2);
+        double kL = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);
+        double kS = c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : 1.5;
+        double kLb = c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : 1.0;
+        double kDk = c.getKrediteDetyreKursi() != null ? c.getKrediteDetyreKursi().doubleValue() : 0.5;
+        double kPr = c.getKreditePraktike() != null ? c.getKreditePraktike().doubleValue() : 0.0;
 
-        dto.setTotalHours(first.getTotalHours() != null ? first.getTotalHours() : (dto.getWeeklyHours() * defaultWeeks));
-        dto.setLectureHours(lectureHours != null ? lectureHours : (dto.getWeeklyLectureHours() * defaultWeeks));
-        dto.setSeminarHours(seminarHours != null ? seminarHours : (dto.getWeeklySeminarHours() * defaultWeeks));
-        dto.setLabHours(labHours != null ? labHours : (dto.getWeeklyLabHours() * defaultWeeks));
-        dto.setCourseWorkHours(courseWorkHours != null ? courseWorkHours : (dto.getWeeklyCourseWorkHours() * defaultWeeks));
-        dto.setPracticeHours(practiceHours != null ? practiceHours : (dto.getWeeklyPracticeHours() * defaultWeeks));
+        double factorLec = isMaster ? 10.0 : 12.0;
+        double factorSem = isMaster ? 12.0 : 14.0;
+        double factorLab = 20.0;
+        double factorCw = 5.0;
+
+        double autoTotLec = (c.getKrediteLeksion() != null && c.getKrediteLeksion().doubleValue() == 0.0) ? 0.0 : kL * factorLec;
+        double autoTotSem = (c.getKrediteSeminar() != null && c.getKrediteSeminar().doubleValue() == 0.0) ? 0.0 : kS * factorSem;
+        double autoTotLab = (c.getKrediteLaborator() != null && c.getKrediteLaborator().doubleValue() == 0.0) ? 0.0 : kLb * factorLab;
+        double autoTotCw = (c.getKrediteDetyreKursi() != null && c.getKrediteDetyreKursi().doubleValue() == 0.0) ? 0.0 : kDk * factorCw;
+        double autoTotPr = (c.getKreditePraktike() != null && c.getKreditePraktike().doubleValue() == 0.0) ? 0.0 : kPr * 20.0;
+
+        dto.setWeeklyLectureHours(weeklyLectureHours != null ? weeklyLectureHours : 2.0);
+        dto.setWeeklySeminarHours(weeklySeminarHours != null ? weeklySeminarHours : 2.0);
+        dto.setWeeklyLabHours(weeklyLabHours != null ? weeklyLabHours : 1.0);
+        dto.setWeeklyCourseWorkHours(weeklyCourseWorkHours != null ? weeklyCourseWorkHours : 1.0);
+        dto.setWeeklyPracticeHours(weeklyPracticeHours != null ? weeklyPracticeHours : 2.0);
+        dto.setWeeklyHours(first.getWeeklyHours() != null ? first.getWeeklyHours() : dto.getWeeklyLectureHours());
+
+        dto.setLectureHours(lectureHours != null ? lectureHours : autoTotLec);
+        dto.setSeminarHours(seminarHours != null ? seminarHours : autoTotSem);
+        dto.setLabHours(labHours != null ? labHours : autoTotLab);
+        dto.setCourseWorkHours(courseWorkHours != null ? courseWorkHours : autoTotCw);
+        dto.setPracticeHours(practiceHours != null ? practiceHours : autoTotPr);
+        dto.setTotalHours(first.getTotalHours() != null ? first.getTotalHours() : dto.getLectureHours());
         dto.setLectureProfessor(lecture);
         dto.setSeminarProfessors(seminars);
         dto.setLabProfessors(labs);

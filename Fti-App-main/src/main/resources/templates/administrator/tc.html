@@ -450,7 +450,8 @@
                                                 <div class="row g-2 mb-2" id="rowHoursBreakdown">
                                                     <div id="colOreLeksion" class="col-6">
                                                         <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Orë javore leksion</label>
+                                                            style="font-size: 0.72rem;" id="lblOreLeksion">Orë javore
+                                                            leksion</label>
                                                         <input type="number"
                                                             class="form-control form-control-sm py-0 text-center"
                                                             style="height: 28px; font-size: 0.76rem;"
@@ -458,7 +459,8 @@
                                                     </div>
                                                     <div id="colOreSeminar" class="col-6">
                                                         <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Orë javore seminar</label>
+                                                            style="font-size: 0.72rem;" id="lblOreSeminar">Orë javore
+                                                            seminar</label>
                                                         <input type="number"
                                                             class="form-control form-control-sm py-0 text-center"
                                                             style="height: 28px; font-size: 0.76rem;"
@@ -466,7 +468,8 @@
                                                     </div>
                                                     <div id="colOreLab" class="col-6 d-none">
                                                         <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Orë javore laborator</label>
+                                                            style="font-size: 0.72rem;" id="lblOreLab">Orë javore
+                                                            laborator</label>
                                                         <input type="number"
                                                             class="form-control form-control-sm py-0 text-center"
                                                             style="height: 28px; font-size: 0.76rem;"
@@ -474,7 +477,8 @@
                                                     </div>
                                                     <div id="colOreCourseWork" class="col-6 d-none">
                                                         <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Orë javore detyrë kursi</label>
+                                                            style="font-size: 0.72rem;" id="lblOreCourseWork">Orë javore
+                                                            detyrë kursi</label>
                                                         <input type="number"
                                                             class="form-control form-control-sm py-0 text-center"
                                                             style="height: 28px; font-size: 0.76rem;"
@@ -482,7 +486,8 @@
                                                     </div>
                                                     <div id="colOrePractice" class="col-6 d-none">
                                                         <label class="form-label small fw-semibold text-dark mb-1"
-                                                            style="font-size: 0.72rem;">Orë javore praktikë</label>
+                                                            style="font-size: 0.72rem;" id="lblOrePractice">Orë javore
+                                                            praktikë</label>
                                                         <input type="number"
                                                             class="form-control form-control-sm py-0 text-center"
                                                             style="height: 28px; font-size: 0.76rem;"
@@ -1164,26 +1169,50 @@
 
                     $('#selectLenda').val(course.courseId);
                     const semVal = course.semester || '1';
-                    const defaultWeeks = (course.programNivel && course.programNivel.toLowerCase().includes('master')) ? 12 : 14;
+                    const isMaster = (course.programNivel && course.programNivel.toLowerCase().includes('master')) ||
+                        ($('#selectNiveli').val() && $('#selectNiveli').val().toLowerCase().includes('master')) ||
+                        ($('#selectProgrami option:selected').text().toLowerCase().includes('master'));
+                    const defaultWeeks = isMaster ? 12 : 14;
                     const durVal = course.durationWeeks || defaultWeeks;
                     $('#step2SemestriDisplay').text(`Semestri ${semVal}`);
                     $('#step2DurationDisplay').text(`${durVal} Jave`);
+
+                    const kL = (course.krediteLeksion != null) ? Number(course.krediteLeksion) : (Number(course.kredite || 6) >= 6 ? 3 : 2);
+                    const kS = (course.krediteSeminar != null) ? Number(course.krediteSeminar) : 1.5;
+                    const kLb = (course.krediteLaborator != null) ? Number(course.krediteLaborator) : 1.0;
+                    const kDk = (course.krediteDetyreKursi != null) ? Number(course.krediteDetyreKursi) : 0.5;
+                    const kPr = (course.kreditePraktike != null) ? Number(course.kreditePraktike) : 0;
+
+                    // Bachelor: 1 cr Leksion = 12h, Seminar = 14h, Lab = 20h, DK = 5h
+                    // Master:   1 cr Leksion = 10h, Seminar = 12h, Lab = 20h, DK = 5h
+                    const factorLec = isMaster ? 10 : 12;
+                    const factorSem = isMaster ? 12 : 14;
+                    const factorLab = 20;
+                    const factorCw = 5;
+
+                    const totL = (course.krediteLeksion != null && Number(course.krediteLeksion) === 0) ? 0 : kL * factorLec;
+                    const totS = (course.krediteSeminar != null && Number(course.krediteSeminar) === 0) ? 0 : kS * factorSem;
+                    const totLb = (course.krediteLaborator != null && Number(course.krediteLaborator) === 0) ? 0 : kLb * factorLab;
+                    const totCw = (course.krediteDetyreKursi != null && Number(course.krediteDetyreKursi) === 0) ? 0 : kDk * factorCw;
+                    const totPr = (course.kreditePraktike != null && Number(course.kreditePraktike) === 0) ? 0 : kPr * 20;
+
                     $('#inputWeeklyOreLeksion').val('2');
                     $('#inputWeeklyOreSeminar').val('2');
                     $('#inputWeeklyOreLab').val('1');
                     $('#inputWeeklyOreCourseWork').val('1');
                     $('#inputWeeklyOrePractice').val('2');
+
+                    $('#lblOreLeksion').html(`Orë javore leksion <span class="text-muted fw-normal">(${totL}h gjithsej)</span>`);
+                    $('#lblOreSeminar').html(`Orë javore seminar <span class="text-muted fw-normal">(${totS}h gjithsej)</span>`);
+                    $('#lblOreLab').html(`Orë javore laborator <span class="text-muted fw-normal">(${totLb}h gjithsej)</span>`);
+                    $('#lblOreCourseWork').html(`Orë javore detyrë kursi <span class="text-muted fw-normal">(${totCw}h gjithsej)</span>`);
+                    $('#lblOrePractice').html(`Orë javore praktikë <span class="text-muted fw-normal">(${totPr}h gjithsej)</span>`);
+
                     $('#selectLeksionProf').val('');
                     $('#seminarContainer').empty();
                     $('#labContainer').empty();
                     $('#courseWorkContainer').empty();
                     $('#practiceContainer').empty();
-
-                    const kL = (course.krediteLeksion != null) ? Number(course.krediteLeksion) : 0;
-                    const kS = (course.krediteSeminar != null) ? Number(course.krediteSeminar) : 0;
-                    const kLb = (course.krediteLaborator != null) ? Number(course.krediteLaborator) : 0;
-                    const kDk = (course.krediteDetyreKursi != null) ? Number(course.krediteDetyreKursi) : 0;
-                    const kPr = (course.kreditePraktike != null) ? Number(course.kreditePraktike) : 0;
 
                     // 1. Leksion
                     if (kL > 0) {
@@ -1592,11 +1621,11 @@
                         });
                     }
 
-                    const weeklyL = $('#inputWeeklyOreLeksion').val() !== '' ? parseInt($('#inputWeeklyOreLeksion').val()) : 2;
-                    const weeklyS = $('#inputWeeklyOreSeminar').val() !== '' ? parseInt($('#inputWeeklyOreSeminar').val()) : 2;
-                    const weeklyLb = $('#inputWeeklyOreLab').val() !== '' ? parseInt($('#inputWeeklyOreLab').val()) : 1;
-                    const weeklyCw = $('#inputWeeklyOreCourseWork').val() !== '' ? parseInt($('#inputWeeklyOreCourseWork').val()) : 1;
-                    const weeklyPr = $('#inputWeeklyOrePractice').val() !== '' ? parseInt($('#inputWeeklyOrePractice').val()) : 2;
+                    const weeklyL = $('#inputWeeklyOreLeksion').val() !== '' ? parseFloat($('#inputWeeklyOreLeksion').val()) : null;
+                    const weeklyS = $('#inputWeeklyOreSeminar').val() !== '' ? parseFloat($('#inputWeeklyOreSeminar').val()) : null;
+                    const weeklyLb = $('#inputWeeklyOreLab').val() !== '' ? parseFloat($('#inputWeeklyOreLab').val()) : null;
+                    const weeklyCw = $('#inputWeeklyOreCourseWork').val() !== '' ? parseFloat($('#inputWeeklyOreCourseWork').val()) : null;
+                    const weeklyPr = $('#inputWeeklyOrePractice').val() !== '' ? parseFloat($('#inputWeeklyOrePractice').val()) : null;
 
                     const payload = {
                         courseId: courseId,

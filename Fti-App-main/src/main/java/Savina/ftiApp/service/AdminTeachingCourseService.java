@@ -89,17 +89,34 @@ public class AdminTeachingCourseService {
         boolean isMaster = (course.getProgram() != null && course.getProgram().getNivel() != null && course.getProgram().getNivel().toLowerCase().contains("master"));
         int durationWeeks = course.getDurationWeeks() != null ? course.getDurationWeeks() : (isMaster ? 12 : 14);
 
-        Integer weeklyLecture = req.getWeeklyLectureHours() != null ? req.getWeeklyLectureHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2);
-        Integer weeklySeminar = req.getWeeklySeminarHours() != null ? req.getWeeklySeminarHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2);
-        Integer weeklyLab = req.getWeeklyLabHours() != null ? req.getWeeklyLabHours() : 1;
-        Integer weeklyCourseWork = req.getWeeklyCourseWorkHours() != null ? req.getWeeklyCourseWorkHours() : 1;
-        Integer weeklyPractice = req.getWeeklyPracticeHours() != null ? req.getWeeklyPracticeHours() : 2;
+        double kL = course.getKrediteLeksion() != null ? course.getKrediteLeksion().doubleValue() : (course.getKredite() != null && course.getKredite() >= 6 ? 3.0 : 2.0);
+        double kS = course.getKrediteSeminar() != null ? course.getKrediteSeminar().doubleValue() : 1.5;
+        double kLb = course.getKrediteLaborator() != null ? course.getKrediteLaborator().doubleValue() : 1.0;
+        double kDk = course.getKrediteDetyreKursi() != null ? course.getKrediteDetyreKursi().doubleValue() : 0.5;
+        double kPr = course.getKreditePraktike() != null ? course.getKreditePraktike().doubleValue() : 0.0;
 
-        Integer lectureHours = req.getLectureHours() != null ? req.getLectureHours() : (weeklyLecture * durationWeeks);
-        Integer seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : (weeklySeminar * durationWeeks);
-        Integer labHours = req.getLabHours() != null ? req.getLabHours() : (weeklyLab * durationWeeks);
-        Integer courseWorkHours = req.getCourseWorkHours() != null ? req.getCourseWorkHours() : (weeklyCourseWork * durationWeeks);
-        Integer practiceHours = req.getPracticeHours() != null ? req.getPracticeHours() : (weeklyPractice * durationWeeks);
+        double factorLec = isMaster ? 10.0 : 12.0;
+        double factorSem = isMaster ? 12.0 : 14.0;
+        double factorLab = 20.0;
+        double factorCw = 5.0;
+
+        double autoTotLec = (course.getKrediteLeksion() != null && course.getKrediteLeksion().doubleValue() == 0.0) ? 0.0 : kL * factorLec;
+        double autoTotSem = (course.getKrediteSeminar() != null && course.getKrediteSeminar().doubleValue() == 0.0) ? 0.0 : kS * factorSem;
+        double autoTotLab = (course.getKrediteLaborator() != null && course.getKrediteLaborator().doubleValue() == 0.0) ? 0.0 : kLb * factorLab;
+        double autoTotCw = (course.getKrediteDetyreKursi() != null && course.getKrediteDetyreKursi().doubleValue() == 0.0) ? 0.0 : kDk * factorCw;
+        double autoTotPr = (course.getKreditePraktike() != null && course.getKreditePraktike().doubleValue() == 0.0) ? 0.0 : kPr * 20.0;
+
+        Double weeklyLecture = req.getWeeklyLectureHours() != null ? req.getWeeklyLectureHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2.0);
+        Double weeklySeminar = req.getWeeklySeminarHours() != null ? req.getWeeklySeminarHours() : (req.getWeeklyHours() != null ? req.getWeeklyHours() : 2.0);
+        Double weeklyLab = req.getWeeklyLabHours() != null ? req.getWeeklyLabHours() : 1.0;
+        Double weeklyCourseWork = req.getWeeklyCourseWorkHours() != null ? req.getWeeklyCourseWorkHours() : 1.0;
+        Double weeklyPractice = req.getWeeklyPracticeHours() != null ? req.getWeeklyPracticeHours() : 2.0;
+
+        Double lectureHours = req.getLectureHours() != null ? req.getLectureHours() : autoTotLec;
+        Double seminarHours = req.getSeminarHours() != null ? req.getSeminarHours() : autoTotSem;
+        Double labHours = req.getLabHours() != null ? req.getLabHours() : autoTotLab;
+        Double courseWorkHours = req.getCourseWorkHours() != null ? req.getCourseWorkHours() : autoTotCw;
+        Double practiceHours = req.getPracticeHours() != null ? req.getPracticeHours() : autoTotPr;
 
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
         List<TeachingCourse> existingLeksion = existing.stream()

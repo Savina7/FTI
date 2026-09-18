@@ -135,18 +135,27 @@
                     <div class="card-body p-3">
                         <form id="filterFormEvidenca" onsubmit="return false;">
                             <div class="row g-2 align-items-end">
-                                <div class="col-md-5">
+                                <div class="col-md-4">
                                     <label class="form-label mb-1 fw-semibold text-muted"
                                         style="font-size: 0.78rem;">Departamenti</label>
                                     <select id="filterDepartamenti" class="form-select form-select-sm"
                                         style="font-size: 0.82rem; height: 33px;">
                                     </select>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-4">
                                     <label class="form-label mb-1 fw-semibold text-muted"
                                         style="font-size: 0.78rem;">Pedagogu</label>
                                     <select id="filterPedagogu" class="form-select form-select-sm"
                                         style="font-size: 0.82rem; height: 33px;">
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1 fw-semibold text-muted"
+                                        style="font-size: 0.78rem;">Semestri</label>
+                                    <select id="filterSemestri" class="form-select form-select-sm"
+                                        style="font-size: 0.82rem; height: 33px;">
+                                        <option value="1">Semestri 1</option>
+                                        <option value="2">Semestri 2</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2 d-flex gap-1">
@@ -205,12 +214,17 @@
                 $('#resultSection').hide();
             });
 
+            $('#filterSemestri').on('change', function () {
+                $('#resultSection').hide();
+            });
+
             $('#btnFiltro').on('click', function () {
                 handleKerko();
             });
 
             $('#btnReset').on('click', function () {
                 $('#filterDepartamenti').prop('selectedIndex', 0);
+                $('#filterSemestri').val('1');
                 populateProfessors();
                 $('#resultSection').hide();
                 selectedProf = null;
@@ -359,8 +373,14 @@
                     const courseId = alloc.courseId;
                     const courseEmri = alloc.courseEmri;
                     const programEmri = alloc.programName || '';
+                    const semester = String(alloc.semester || '1').trim();
                     const kredite = alloc.courseKredite || 6;
                     const studyYear = alloc.studyYear;
+                    const krediteLeksion = alloc.krediteLeksion;
+                    const krediteSeminar = alloc.krediteSeminar;
+                    const krediteLaborator = alloc.krediteLaborator;
+                    const krediteDetyreKursi = alloc.krediteDetyreKursi;
+                    const kreditePraktike = alloc.kreditePraktike;
 
                     // Check Lecture
                     if (alloc.lectureProfessor && alloc.lectureProfessor.professorId) {
@@ -372,14 +392,24 @@
                                 courseId,
                                 courseEmri,
                                 programEmri,
+                                semester,
                                 kredite,
+                                krediteLeksion,
+                                krediteSeminar,
+                                krediteLaborator,
+                                krediteDetyreKursi,
+                                kreditePraktike,
                                 studyYear,
                                 oreLeksion: 0,
                                 oreSeminar: 0,
                                 oreLaborator: 0,
+                                oreDetyreKursi: 0,
+                                orePraktike: 0,
                                 grupiLeksion: '',
                                 grupiSeminar: '',
-                                grupiLaborator: ''
+                                grupiLaborator: '',
+                                grupiDetyreKursi: '',
+                                grupiPraktike: ''
                             };
                             allEvidenca.push(existing);
                         }
@@ -401,14 +431,24 @@
                                     courseId,
                                     courseEmri,
                                     programEmri,
+                                    semester,
                                     kredite,
+                                    krediteLeksion,
+                                    krediteSeminar,
+                                    krediteLaborator,
+                                    krediteDetyreKursi,
+                                    kreditePraktike,
                                     studyYear,
                                     oreLeksion: 0,
                                     oreSeminar: 0,
                                     oreLaborator: 0,
+                                    oreDetyreKursi: 0,
+                                    orePraktike: 0,
                                     grupiLeksion: '',
                                     grupiSeminar: '',
-                                    grupiLaborator: ''
+                                    grupiLaborator: '',
+                                    grupiDetyreKursi: '',
+                                    grupiPraktike: ''
                                 };
                                 allEvidenca.push(existing);
                             }
@@ -432,14 +472,24 @@
                                     courseId,
                                     courseEmri,
                                     programEmri,
+                                    semester,
                                     kredite,
+                                    krediteLeksion,
+                                    krediteSeminar,
+                                    krediteLaborator,
+                                    krediteDetyreKursi,
+                                    kreditePraktike,
                                     studyYear,
                                     oreLeksion: 0,
                                     oreSeminar: 0,
                                     oreLaborator: 0,
+                                    oreDetyreKursi: 0,
+                                    orePraktike: 0,
                                     grupiLeksion: '',
                                     grupiSeminar: '',
-                                    grupiLaborator: ''
+                                    grupiLaborator: '',
+                                    grupiDetyreKursi: '',
+                                    grupiPraktike: ''
                                 };
                                 allEvidenca.push(existing);
                             }
@@ -448,6 +498,89 @@
                             const totalLab = baseLabHours * parsedLab.count;
                             existing.oreLaborator = (existing.oreLaborator || 0) + totalLab;
                             existing.grupiLaborator = existing.grupiLaborator ? mergeGroups(existing.grupiLaborator, parsedLab.text) : parsedLab.text;
+                        });
+                    }
+
+                    // Check CourseWork / Detyra Kursi
+                    const cwList = alloc.courseWorkProfessors || alloc.detyreKursiProfessors;
+                    if (Array.isArray(cwList)) {
+                        cwList.forEach(cwp => {
+                            if (!cwp || !cwp.professorId) return;
+                            const pId = cwp.professorId;
+                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
+                            if (!existing) {
+                                existing = {
+                                    professorId: pId,
+                                    courseId,
+                                    courseEmri,
+                                    programEmri,
+                                    semester,
+                                    kredite,
+                                    krediteLeksion,
+                                    krediteSeminar,
+                                    krediteLaborator,
+                                    krediteDetyreKursi,
+                                    kreditePraktike,
+                                    studyYear,
+                                    oreLeksion: 0,
+                                    oreSeminar: 0,
+                                    oreLaborator: 0,
+                                    oreDetyreKursi: 0,
+                                    orePraktike: 0,
+                                    grupiLeksion: '',
+                                    grupiSeminar: '',
+                                    grupiLaborator: '',
+                                    grupiDetyreKursi: '',
+                                    grupiPraktike: ''
+                                };
+                                allEvidenca.push(existing);
+                            }
+                            const parsedCw = parseGroups(cwp);
+                            const baseCwHours = alloc.courseWorkHours != null ? alloc.courseWorkHours : 5;
+                            const totalCw = baseCwHours * parsedCw.count;
+                            existing.oreDetyreKursi = (existing.oreDetyreKursi || 0) + totalCw;
+                            existing.grupiDetyreKursi = existing.grupiDetyreKursi ? mergeGroups(existing.grupiDetyreKursi, parsedCw.text) : parsedCw.text;
+                        });
+                    }
+
+                    // Check Practice
+                    if (Array.isArray(alloc.practiceProfessors)) {
+                        alloc.practiceProfessors.forEach(pp => {
+                            if (!pp || !pp.professorId) return;
+                            const pId = pp.professorId;
+                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
+                            if (!existing) {
+                                existing = {
+                                    professorId: pId,
+                                    courseId,
+                                    courseEmri,
+                                    programEmri,
+                                    semester,
+                                    kredite,
+                                    krediteLeksion,
+                                    krediteSeminar,
+                                    krediteLaborator,
+                                    krediteDetyreKursi,
+                                    kreditePraktike,
+                                    studyYear,
+                                    oreLeksion: 0,
+                                    oreSeminar: 0,
+                                    oreLaborator: 0,
+                                    oreDetyreKursi: 0,
+                                    orePraktike: 0,
+                                    grupiLeksion: '',
+                                    grupiSeminar: '',
+                                    grupiLaborator: '',
+                                    grupiDetyreKursi: '',
+                                    grupiPraktike: ''
+                                };
+                                allEvidenca.push(existing);
+                            }
+                            const parsedPr = parseGroups(pp);
+                            const basePrHours = alloc.practiceHours != null ? alloc.practiceHours : 10;
+                            const totalPr = basePrHours * parsedPr.count;
+                            existing.orePraktike = (existing.orePraktike || 0) + totalPr;
+                            existing.grupiPraktike = existing.grupiPraktike ? mergeGroups(existing.grupiPraktike, parsedPr.text) : parsedPr.text;
                         });
                     }
                 });
@@ -485,6 +618,19 @@
             $('#resultSection').fadeIn(200);
         }
 
+        function matchesSemester(courseSem, selectedSem) {
+            if (!selectedSem) return true;
+            const cSem = String(courseSem || '1').trim().toUpperCase();
+            const sel = String(selectedSem).trim().toUpperCase();
+            if (sel === '1' || sel === 'I') {
+                return cSem === '1' || cSem === 'I' || cSem === 'SEM 1' || cSem === 'SEMESTRI 1' || cSem === 'SEMESTRI I';
+            }
+            if (sel === '2' || sel === 'II') {
+                return cSem === '2' || cSem === 'II' || cSem === 'SEM 2' || cSem === 'SEMESTRI 2' || cSem === 'SEMESTRI II';
+            }
+            return cSem === sel;
+        }
+
         async function shkarkoCurrentProf() {
             await shkarkoOriginalPDF();
         }
@@ -496,7 +642,10 @@
             let deptName = (selectedProf.department || 'Inxhinierisë Informatike').trim();
             let cleanDept = deptName.replace(/^departamenti\s+i\s+/i, '');
 
-            const profEv = allEvidenca.filter(e => e.professorId === selectedProf.id);
+            const selSemester = $('#filterSemestri').val() || '1';
+            const romanSemester = (selSemester === '2' || selSemester === 'II') ? 'II' : 'I';
+
+            const profEv = allEvidenca.filter(e => e.professorId === selectedProf.id && matchesSemester(e.semester, selSemester));
 
             // Group by course
             const byCourse = {};
@@ -531,9 +680,9 @@
             if (courses.length === 0) {
                 courses = [{
                     courseId: 0,
-                    courseEmri: 'Pa lëndë të alokuara',
+                    courseEmri: `Pa lëndë të alokuara për Semestrin ${romanSemester}`,
                     programEmri: '—',
-                    kredite: 6,
+                    kredite: 0,
                     oreLeksion: 0,
                     oreSeminar: 0,
                     oreLaborator: 0,
@@ -545,7 +694,7 @@
             // Convert /favicon.svg and /images/ftiidoclogo.png into PNG data URIs for Word
             const uptLogoPngData = await svgToPngBase64('/favicon.svg', 70, 70);
             const ftiLogoPngData = await svgToPngBase64('/images/ftiidoclogo.png', 140, 55);
-            const wordContent = buildWordDoc(profFullName, deptName, courses, ftiLogoPngData, uptLogoPngData);
+            const wordContent = buildWordDoc(profFullName, deptName, courses, ftiLogoPngData, uptLogoPngData, romanSemester);
 
             // Download directly as Microsoft Word .doc file with UTF-8 BOM
             const blob = new Blob(['\ufeff' + wordContent], {
@@ -555,7 +704,7 @@
             const safeProfName = profFullName.replace(/[^a-zA-Z0-9_\-]/g, '_');
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `Evidenca_${safeProfName}.doc`;
+            a.download = `Evidenca_${safeProfName}_Semestri_${romanSemester}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -583,18 +732,28 @@
             });
         }
 
+        function getGroupCount(raw) {
+            if (!raw) return 1;
+            let s = String(raw).trim();
+            if (!s) return 1;
+            if (/^t[eë]\s+gjith[eë]/i.test(s) || /all/i.test(s)) return 1;
+            let parts = s.split(',').map(p => formatSingleGroup(p)).filter(Boolean);
+            let unique = [...new Set(parts)];
+            return unique.length > 0 ? unique.length : 1;
+        }
+
         /* ---------- BUILD OFFICIAL MICROSOFT WORD DOCUMENT (HORIZONTAL / LANDSCAPE) ---------- */
-        function buildWordDoc(profName, deptName, courses, ftiLogoData, uptLogoData) {
+        function buildWordDoc(profName, deptName, courses, ftiLogoData, uptLogoData, customSemester) {
             const vitiAk = getCurrentAcademicYear();
             const now = new Date();
             const dd = String(now.getDate()).padStart(2, '0');
             const mm = String(now.getMonth() + 1).padStart(2, '0');
             const yyyy = now.getFullYear();
             const sysdate = `${dd}.${mm}.${yyyy}`;
-            const semestri = (now.getMonth() + 1 >= 9 || now.getMonth() + 1 <= 2) ? 'I' : 'II';
+            const semestri = customSemester || ((now.getMonth() + 1 >= 9 || now.getMonth() + 1 <= 2) ? 'I' : 'II');
 
             // Clean department string (prevent duplicate "Departamenti i Departamenti i...")
-            let cleanDept = (deptName || 'Inxhinierisë Informatike').trim();
+            let cleanDept = (deptName || 'Inxhinieri Informatike').trim();
             cleanDept = cleanDept.replace(/^departamenti\s+i\s+/i, '');
 
             const courseSections = courses.map((c, index) => {
@@ -606,22 +765,48 @@
                 const hasDk = (Number(c.oreDetyreKursi) || 0) > 0;
                 const hasPr = (Number(c.orePraktike) || 0) > 0;
 
-                let mbulonParts = [];
-                if (hasLeksion) mbulonParts.push(`${Math.max(1, Math.round(c.oreLeksion / 15))} Leksion`);
-                if (hasSeminar) mbulonParts.push(`${Math.max(1, Math.round(c.oreSeminar / 15))} Seminar`);
-                if (hasLab) mbulonParts.push(`${Math.max(1, Math.round(c.oreLaborator / 15))} Laborator`);
-                if (hasDk) mbulonParts.push(`Detyrë Kursi`);
-                if (hasPr) mbulonParts.push(`Praktikë`);
-                const mbulonStr = mbulonParts.length ? mbulonParts.join(' + ') : 'Mësimdhënie';
+                const fmtNum = (n) => {
+                    if (n === null || n === undefined || isNaN(n)) return '0';
+                    const num = Number(n);
+                    return num % 1 === 0 ? String(num) : num.toFixed(1).replace(/\.0$/, '');
+                };
 
-                const totalCourseOre = (Number(c.oreLeksion) || 0) + (Number(c.oreSeminar) || 0) + (Number(c.oreLaborator) || 0) + (Number(c.oreDetyreKursi) || 0) + (Number(c.orePraktike) || 0);
+                const totalKredite = c.kredite || 6;
+                const kLekNum = Number(c.krediteLeksion != null ? c.krediteLeksion : (hasLeksion ? (totalKredite >= 6 ? 3 : 2) : 3)) || 0;
+                const kSemNum = Number(c.krediteSeminar != null ? c.krediteSeminar : (hasSeminar ? 1.5 : 1.5)) || 0;
+                const kLabNum = Number(c.krediteLaborator != null ? c.krediteLaborator : (hasLab ? 1 : 1)) || 0;
+                const kDkNum = Number(c.krediteDetyreKursi != null ? c.krediteDetyreKursi : (hasDk ? 0.5 : 0.5)) || 0;
+                const kPrNum = Number(c.kreditePraktike != null ? c.kreditePraktike : (hasPr ? 1 : 1)) || 0;
 
                 const cleanSeminar = formatGroupName(c.grupiSeminar);
                 const cleanLab = formatGroupName(c.grupiLaborator);
                 const cleanDk = formatGroupName(c.grupiDetyreKursi);
                 const cleanPr = formatGroupName(c.grupiPraktike);
+
+                const numSemGroups = hasSeminar ? getGroupCount(c.grupiSeminar) : 0;
+                const numLabGroups = hasLab ? getGroupCount(c.grupiLaborator) : 0;
+                const numDkGroups = hasDk ? getGroupCount(c.grupiDetyreKursi) : 0;
+                const numPrGroups = hasPr ? getGroupCount(c.grupiPraktike) : 0;
+
+                // Leksion is for all classes together -> takes 1x base lecture credits
+                const coveredLekCredits = hasLeksion ? kLekNum : 0;
+                // Seminar, Lab, Detyra, Praktike are multiplied by the number of classes/groups taught
+                const coveredSemCredits = hasSeminar ? (kSemNum * numSemGroups) : 0;
+                const coveredLabCredits = hasLab ? (kLabNum * numLabGroups) : 0;
+                const coveredDkCredits = hasDk ? (kDkNum * numDkGroups) : 0;
+                const coveredPrCredits = hasPr ? (kPrNum * numPrGroups) : 0;
+
+                const totalCoveredKredite = coveredLekCredits + coveredSemCredits + coveredLabCredits + coveredDkCredits + coveredPrCredits;
+
+                const kreditetLendesText = `${fmtNum(kLekNum)} Leksion + ${fmtNum(kSemNum)} Seminar + ${fmtNum(kLabNum)} Laborator + ${fmtNum(kDkNum)} DK/Projekt = ${totalKredite} kredite`;
+                const kreditetMbulonText = `${fmtNum(totalCoveredKredite)} kredite`;
+
+                const totalCourseOre = (Number(c.oreLeksion) || 0) + (Number(c.oreSeminar) || 0) + (Number(c.oreLaborator) || 0) + (Number(c.oreDetyreKursi) || 0) + (Number(c.orePraktike) || 0);
+
                 let primaryGroup = 'A';
-                if (hasSeminar && hasLab) {
+                if (hasLeksion) {
+                    primaryGroup = 'Të gjitha klasat';
+                } else if (hasSeminar && hasLab) {
                     primaryGroup = formatGroupName(c.grupiSeminar + ', ' + c.grupiLaborator);
                 } else if (hasSeminar) {
                     primaryGroup = cleanSeminar;
@@ -631,8 +816,6 @@
                     primaryGroup = cleanDk;
                 } else if (hasPr) {
                     primaryGroup = cleanPr;
-                } else if (hasLeksion) {
-                    primaryGroup = 'Të gjithë';
                 }
 
                 const pageBreakHtml = index > 0 ? `<br clear="all" style="page-break-before:always; mso-special-character:line-break;">` : '';
@@ -672,11 +855,10 @@
                             <tr>
                                 <td style="border: none; padding: 2.5pt 5pt; font-size: 8pt; line-height: 1.25;">
                                     <div style="text-align: center; color: #991b1b; font-weight: bold; font-size: 10.5pt; letter-spacing: 2pt; margin-bottom: 1pt;">E V I D E N C Ë</div>
-                                    <div style="text-align: center; color: #991b1b; font-weight: bold; font-size: 9pt; text-decoration: underline; margin-bottom: 5pt;">Për plotësimin e orëve mësimore</div>
-                                    <div style="font-size: 8pt;">Viti akademik: <strong>${vitiAk}</strong></div>
-                                    <div style="font-size: 8pt; margin-top: 1.5pt;">Semestri: <strong>${semestri}</strong></div>
+                                    <div style="text-align: center; color: #991b1b; font-weight: bold; font-size: 9pt; text-decoration: underline; margin-bottom: 4pt;">Për plotësimin e orëve mësimore</div>
+                                    <div style="font-size: 8pt;">Viti akademik: <strong>${vitiAk}</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Semestri: <strong>${semestri}</strong></div>
                                     <div style="margin-top: 1.5pt; font-size: 8pt;">Grada/Titulli Emri mbiemri i pedagogut: <strong>${profName}</strong></div>
-                                    <div style="margin-top: 2pt; font-style: italic; font-size: 8pt; text-align: left;">(firma): __________________________</div>
+                                    <div style="margin-top: 2pt; font-style: italic; font-size: 8pt; text-align: left;">(firma): </div>
                                 </td>
                             </tr>
                         </table>
@@ -686,9 +868,10 @@
 
             <!-- COURSE INFO -->
             <div style="margin: 4pt 0 4pt 0; font-size: 8.5pt; line-height: 1.35;">
-                <div>Lënda: <strong>${c.courseEmri || 'Analizë Matematike 1'}</strong></div>
-                <div>Programi i studimit: <strong>${progName}</strong></div>
-                <div>Kreditet e lëndës: <strong>${c.kredite || 6} kredite</strong></div>
+                <div>Lënda: ${c.courseEmri || ''}</div>
+                <div>Programi i studimit: ${progName}</div>
+                <div>Kreditet e lëndës: ${kreditetLendesText}</div>
+                <div>Kreditet e lëndës që mbulon pedagogu në auditor: ${kreditetMbulonText}</div>
             </div>
 
             <!-- TABLE 1: LEKSIONE -->
@@ -698,19 +881,19 @@
                         <th style="width: 4%;">Nr.</th>
                         <th style="width: 10%;">Data</th>
                         <th style="width: 22%;">Programi i studimit</th>
-                        <th style="width: 10%;">Grupi</th>
-                        <th style="width: 42%;">Tema e mësimit</th>
+                        <th style="width: 12%;">Grupi</th>
+                        <th style="width: 40%;">Tema e mësimit</th>
                         <th style="width: 12%; color: #991b1b; line-height: 1.15;">Orë në<br>auditor<br><span style="color: #991b1b; font-weight: bold;">Leksione</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="text-align: center; height: 14pt;">${hasLeksion ? '1' : ''}</td>
-                        <td style="text-align: center;">${sysdate}</td>
+                        <td style="text-align: center;">${hasLeksion ? sysdate : ''}</td>
                         <td>${hasLeksion ? progName : ''}</td>
-                        <td style="text-align: center;">${hasLeksion ? 'Të gjithë' : ''}</td>
+                        <td style="text-align: center;">${hasLeksion ? 'Të gjitha klasat' : ''}</td>
                         <td></td>
-                        <td style="text-align: center; font-weight: bold;">${hasLeksion ? c.oreLeksion : ''}</td>
+                        <td style="text-align: center; font-weight: bold;">${hasLeksion ? `${fmtNum(coveredLekCredits)} kr / ${c.oreLeksion} orë` : ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -724,19 +907,19 @@
                         <th style="width: 4%;">Nr.</th>
                         <th style="width: 10%;">Data</th>
                         <th style="width: 22%;">Programi i studimit</th>
-                        <th style="width: 10%;">Grupi</th>
-                        <th style="width: 42%;">Tema e mësimit</th>
+                        <th style="width: 12%;">Grupi</th>
+                        <th style="width: 40%;">Tema e mësimit</th>
                         <th style="width: 12%; color: #991b1b; line-height: 1.15;">Orë në<br>auditor<br><span style="color: #991b1b; font-weight: bold;">Seminare</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="text-align: center; height: 14pt;">${hasSeminar ? '1' : ''}</td>
-                        <td style="text-align: center;">${sysdate}</td>
+                        <td style="text-align: center;">${hasSeminar ? sysdate : ''}</td>
                         <td>${hasSeminar ? progName : ''}</td>
-                        <td style="text-align: center;">${hasSeminar ? formatGroupName(c.grupiSeminar || primaryGroup) : ''}</td>
+                        <td style="text-align: center;">${hasSeminar ? cleanSeminar : ''}</td>
                         <td></td>
-                        <td style="text-align: center; font-weight: bold;">${hasSeminar ? c.oreSeminar : ''}</td>
+                        <td style="text-align: center; font-weight: bold;">${hasSeminar ? `${fmtNum(coveredSemCredits)} kr / ${c.oreSeminar} orë` : ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -750,19 +933,19 @@
                         <th style="width: 4%;">Nr.</th>
                         <th style="width: 10%;">Data</th>
                         <th style="width: 22%;">Programi i studimit</th>
-                        <th style="width: 10%;">Grupi</th>
-                        <th style="width: 42%;">Tema e mësimit</th>
+                        <th style="width: 12%;">Grupi</th>
+                        <th style="width: 40%;">Tema e mësimit</th>
                         <th style="width: 12%; color: #991b1b; line-height: 1.15;">Orë në<br>auditor<br><span style="color: #991b1b; font-weight: bold;">Laborator</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="text-align: center; height: 14pt;">${hasLab ? '1' : ''}</td>
-                        <td style="text-align: center;">${sysdate}</td>
+                        <td style="text-align: center;">${hasLab ? sysdate : ''}</td>
                         <td>${hasLab ? progName : ''}</td>
-                        <td style="text-align: center;">${hasLab ? formatGroupName(c.grupiLaborator || primaryGroup) : ''}</td>
+                        <td style="text-align: center;">${hasLab ? cleanLab : ''}</td>
                         <td></td>
-                        <td style="text-align: center; font-weight: bold;">${hasLab ? c.oreLaborator : ''}</td>
+                        <td style="text-align: center; font-weight: bold;">${hasLab ? `${fmtNum(coveredLabCredits)} kr / ${c.oreLaborator} orë` : ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -776,19 +959,19 @@
                         <th style="width: 4%;">Nr.</th>
                         <th style="width: 10%;">Data</th>
                         <th style="width: 22%;">Programi i studimit</th>
-                        <th style="width: 10%;">Grupi</th>
-                        <th style="width: 42%;">Tema e mësimit (Detyra)</th>
+                        <th style="width: 12%;">Grupi</th>
+                        <th style="width: 40%;">Tema e mësimit (Detyra)</th>
                         <th style="width: 12%; color: #991b1b; line-height: 1.15;">Orë në<br>auditor<br><span style="color: #991b1b; font-weight: bold;">Detyra</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="text-align: center; height: 14pt;"></td>
-                        <td style="text-align: center;">${sysdate}</td>
+                        <td style="text-align: center; height: 14pt;">${hasDk ? '1' : ''}</td>
+                        <td style="text-align: center;">${hasDk ? sysdate : ''}</td>
+                        <td>${hasDk ? progName : ''}</td>
+                        <td style="text-align: center;">${hasDk ? cleanDk : ''}</td>
                         <td></td>
-                        <td style="text-align: center;"></td>
-                        <td></td>
-                        <td style="text-align: center;"></td>
+                        <td style="text-align: center; font-weight: bold;">${hasDk ? `${fmtNum(coveredDkCredits)} kr / ${c.oreDetyreKursi} orë` : ''}</td>
                     </tr>
                 </tbody>
             </table>
@@ -800,9 +983,9 @@
                 <thead>
                     <tr>
                         <th style="width: 4%;">Nr.</th>
-                        <th style="width: 32%;">Programi i studimit</th>
-                        <th style="width: 10%;">Grupi</th>
-                        <th style="width: 42%; color: #991b1b; font-weight: bold; text-align: center;">Totali i ngarkesës</th>
+                        <th style="width: 22%;">Programi i studimit</th>
+                        <th style="width: 12%;">Grupi</th>
+                        <th style="width: 50%; text-align: center;">Totali i ngarkesës</th>
                         <th style="width: 12%; line-height: 1.15;">Orë në<br>auditor</th>
                     </tr>
                 </thead>
@@ -810,9 +993,9 @@
                     <tr>
                         <td style="text-align: center; height: 14pt;">1</td>
                         <td>${progName}</td>
-                        <td style="text-align: center;">${formatGroupName(primaryGroup)}</td>
-                        <td style="text-align: center; font-weight: bold; color: #991b1b;">${totalCourseOre} orë</td>
-                        <td style="text-align: center; font-weight: bold;">${totalCourseOre}</td>
+                        <td style="text-align: center;">${primaryGroup}</td>
+                        <td style="text-align: center; font-weight: bold;">${fmtNum(totalCoveredKredite)} kredite</td>
+                        <td style="text-align: center; font-weight: bold;">${totalCourseOre} orë</td>
                     </tr>
                     <tr>
                         <td style="text-align: center; height: 14pt;">2</td>
@@ -825,23 +1008,23 @@
             </table>
 
             <!-- FOOTER SIGNATURES -->
-            <div style="font-size: 12pt; line-height: 14pt; height: 14pt; margin: 0; padding: 0;">&nbsp;</div>
+            <div style="font-size: 10pt; line-height: 12pt; height: 12pt; margin: 0; padding: 0;">&nbsp;</div>
             <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 10pt; text-align: center;">
                 <tr>
                     <td style="width: 33%; border: none; text-align: center; vertical-align: top;">
-                        <div style="color: #991b1b; font-weight: bold; font-size: 9pt; margin-bottom: 1.5pt;">Pranoi</div>
-                        <div style="font-weight: bold; font-size: 8pt; margin-bottom: 1.5pt;">Përgjegjësi i Departamentit</div>
-                        <div style="font-size: 8pt;">Prof.Asoc Hakik Paci</div>
+                        <div style="font-size: 8.5pt; margin-bottom: 2pt;">Pranoi</div>
+                        <div style="font-weight: bold; font-size: 8.5pt; margin-bottom: 2pt;">Përgjegjësi i Departamentit</div>
+                        <div style="font-size: 8.5pt;">Prof.Asoc Hakik Paci</div>
                     </td>
                     <td style="width: 34%; border: none; text-align: center; vertical-align: top;">
-                        <div style="color: #991b1b; font-weight: bold; font-size: 9pt; margin-bottom: 1.5pt;">Konfirmoi</div>
-                        <div style="font-weight: bold; font-size: 8pt; margin-bottom: 1.5pt;">Zv. DEKANI</div>
-                        <div style="font-size: 8pt;">Prof. Dr. Indrit Enesi</div>
+                        <div style="font-size: 8.5pt; margin-bottom: 2pt;">Konfirmoi</div>
+                        <div style="font-weight: bold; font-size: 8.5pt; margin-bottom: 2pt;">Zv. DEKANI</div>
+                        <div style="font-size: 8.5pt;">Prof. Dr. Indrit Enesi</div>
                     </td>
                     <td style="width: 33%; border: none; text-align: center; vertical-align: top;">
-                        <div style="color: #991b1b; font-weight: bold; font-size: 9pt; margin-bottom: 1.5pt;">Miratoi</div>
-                        <div style="font-weight: bold; font-size: 8pt; margin-bottom: 1.5pt;">DEKANI</div>
-                        <div style="font-size: 8pt;">Prof. Dr. Elinda Meçe</div>
+                        <div style="font-size: 8.5pt; margin-bottom: 2pt;">Miratoi</div>
+                        <div style="font-weight: bold; font-size: 8.5pt; margin-bottom: 2pt;">DEKANI</div>
+                        <div style="font-size: 8.5pt;">Prof. Dr. Elinda Meçe</div>
                     </td>
                 </tr>
             </table>

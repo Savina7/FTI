@@ -226,9 +226,9 @@ public class StudentService {
         for (Attendance a : attendances) {
             if (a.getTeachingCourse() != null && a.getTeachingCourse().getCourse() != null) {
                 Integer courseId = a.getTeachingCourse().getCourse().getCourseId();
-                Integer tHours = a.getTeachingCourse().getTotalHours();
+                Double tHours = a.getTeachingCourse().getTotalHours();
                 Integer duration = a.getTeachingCourse().getCourse().getDurationWeeks();
-                int totalH = (tHours != null && tHours > 0) ? tHours : ((duration != null && duration > 0) ? duration : 15);
+                int totalH = (tHours != null && tHours > 0) ? (int) Math.round(tHours) : ((duration != null && duration > 0) ? duration : 15);
                 String roleType = a.getTeachingCourse().getRoleType() != null ? a.getTeachingCourse().getRoleType().toUpperCase() : "";
 
                 if (roleType.contains("LAB")) {
