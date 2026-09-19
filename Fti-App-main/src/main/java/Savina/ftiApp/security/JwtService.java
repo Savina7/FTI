@@ -12,8 +12,7 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "ftiAppSecretKeyForJwtTokenGenerationAndAuthentication2026SuperSecureKey!";
-    private static final long EXPIRATION_TIME_MS = 7200000;
+    private static final String SECRET_KEY = System.getenv("JWT_SECRET");    private static final long EXPIRATION_TIME_MS = 7200000;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
