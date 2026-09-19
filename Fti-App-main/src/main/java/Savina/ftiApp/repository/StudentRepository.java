@@ -23,4 +23,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     List<Student> findByClasses_ClassIdIn(java.util.Collection<Integer> classIds);
 
     List<Student> findByProgram_ProgramId(Integer programId);
+
+    List<Student> findByProgram_ProgramIdAndVitStudimit(Integer programId, Integer vitStudimit);
 }

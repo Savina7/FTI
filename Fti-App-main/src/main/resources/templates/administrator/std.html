@@ -420,9 +420,16 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="alert alert-warning border-0 d-flex gap-2 mb-3 py-2 px-3 small">
+                        <i class="bi bi-calendar-check fs-5 text-warning"></i>
+                        <div>
+                            <strong class="d-block text-dark">Avancimi i Vitit Akademik:</strong>
+                            <span id="promoteAcademicYearNotice" class="text-muted">Viti aktual akademik do të përmbyllet dhe sistemi do të kalojë automatikisht në vitin pasardhës akademik.</span>
+                        </div>
+                    </div>
                     <p class="small text-muted mb-0">
                         Ky veprim do të rillogarisë automatikisht kreditet e të gjithë studentëve bazuar në notat e
-                        marra dhe do të përditësojë vitin e studimit, klasën dhe statusin e tyre. A dëshironi të
+                        marra, do të përditësojë vitin e studimit, klasën dhe statusin e tyre, si dhe do të avancojë vitin akademik të fakultetit. A dëshironi të
                         vazhdoni?
                     </p>
                     <div id="promoteErrorAlert" class="alert alert-danger small py-2 px-3 mt-3 d-none"></div>
@@ -535,8 +542,22 @@
             });
 
             // Hapja e modalit te konfirmimit te promovimit
-            $('#btnOpenPromoteModal').on('click', function () {
+            $('#btnOpenPromoteModal').on('click', async function () {
                 $('#promoteErrorAlert').addClass('d-none').text('');
+                try {
+                    const res = await fetch('/api/admin/academic-year/current', { headers: _h });
+                    if (res.ok) {
+                        const yData = await res.json();
+                        const curr = yData.currentAcademicYear || '2025-2026';
+                        const parts = curr.split('-');
+                        let nxt = '2026-2027';
+                        if (parts.length === 2) {
+                            nxt = (parseInt(parts[0]) + 1) + '-' + (parseInt(parts[1]) + 1);
+                        }
+                        $('#promoteAcademicYearNotice').html(`Viti aktual është <strong>${curr}</strong>. Me konfirmimin tuaj, viti i ri akademik do të bëhet <strong>${nxt}</strong>.`);
+                    }
+                } catch (_) { }
+
                 const modal = new bootstrap.Modal(document.getElementById('modalConfirmPromote'));
                 modal.show();
             });
@@ -574,6 +595,9 @@
                     const confirmModalEl = document.getElementById('modalConfirmPromote');
                     const confirmModal = bootstrap.Modal.getInstance(confirmModalEl);
                     if (confirmModal) confirmModal.hide();
+
+                    // Shfaq mesazh suksesi
+                    alert(data.message || `Promovimi përfundoi me sukses! Viti i ri akademik: ${data.newAcademicYear || ''}`);
 
                     // Rifresko listen e studenteve ne tabele
                     loadRealStudents();

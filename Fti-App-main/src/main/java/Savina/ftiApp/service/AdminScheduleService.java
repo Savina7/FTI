@@ -97,6 +97,11 @@ public class AdminScheduleService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getCourses(Integer programId, Integer studyYear) {
+        return getCourses(programId, studyYear, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getCourses(Integer programId, Integer studyYear, String semester) {
         List<Course> courses;
         if (programId != null && studyYear != null) {
             courses = courseRepository.findByProgramProgramIdAndStudyYear(programId, studyYear);
@@ -109,12 +114,31 @@ public class AdminScheduleService {
             courses = courseRepository.findAll();
         }
 
+        if (semester != null && !semester.isBlank()) {
+            String semClean = semester.trim();
+            courses = courses.stream()
+                    .filter(c -> {
+                        String s = determineCourseSemester(c);
+                        return s.equalsIgnoreCase(semClean);
+                    })
+                    .collect(Collectors.toList());
+        }
+
         return courses.stream().map(c -> {
             Map<String, Object> map = new HashMap<>();
             map.put("courseId", c.getCourseId());
             map.put("name", c.getEmriCourse());
             map.put("credits", c.getKredite());
             map.put("studyYear", c.getStudyYear());
+            map.put("semester", determineCourseSemester(c));
+
+            double weeklyLek = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);
+            double weeklySem = c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : 1.5;
+            double weeklyLab = c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : 0.0;
+
+            map.put("weeklyHoursLeksion", weeklyLek);
+            map.put("weeklyHoursSeminar", weeklySem);
+            map.put("weeklyHoursLaborator", weeklyLab);
             return map;
         }).collect(Collectors.toList());
     }
@@ -127,41 +151,42 @@ public class AdminScheduleService {
 
         String name = c.getEmriCourse() != null ? c.getEmriCourse().toLowerCase() : "";
 
-        if (name.contains("analize matematike 2") || name.contains("analize matematike 2") ||
-            name.contains("fizike 2") || name.contains("fizike 2") ||
+        if (name.contains("analize matematike 2") || name.contains("analizë matematike 2") ||
+            name.contains("fizike 2") || name.contains("fizikë 2") ||
             name.contains("elektroteknik") ||
-            name.contains("analize matematike 3") || name.contains("analize matematike 3") ||
-            name.contains("teknikat dhe gjuhet") || name.contains("teknikat dhe gjuhet") ||
+            name.contains("analize matematike 3") || name.contains("analizë matematike 3") ||
+            name.contains("teknikat dhe gjuhet") || name.contains("teknikat dhe gjuhët") ||
             name.contains("probabilitet") ||
-            name.contains("gjuhe e huaj") || name.contains("gjuhe e huaj") ||
+            name.contains("gjuhe e huaj 2") || name.contains("gjuhë e huaj 2") ||
             name.contains("sistemet elektronike") || name.contains("sisteme elektronike") ||
-            name.contains("perpunimi numerik") || name.contains("perpunimi numerik") || name.contains("perpunim numerik") ||
-            name.contains("arkitekture") || name.contains("arkitekture") ||
-            name.contains("strukture te dhenash") || name.contains("strukture te dhenash") ||
+            name.contains("perpunimi numerik") || name.contains("përpunimi numerik") ||
+            name.contains("arkitekture") || name.contains("arkitekturë") ||
+            name.contains("strukture te dhenash") || name.contains("strukturë të dhënash") ||
             name.contains("ekonomi dhe menaxhim") ||
             name.contains("rrjetat e kompjuterave") ||
             name.contains("python") ||
-            name.contains("shperndara") || name.contains("shperndara") ||
+            name.contains("shperndara") || name.contains("shpërndara") ||
             name.contains("legjislacion") ||
             name.contains("praktik") ||
             name.contains("diplom") ||
             name.contains("rrjetet optike") ||
-            name.contains("sensoret") || name.contains("sensoret") ||
-            name.contains("elektronika per telekom") || name.contains("elektronika per telekom")) {
+            name.contains("sensoret") ||
+            name.contains("elektronika per telekom")) {
             return "2";
         }
 
-        if (name.contains("analize matematike 1") || name.contains("analize matematike 1") ||
-            name.contains("fizike 1") || name.contains("fizike 1") ||
-            name.contains("elementet e informatikes") || name.contains("elementet e informatikes") ||
-            name.contains("algjeber") || name.contains("algjeber") ||
+        if (name.contains("analize matematike 1") || name.contains("analizë matematike 1") ||
+            name.contains("fizike 1") || name.contains("fizikë 1") ||
+            name.contains("elementet e informatikes") || name.contains("elementet e informatikës") ||
+            name.contains("algjeber") || name.contains("algjebër") ||
+            name.contains("gjuhe e huaj 1") || name.contains("gjuhë e huaj 1") ||
             name.contains("shkrim dhe prezantim") ||
-            name.contains("analize numerike") || name.contains("analize numerike") ||
+            name.contains("analize numerike") || name.contains("analizë numerike") ||
             name.contains("orientuar nga objekti") ||
             name.contains("teoria e sinjaleve") ||
-            name.contains("bazat e te dhenave") || name.contains("bazat e te dhenave") ||
+            name.contains("bazat e te dhenave") || name.contains("baza e te dhenave") ||
             name.contains("automatizim") ||
-            name.contains("teknologjite elektronike") || name.contains("teknologjite elektronike") ||
+            name.contains("teknologjite elektronike") ||
             name.contains("algoritmik") ||
             name.contains("web") ||
             name.contains("inxhinieri softi") ||
@@ -464,6 +489,11 @@ public class AdminScheduleService {
             }
         }
 
+        if (req.getAcademicYear() != null && !req.getAcademicYear().isBlank()) {
+            tc.setAcademicYear(req.getAcademicYear().trim());
+            tc = teachingCourseRepository.save(tc);
+        }
+
         Classes cls = null;
         if (req.getClassId() != null) {
             cls = classesRepository.findById(req.getClassId()).orElse(null);
@@ -479,6 +509,9 @@ public class AdminScheduleService {
                         .emriClass("Grupi A")
                         .build());
             }
+        } else if (cls != null && cls.getProgram() == null && course.getProgram() != null) {
+            cls.setProgram(course.getProgram());
+            cls = classesRepository.save(cls);
         }
 
         Room room = roomRepository.findById(req.getRoomId())
@@ -498,7 +531,6 @@ public class AdminScheduleService {
         schedule.setStartTime(sTime);
         schedule.setEndTime(eTime);
         schedule.setRoom(room);
-        schedule.setAcademicYear(req.getAcademicYear() != null && !req.getAcademicYear().isBlank() ? req.getAcademicYear().trim() : "2025-2026");
 
         CourseSchedule saved = courseScheduleRepository.save(schedule);
         return mapToDto(saved);

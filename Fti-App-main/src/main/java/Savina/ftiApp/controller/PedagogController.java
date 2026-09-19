@@ -50,9 +50,10 @@ public class PedagogController {
     public ResponseEntity<PedagogRegisterDto> getRegisterData(
             @RequestParam(required = false) Integer courseId,
             @RequestParam(required = false) Integer classId,
+            @RequestParam(required = false) String classIds,
             @RequestParam(required = false) String academicYear,
             @RequestParam(required = false) String roleType) {
-        PedagogRegisterDto data = pedagogService.getRegisterData(courseId, classId, academicYear, roleType);
+        PedagogRegisterDto data = pedagogService.getRegisterData(courseId, classId, classIds, academicYear, roleType);
         return ResponseEntity.ok(data);
     }
 

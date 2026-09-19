@@ -25,6 +25,7 @@ public class AcademicPromotionService {
     private final StudentRepository studentRepository;
     private final GradeRepository gradeRepository;
     private final ClassesRepository classesRepository;
+    private final AcademicYearService academicYearService;
 
     @Transactional
     public PromotionResultDto promoteAllStudents() {
@@ -170,9 +171,11 @@ public class AcademicPromotionService {
                     .build());
         }
 
+        String nextAcademicYear = academicYearService.advanceAcademicYear();
+
         String summaryMessage = String.format(
-                "Përmbyllja e vitit akademik përfundoi me sukses! U përpunuan %d studentë: %d kaluan në Vitin 2, %d kaluan në Vitin 3, %d u diplomuan, %d mbetën përsëritës.",
-                totalProcessed, promoted1To2, promoted2To3, graduated, (repeating1 + repeating2 + repeating3)
+                "Përmbyllja e vitit akademik përfundoi me sukses! Viti i ri akademik: %s. U përpunuan %d studentë: %d kaluan në Vitin 2, %d kaluan në Vitin 3, %d u diplomuan, %d mbetën përsëritës.",
+                nextAcademicYear, totalProcessed, promoted1To2, promoted2To3, graduated, (repeating1 + repeating2 + repeating3)
         );
 
         log.info(summaryMessage);
@@ -186,6 +189,7 @@ public class AcademicPromotionService {
                 .repeatingYear2(repeating2)
                 .repeatingYear3(repeating3)
                 .message(summaryMessage)
+                .newAcademicYear(nextAcademicYear)
                 .details(details)
                 .build();
     }

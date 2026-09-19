@@ -14,6 +14,7 @@ import java.util.List;
 public class TeachingAllocationRequest {
     private Integer courseId;
     private String semester;
+    private String academicYear;
     private Integer durationWeeks;
     private Double totalHours;
     private Double lectureHours;

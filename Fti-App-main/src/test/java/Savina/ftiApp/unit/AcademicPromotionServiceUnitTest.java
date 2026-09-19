@@ -10,6 +10,7 @@ import Savina.ftiApp.repository.ClassesRepository;
 import Savina.ftiApp.repository.GradeRepository;
 import Savina.ftiApp.repository.StudentRepository;
 import Savina.ftiApp.service.AcademicPromotionService;
+import Savina.ftiApp.service.AcademicYearService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ class AcademicPromotionServiceUnitTest {
     @Mock
     private ClassesRepository classesRepository;
 
+    @Mock
+    private AcademicYearService academicYearService;
+
     @InjectMocks
     private AcademicPromotionService promotionService;
 
@@ -59,11 +63,13 @@ class AcademicPromotionServiceUnitTest {
 
         when(studentRepository.findAll()).thenReturn(List.of(student));
         when(gradeRepository.findByStudentStudentId(10)).thenReturn(List.of(g));
+        when(academicYearService.advanceAcademicYear()).thenReturn("2027-2028");
 
         PromotionResultDto result = promotionService.promoteAllStudents();
 
         assertThat(result).isNotNull();
         assertThat(result.getPromotedYear1To2()).isEqualTo(1);
+        assertThat(result.getNewAcademicYear()).isEqualTo("2027-2028");
         assertThat(student.getVitStudimit()).isEqualTo(2);
         verify(studentRepository, times(1)).save(student);
     }
@@ -89,11 +95,13 @@ class AcademicPromotionServiceUnitTest {
 
         when(studentRepository.findAll()).thenReturn(List.of(student));
         when(gradeRepository.findByStudentStudentId(20)).thenReturn(List.of(g));
+        when(academicYearService.advanceAcademicYear()).thenReturn("2027-2028");
 
         PromotionResultDto result = promotionService.promoteAllStudents();
 
         assertThat(result).isNotNull();
         assertThat(result.getRepeatingYear1()).isEqualTo(1);
+        assertThat(result.getNewAcademicYear()).isEqualTo("2027-2028");
         assertThat(student.getStatus()).isEqualTo("REPEATING");
         assertThat(student.getVitStudimit()).isEqualTo(1);
         verify(studentRepository, times(1)).save(student);

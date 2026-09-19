@@ -44,6 +44,7 @@ public class PedagogOptionsDto {
         private List<Integer> departmentIds;
         private String programName;
         private List<String> branches;
+        private List<String> roleTypes;
     }
 
     @Data

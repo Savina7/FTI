@@ -31,4 +31,7 @@ public interface TeachingCourseRepository extends JpaRepository<TeachingCourse, 
             + "left join fetch tc.classes cl "
             + "where tc.professor.professorId = :professorId")
     List<TeachingCourse> findTeachingCoursesByProfessorId(@Param("professorId") Integer professorId);
+
+    @Query("SELECT DISTINCT tc.academicYear FROM TeachingCourse tc WHERE tc.academicYear IS NOT NULL AND tc.academicYear <> ''")
+    List<String> findDistinctAcademicYears();
 }

@@ -43,6 +43,7 @@ public class AdminTeachingCourseService {
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
     private final TeachingCourseMapper teachingCourseMapper;
+    private final AcademicYearService academicYearService;
 
     @Transactional(readOnly = true)
     public List<TeachingAllocationDto> getAllAllocations() {
@@ -118,6 +119,9 @@ public class AdminTeachingCourseService {
         Double courseWorkHours = req.getCourseWorkHours() != null ? req.getCourseWorkHours() : autoTotCw;
         Double practiceHours = req.getPracticeHours() != null ? req.getPracticeHours() : autoTotPr;
 
+        String acadYear = (req.getAcademicYear() != null && !req.getAcademicYear().isBlank())
+                ? req.getAcademicYear().trim() : academicYearService.getCurrentAcademicYear();
+
         List<TeachingCourse> existing = teachingCourseRepository.findByCourseCourseId(req.getCourseId());
         List<TeachingCourse> existingLeksion = existing.stream()
                 .filter(tc -> "LEKSION".equalsIgnoreCase(tc.getRoleType()))
@@ -152,6 +156,7 @@ public class AdminTeachingCourseService {
                 if (!existingLeksion.isEmpty()) {
                     TeachingCourse tc = existingLeksion.remove(0);
                     tc.setProfessor(prof);
+                    tc.setAcademicYear(acadYear);
                     tc.setWeeklyHours(weeklyLecture);
                     tc.setTotalHours(lectureHours);
                     tc.setClasses(lectureClasses);
@@ -161,6 +166,7 @@ public class AdminTeachingCourseService {
                             .course(course)
                             .professor(prof)
                             .roleType("LEKSION")
+                            .academicYear(acadYear)
                             .weeklyHours(weeklyLecture)
                             .totalHours(lectureHours)
                             .classes(lectureClasses)
@@ -180,6 +186,7 @@ public class AdminTeachingCourseService {
                         if (!existingSeminar.isEmpty()) {
                             TeachingCourse tc = existingSeminar.remove(0);
                             tc.setProfessor(prof);
+                            tc.setAcademicYear(acadYear);
                             tc.setWeeklyHours(weeklySeminar);
                             tc.setTotalHours(seminarHours);
                             tc.setClasses(semClasses);
@@ -189,6 +196,7 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("SEMINAR")
+                                    .academicYear(acadYear)
                                     .weeklyHours(weeklySeminar)
                                     .totalHours(seminarHours)
                                     .classes(semClasses)
@@ -210,6 +218,7 @@ public class AdminTeachingCourseService {
                         if (!existingLab.isEmpty()) {
                             TeachingCourse tc = existingLab.remove(0);
                             tc.setProfessor(prof);
+                            tc.setAcademicYear(acadYear);
                             tc.setWeeklyHours(weeklyLab);
                             tc.setTotalHours(labHours);
                             tc.setClasses(labClasses);
@@ -219,6 +228,7 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("LABORATOR")
+                                    .academicYear(acadYear)
                                     .weeklyHours(weeklyLab)
                                     .totalHours(labHours)
                                     .classes(labClasses)
@@ -240,6 +250,7 @@ public class AdminTeachingCourseService {
                         if (!existingCourseWork.isEmpty()) {
                             TeachingCourse tc = existingCourseWork.remove(0);
                             tc.setProfessor(prof);
+                            tc.setAcademicYear(acadYear);
                             tc.setWeeklyHours(weeklyCourseWork);
                             tc.setTotalHours(courseWorkHours);
                             tc.setClasses(cwClasses);
@@ -249,6 +260,7 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("DETYRE_KURSI")
+                                    .academicYear(acadYear)
                                     .weeklyHours(weeklyCourseWork)
                                     .totalHours(courseWorkHours)
                                     .classes(cwClasses)
@@ -270,6 +282,7 @@ public class AdminTeachingCourseService {
                         if (!existingPractice.isEmpty()) {
                             TeachingCourse tc = existingPractice.remove(0);
                             tc.setProfessor(prof);
+                            tc.setAcademicYear(acadYear);
                             tc.setWeeklyHours(weeklyPractice);
                             tc.setTotalHours(practiceHours);
                             tc.setClasses(prClasses);
@@ -279,6 +292,7 @@ public class AdminTeachingCourseService {
                                     .course(course)
                                     .professor(prof)
                                     .roleType("PRAKTIKE")
+                                    .academicYear(acadYear)
                                     .weeklyHours(weeklyPractice)
                                     .totalHours(practiceHours)
                                     .classes(prClasses)
@@ -420,82 +434,192 @@ public class AdminTeachingCourseService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getEvidenca(Integer professorId) {
-        List<TeachingAllocationDto> all = getAllAllocations();
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (TeachingAllocationDto alloc : all) {
-            boolean hasLecture = alloc.getLectureProfessor() != null &&
-                    (professorId == null || professorId.equals(alloc.getLectureProfessor().getProfessorId()));
-            boolean hasSeminar = alloc.getSeminarProfessors() != null && alloc.getSeminarProfessors().stream()
-                    .anyMatch(sp -> professorId == null || professorId.equals(sp.getProfessorId()));
-            boolean hasLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream()
-                    .anyMatch(lp -> professorId == null || professorId.equals(lp.getProfessorId()));
-            boolean hasCourseWork = alloc.getCourseWorkProfessors() != null && alloc.getCourseWorkProfessors().stream()
-                    .anyMatch(cp -> professorId == null || professorId.equals(cp.getProfessorId()));
-            boolean hasPractice = alloc.getPracticeProfessors() != null && alloc.getPracticeProfessors().stream()
-                    .anyMatch(pp -> professorId == null || professorId.equals(pp.getProfessorId()));
+        return getEvidenca(professorId, null, null);
+    }
 
-            if (professorId != null) {
-                if (hasLecture || hasSeminar || hasLab || hasCourseWork || hasPractice) {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("professorId", professorId);
-                    map.put("courseId", alloc.getCourseId());
-                    map.put("courseEmri", alloc.getCourseEmri());
-                    map.put("programEmri", alloc.getProgramName());
-                    map.put("kredite", alloc.getCourseKredite());
-                    map.put("oreLeksion", hasLecture ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
-                    map.put("oreSeminar", hasSeminar ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
-                    map.put("oreLaborator", hasLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
-                    map.put("oreDetyreKursi", hasCourseWork ? (alloc.getCourseWorkHours() != null ? alloc.getCourseWorkHours() : 15) : 0);
-                    map.put("orePraktike", hasPractice ? (alloc.getPracticeHours() != null ? alloc.getPracticeHours() : 30) : 0);
-                    list.add(map);
-                }
-            } else {
-                Set<Integer> pIds = new HashSet<>();
-                if (alloc.getLectureProfessor() != null && alloc.getLectureProfessor().getProfessorId() != null) {
-                    pIds.add(alloc.getLectureProfessor().getProfessorId());
-                }
-                if (alloc.getSeminarProfessors() != null) {
-                    alloc.getSeminarProfessors().forEach(sp -> {
-                        if (sp.getProfessorId() != null) pIds.add(sp.getProfessorId());
-                    });
-                }
-                if (alloc.getLabProfessors() != null) {
-                    alloc.getLabProfessors().forEach(lp -> {
-                        if (lp.getProfessorId() != null) pIds.add(lp.getProfessorId());
-                    });
-                }
-                if (alloc.getCourseWorkProfessors() != null) {
-                    alloc.getCourseWorkProfessors().forEach(cp -> {
-                        if (cp.getProfessorId() != null) pIds.add(cp.getProfessorId());
-                    });
-                }
-                if (alloc.getPracticeProfessors() != null) {
-                    alloc.getPracticeProfessors().forEach(pp -> {
-                        if (pp.getProfessorId() != null) pIds.add(pp.getProfessorId());
-                    });
-                }
-                for (Integer pId : pIds) {
-                    boolean pLec = alloc.getLectureProfessor() != null && pId.equals(alloc.getLectureProfessor().getProfessorId());
-                    boolean pSem = alloc.getSeminarProfessors() != null && alloc.getSeminarProfessors().stream().anyMatch(sp -> pId.equals(sp.getProfessorId()));
-                    boolean pLab = alloc.getLabProfessors() != null && alloc.getLabProfessors().stream().anyMatch(lp -> pId.equals(lp.getProfessorId()));
-                    boolean pCw = alloc.getCourseWorkProfessors() != null && alloc.getCourseWorkProfessors().stream().anyMatch(cp -> pId.equals(cp.getProfessorId()));
-                    boolean pPr = alloc.getPracticeProfessors() != null && alloc.getPracticeProfessors().stream().anyMatch(pp -> pId.equals(pp.getProfessorId()));
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getEvidenca(Integer professorId, String semester, String academicYear) {
+        List<TeachingCourse> tcs;
+        if (professorId != null) {
+            try {
+                tcs = teachingCourseRepository.findByProfessorIdWithDetails(professorId);
+            } catch (Exception ex) {
+                tcs = teachingCourseRepository.findByProfessorProfessorId(professorId);
+            }
+        } else {
+            tcs = teachingCourseRepository.findAll();
+        }
 
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("professorId", pId);
-                    map.put("courseId", alloc.getCourseId());
-                    map.put("courseEmri", alloc.getCourseEmri());
-                    map.put("programEmri", alloc.getProgramName());
-                    map.put("kredite", alloc.getCourseKredite());
-                    map.put("oreLeksion", pLec ? (alloc.getLectureHours() != null ? alloc.getLectureHours() : 30) : 0);
-                    map.put("oreSeminar", pSem ? (alloc.getSeminarHours() != null ? alloc.getSeminarHours() : 30) : 0);
-                    map.put("oreLaborator", pLab ? (alloc.getLabHours() != null ? alloc.getLabHours() : 15) : 0);
-                    map.put("oreDetyreKursi", pCw ? (alloc.getCourseWorkHours() != null ? alloc.getCourseWorkHours() : 15) : 0);
-                    map.put("orePraktike", pPr ? (alloc.getPracticeHours() != null ? alloc.getPracticeHours() : 30) : 0);
-                    list.add(map);
+        // Group by course name so same-named courses across programs merge cleanly
+        Map<String, Map<String, Object>> grouped = new java.util.LinkedHashMap<>();
+
+        for (TeachingCourse tc : tcs) {
+            if (tc.getCourse() == null) continue;
+            Course c = tc.getCourse();
+
+            // Filter semester if provided
+            if (semester != null && !semester.isBlank()) {
+                String cSem = c.getSemester() != null ? c.getSemester().trim() : "1";
+                if (!matchesSemesterHelper(cSem, semester)) {
+                    continue;
                 }
             }
+
+            // Filter academic year if provided
+            if (academicYear != null && !academicYear.isBlank()) {
+                String tcAy = tc.getAcademicYear() != null ? tc.getAcademicYear().trim() : "";
+                if (!tcAy.isEmpty() && !tcAy.equalsIgnoreCase(academicYear.trim())) {
+                    continue;
+                }
+            }
+
+            String courseName = c.getEmriCourse() != null ? c.getEmriCourse().trim() : ("Lenda " + c.getCourseId());
+            String groupKey = courseName.toLowerCase();
+
+            Map<String, Object> entry = grouped.computeIfAbsent(groupKey, k -> {
+                Map<String, Object> map = new java.util.LinkedHashMap<>();
+                map.put("courseId", c.getCourseId());
+                map.put("courseEmri", courseName);
+                String prog = (c.getProgram() != null && c.getProgram().getSpecializimi() != null)
+                        ? c.getProgram().getSpecializimi()
+                        : "—";
+                Set<String> progs = new java.util.LinkedHashSet<>();
+                progs.add(prog);
+                map.put("_programs", progs);
+                map.put("programEmri", prog);
+                map.put("semester", c.getSemester() != null ? c.getSemester() : "1");
+                map.put("academicYear", tc.getAcademicYear() != null ? tc.getAcademicYear() : academicYearService.getCurrentAcademicYear());
+                map.put("kredite", c.getKredite() != null ? c.getKredite() : 6);
+                map.put("krediteLeksion", c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : null);
+                map.put("krediteSeminar", c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : null);
+                map.put("krediteLaborator", c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : null);
+                map.put("krediteDetyreKursi", c.getKrediteDetyreKursi() != null ? c.getKrediteDetyreKursi().doubleValue() : null);
+                map.put("kreditePraktike", c.getKreditePraktike() != null ? c.getKreditePraktike().doubleValue() : null);
+                map.put("studyYear", c.getStudyYear());
+                map.put("oreLeksion", 0.0);
+                map.put("oreSeminar", 0.0);
+                map.put("oreLaborator", 0.0);
+                map.put("oreDetyreKursi", 0.0);
+                map.put("orePraktike", 0.0);
+                map.put("grupiLeksion", "");
+                map.put("grupiSeminar", "");
+                map.put("grupiLaborator", "");
+                map.put("grupiDetyreKursi", "");
+                map.put("grupiPraktike", "");
+                return map;
+            });
+
+            if (c.getProgram() != null && c.getProgram().getSpecializimi() != null) {
+                @SuppressWarnings("unchecked")
+                Set<String> progs = (Set<String>) entry.get("_programs");
+                progs.add(c.getProgram().getSpecializimi());
+                entry.put("programEmri", String.join(" / ", progs));
+            }
+
+            String role = tc.getRoleType() != null ? tc.getRoleType().trim().toUpperCase() : "LEKSION";
+
+            // Extract class groups
+            List<String> cNames = (tc.getClasses() != null && !tc.getClasses().isEmpty())
+                    ? tc.getClasses().stream()
+                        .map(Classes::getEmriClass)
+                        .filter(java.util.Objects::nonNull)
+                        .map(AdminTeachingCourseService::formatSingleGroupHelper)
+                        .filter(s -> !s.isEmpty())
+                        .distinct()
+                        .collect(Collectors.toList())
+                    : List.of();
+
+            int classCount = !cNames.isEmpty() ? cNames.size() : 1;
+            String groupStr = !cNames.isEmpty() ? String.join(", ", cNames) : "A";
+
+            boolean isMaster = (c.getProgram() != null && c.getProgram().getNivel() != null && c.getProgram().getNivel().toLowerCase().contains("master"));
+            double factorLec = isMaster ? 10.0 : 12.0;
+            double factorSem = isMaster ? 12.0 : 14.0;
+            double factorLab = 20.0;
+            double factorCw = 5.0;
+
+            double kL = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);
+            double kS = c.getKrediteSeminar() != null ? c.getKrediteSeminar().doubleValue() : 1.5;
+            double kLb = c.getKrediteLaborator() != null ? c.getKrediteLaborator().doubleValue() : 1.0;
+            double kDk = c.getKrediteDetyreKursi() != null ? c.getKrediteDetyreKursi().doubleValue() : 0.5;
+            double kPr = c.getKreditePraktike() != null ? c.getKreditePraktike().doubleValue() : 0.0;
+
+            double autoTotLec = (c.getKrediteLeksion() != null && c.getKrediteLeksion().doubleValue() == 0.0) ? 0.0 : kL * factorLec;
+            double autoTotSem = (c.getKrediteSeminar() != null && c.getKrediteSeminar().doubleValue() == 0.0) ? 0.0 : kS * factorSem;
+            double autoTotLab = (c.getKrediteLaborator() != null && c.getKrediteLaborator().doubleValue() == 0.0) ? 0.0 : kLb * factorLab;
+            double autoTotCw = (c.getKrediteDetyreKursi() != null && c.getKrediteDetyreKursi().doubleValue() == 0.0) ? 0.0 : kDk * factorCw;
+            double autoTotPr = (c.getKreditePraktike() != null && c.getKreditePraktike().doubleValue() == 0.0) ? 0.0 : kPr * 20.0;
+
+            if (role.contains("LEK")) {
+                double baseHrs = tc.getTotalHours() != null ? tc.getTotalHours() : autoTotLec;
+                entry.put("oreLeksion", (Double) entry.get("oreLeksion") + baseHrs);
+                entry.put("grupiLeksion", "Të gjitha klasat");
+            } else if (role.contains("SEM")) {
+                double baseHrs = tc.getTotalHours() != null ? tc.getTotalHours() : autoTotSem;
+                entry.put("oreSeminar", (Double) entry.get("oreSeminar") + (baseHrs * classCount));
+                entry.put("grupiSeminar", mergeGroupsHelper((String) entry.get("grupiSeminar"), groupStr));
+            } else if (role.contains("LAB")) {
+                double baseHrs = tc.getTotalHours() != null ? tc.getTotalHours() : autoTotLab;
+                entry.put("oreLaborator", (Double) entry.get("oreLaborator") + (baseHrs * classCount));
+                entry.put("grupiLaborator", mergeGroupsHelper((String) entry.get("grupiLaborator"), groupStr));
+            } else if (role.contains("DETYR")) {
+                double baseHrs = tc.getTotalHours() != null ? tc.getTotalHours() : autoTotCw;
+                entry.put("oreDetyreKursi", (Double) entry.get("oreDetyreKursi") + (baseHrs * classCount));
+                entry.put("grupiDetyreKursi", mergeGroupsHelper((String) entry.get("grupiDetyreKursi"), groupStr));
+            } else if (role.contains("PRAKTIK")) {
+                double baseHrs = tc.getTotalHours() != null ? tc.getTotalHours() : autoTotPr;
+                entry.put("orePraktike", (Double) entry.get("orePraktike") + (baseHrs * classCount));
+                entry.put("grupiPraktike", mergeGroupsHelper((String) entry.get("grupiPraktike"), groupStr));
+            }
         }
-        return list;
+
+        // Clean up temporary helper fields and return list (vetem lendet ku pedagogu ka ore reale > 0)
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> m : grouped.values()) {
+            m.remove("_programs");
+            double totalOre = (Double) m.getOrDefault("oreLeksion", 0.0)
+                    + (Double) m.getOrDefault("oreSeminar", 0.0)
+                    + (Double) m.getOrDefault("oreLaborator", 0.0)
+                    + (Double) m.getOrDefault("oreDetyreKursi", 0.0)
+                    + (Double) m.getOrDefault("orePraktike", 0.0);
+            if (totalOre > 0) {
+                result.add(m);
+            }
+        }
+        return result;
+    }
+
+    private static String formatSingleGroupHelper(String name) {
+        if (name == null) return "";
+        String s = name.trim();
+        if (s.toLowerCase().startsWith("grupi ") || s.toLowerCase().startsWith("grup ")) {
+            return s.substring(6).trim();
+        }
+        if (s.toLowerCase().startsWith("inxhinieri ") && s.contains("-")) {
+            return s.substring(s.indexOf('-') + 1).replace("Grupi", "").replace("grupi", "").trim();
+        }
+        return s;
+    }
+
+    private static String mergeGroupsHelper(String g1, String g2) {
+        if (g1 == null || g1.isBlank()) return g2 != null ? g2 : "";
+        if (g2 == null || g2.isBlank()) return g1;
+        Set<String> set = new java.util.LinkedHashSet<>();
+        for (String p : g1.split(",")) if (!p.trim().isEmpty()) set.add(p.trim());
+        for (String p : g2.split(",")) if (!p.trim().isEmpty()) set.add(p.trim());
+        return String.join(", ", set);
+    }
+
+    private static boolean matchesSemesterHelper(String courseSem, String selectedSem) {
+        if (selectedSem == null || selectedSem.isBlank()) return true;
+        String c = courseSem != null ? courseSem.trim().toUpperCase() : "1";
+        String s = selectedSem.trim().toUpperCase();
+        if (s.equals("1") || s.equals("I")) {
+            return c.equals("1") || c.equals("I") || c.contains("1");
+        }
+        if (s.equals("2") || s.equals("II")) {
+            return c.equals("2") || c.equals("II") || c.contains("2");
+        }
+        return c.equalsIgnoreCase(s);
     }
 }

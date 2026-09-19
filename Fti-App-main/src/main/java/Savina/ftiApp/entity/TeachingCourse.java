@@ -34,6 +34,9 @@ public class TeachingCourse {
     @Column(name = "ROLE_TYPE", length = 20)
     private String roleType;
 
+    @Column(name = "ACADEMIC_YEAR", length = 20)
+    private String academicYear;
+
     @Column(name = "WEEKLY_HOURS")
     private Double weeklyHours;
 

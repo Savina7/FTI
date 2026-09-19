@@ -40,7 +40,10 @@ public class AdminTeachingCourseController {
     }
 
     @GetMapping("/evidenca")
-    public ResponseEntity<List<Map<String, Object>>> getEvidenca(@RequestParam(required = false) Integer professorId) {
-        return ResponseEntity.ok(adminTeachingCourseService.getEvidenca(professorId));
+    public ResponseEntity<List<Map<String, Object>>> getEvidenca(
+            @RequestParam(required = false) Integer professorId,
+            @RequestParam(required = false) String semester,
+            @RequestParam(required = false) String academicYear) {
+        return ResponseEntity.ok(adminTeachingCourseService.getEvidenca(professorId, semester, academicYear));
     }
 }

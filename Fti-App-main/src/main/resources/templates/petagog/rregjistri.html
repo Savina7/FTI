@@ -6,20 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTI</title>
 
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<script src="/js/html2canvas.min.js"></script>
+    <script src="/js/html2canvas.min.js"></script>
     <script src="/js/jspdf.umd.min.js"></script>
 
-<link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/stylepetagog.css">
-    
+
     <script src="/js/auth-interceptor.js"></script>
 </head>
 
@@ -27,19 +27,19 @@
 
     <div class="d-flex vh-100 overflow-hidden" id="wrapper">
 
-<aside id="sidebar-wrapper"
+        <aside id="sidebar-wrapper"
             class="bg-white border-end d-flex flex-column justify-content-between h-100 flex-shrink-0"
             style="width: 250px;">
 
             <div>
-                
+
                 <div class="sidebar-heading px-3 py-3 border-bottom text-center">
                     <a href="#" class="d-block text-decoration-none">
                         <img src="/images/ftilogo.png" alt="FTI Logo" class="sidebar-logo" style="max-height: 40px;">
                     </a>
                 </div>
 
-<div class="list-group list-group-flush py-3" id="sidebarMenu">
+                <div class="list-group list-group-flush py-3" id="sidebarMenu">
                     <a href="/rregjistri" id="menuLendet"
                         class="list-group-item list-group-item-action border-0 px-4 py-2.5 active">
                         Menaxhimi i lendeve
@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-<div class="p-3 border-top bg-white">
+            <div class="p-3 border-top bg-white">
                 <a href="/" class="btn-logout d-flex align-items-center gap-2 px-3 py-2 text-decoration-none rounded-2">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
@@ -61,9 +61,9 @@
 
         </aside>
 
-<div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
+        <div id="page-content-wrapper" class="w-100 bg-light d-flex flex-column h-100 overflow-hidden">
 
-<header
+            <header
                 class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 py-2 justify-content-between flex-shrink-0">
                 <div class="d-flex align-items-center">
                     <h6 class="mb-0 fw-bold text-dark" id="headerTitle"></h6>
@@ -76,34 +76,32 @@
                 </div>
             </header>
 
-<main class="flex-grow-1 overflow-y-auto p-4">
+            <main class="flex-grow-1 overflow-y-auto p-4">
 
                 <div class="container-fluid py-2">
 
-<div id="sectionMenaxhimiLendeve">
-                        
+                    <div id="sectionMenaxhimiLendeve">
+
                         <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
                             <h6 class="fw-bold mb-3 text-dark">Zgjidh rregjistrin</h6>
 
                             <form id="filterForm" onsubmit="harversoKerkimin(event)">
                                 <div class="row g-2 align-items-end">
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectVitiAkademik" required>
                                             <option value="2025-2026" selected>Viti 2025-2026</option>
-                                            <option value="2024-2025">Viti 2024-2025</option>
-                                            <option value="2026-2027">Viti 2026-2027</option>
                                         </select>
                                     </div>
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectTipiOres" required>
                                             <option value="Seminar" selected>Seminar</option>
                                             <option value="Laborator">Laborator</option>
                                         </select>
                                     </div>
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectDepartamenti" required>
                                             <option value="Departamenti i Inxhinierise Kompjuterike" data-dept-id="1"
                                                 selected>Departamenti i Inxhinierise Kompjuterike</option>
@@ -113,7 +111,7 @@
                                         </select>
                                     </div>
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectLenda" required>
                                             <option value="Programim ne Web" data-course-id="1" selected>Programim ne
                                                 Web</option>
@@ -123,7 +121,7 @@
                                         </select>
                                     </div>
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <select class="form-select form-select-sm" id="selectKlasa" required>
                                             <option value="Inxhinieri Informatike - Grupi A" data-class-id="1" selected>
                                                 Inxhinieri Informatike - Grupi A</option>
@@ -134,7 +132,7 @@
                                         </select>
                                     </div>
 
-<div class="col-md-2">
+                                    <div class="col-md-2">
                                         <button type="submit" class="btn btn-amber-light btn-sm w-100 fw-semibold">
                                             Kerko
                                         </button>
@@ -144,13 +142,13 @@
                             </form>
                         </div>
 
-<div id="searchResultsSection" class="d-none">
+                        <div id="searchResultsSection" class="d-none">
 
                             <div class="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
 
-<div class="card-header bg-white border-bottom px-4 pt-3 pb-0">
+                                <div class="card-header bg-white border-bottom px-4 pt-3 pb-0">
                                     <ul class="nav custom-connected-tabs border-0" id="pedagogTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
+                                        <li class="nav-item" id="navItemTema" role="presentation">
                                             <button class="connected-tab-btn active" id="tema-tab" data-bs-toggle="tab"
                                                 data-bs-target="#tema-pane" type="button" role="tab">
                                                 Tema
@@ -162,13 +160,13 @@
                                                 Regjistri
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
+                                        <li class="nav-item" id="navItemMungesat" role="presentation">
                                             <button class="connected-tab-btn" id="mungesat-tab" data-bs-toggle="tab"
                                                 data-bs-target="#mungesat-pane" type="button" role="tab">
                                                 Mungesat
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
+                                        <li class="nav-item" id="navItemProvimi" role="presentation">
                                             <button class="connected-tab-btn" id="provimi-tab" data-bs-toggle="tab"
                                                 data-bs-target="#provimi-pane" type="button" role="tab">
                                                 Provimi
@@ -178,10 +176,10 @@
                                     </ul>
                                 </div>
 
-<div class="card-body p-4">
+                                <div class="card-body p-4">
                                     <div class="tab-content" id="pedagogTabsContent">
 
-<div class="tab-pane fade show active" id="tema-pane" role="tabpanel">
+                                        <div class="tab-pane fade show active" id="tema-pane" role="tabpanel">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h6 class="fw-bold mb-0 text-dark"></h6>
                                                 <button type="button" class="btn btn-amber-light btn-sm fw-semibold"
@@ -202,13 +200,13 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody id="tematTableBody">
-                                                        
+
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
 
-<div class="tab-pane fade" id="rregjistri-pane" role="tabpanel">
+                                        <div class="tab-pane fade" id="rregjistri-pane" role="tabpanel">
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h6 class="fw-bold mb-0 text-dark">Rregjistri i notave</h6>
 
@@ -268,7 +266,7 @@
                                             </div>
                                         </div>
 
-<div class="tab-pane fade" id="mungesat-pane" role="tabpanel">
+                                        <div class="tab-pane fade" id="mungesat-pane" role="tabpanel">
                                             <div class="d-flex justify-content-end align-items-center mb-3">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div id="statusMungesatMsg" class="d-none"></div>
@@ -294,7 +292,7 @@
                                             </div>
                                         </div>
 
-<div class="tab-pane fade" id="provimi-pane" role="tabpanel">
+                                        <div class="tab-pane fade" id="provimi-pane" role="tabpanel">
                                             <div class="d-flex justify-content-end align-items-center mb-3">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div id="statusProvimiMsg" class="d-none"></div>
@@ -333,7 +331,7 @@
                                             </div>
                                         </div>
 
-</div>
+                                    </div>
                                 </div>
 
                             </div>
@@ -349,9 +347,9 @@
 
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+    <script>
         const _jwt = localStorage.getItem('jwtToken'); const _h = _jwt ? { 'Authorization': 'Bearer ' + _jwt } : {};
         let pedagogOptionsData = null;
         let currentRegisterData = null;
@@ -418,7 +416,7 @@
             if (selectViti) {
                 const years = (pedagogOptionsData.academicYears && pedagogOptionsData.academicYears.length > 0)
                     ? pedagogOptionsData.academicYears
-                    : ["2025-2026", "2024-2025", "2026-2027"];
+                    : ["2025-2026"];
                 selectViti.innerHTML = '';
                 years.forEach((y, idx) => {
                     const opt = document.createElement('option');
@@ -427,6 +425,9 @@
                     if (idx === 0) opt.selected = true;
                     selectViti.appendChild(opt);
                 });
+                selectViti.onchange = function () {
+                    harversoKerkimin(new Event('submit'));
+                };
             }
 
             // 3. Tipi i Ores (VETEM tipet qe ky profesor jep: Seminar dhe/ose Laborator nga API)
@@ -445,23 +446,8 @@
                 });
 
                 selectTipi.onchange = function () {
-                    const isLab = this.value && this.value.toLowerCase().includes('laborator');
-                    const tabRegItem = document.getElementById('navItemRregjistri');
-                    const paneReg = document.getElementById('rregjistri-pane');
-                    const temaTabBtn = document.getElementById('tema-tab');
-                    const regTabBtn = document.getElementById('rregjistri-tab');
-
-                    if (isLab) {
-                        if (tabRegItem) tabRegItem.classList.add('d-none');
-                        if (paneReg) paneReg.classList.add('d-none');
-                        if (regTabBtn && regTabBtn.classList.contains('active') && temaTabBtn) {
-                            bootstrap.Tab.getOrCreateInstance(temaTabBtn).show();
-                        }
-                    } else {
-                        if (tabRegItem) tabRegItem.classList.remove('d-none');
-                        if (paneReg) paneReg.classList.remove('d-none');
-                    }
-                    filterClassesBySelectedCourse();
+                    filterCoursesBySelectedDepartment();
+                    harversoKerkimin(new Event('submit'));
                 };
             }
 
@@ -488,6 +474,7 @@
 
                 selectDept.onchange = function () {
                     filterCoursesBySelectedDepartment();
+                    harversoKerkimin(new Event('submit'));
                 };
             }
 
@@ -509,24 +496,48 @@
             }
 
             const selectDept = document.getElementById('selectDepartamenti');
+            const selectTipi = document.getElementById('selectTipiOres');
             const selectedOption = selectDept && selectDept.selectedIndex >= 0 ? selectDept.options[selectDept.selectedIndex] : null;
+            const selectedType = selectTipi && selectTipi.value ? selectTipi.value.toUpperCase() : '';
 
-            let filteredCourses = pedagogOptionsData.courses || [];
+            let courses = pedagogOptionsData.courses || [];
+
+            // Filter by department
             if (selectedOption && selectedOption.dataset && selectedOption.dataset.deptId) {
                 const deptId = parseInt(selectedOption.dataset.deptId);
-                const matched = (pedagogOptionsData.courses || []).filter(c => {
+                const matched = courses.filter(c => {
                     if (c.departmentId && c.departmentId === deptId) return true;
                     if (c.departmentIds && c.departmentIds.includes(deptId)) return true;
                     return false;
                 });
-                // Nese filtri sipas dept jep rezultate, perdori; nese jo, trego te gjitha
                 if (matched.length > 0) {
-                    filteredCourses = matched;
+                    courses = matched;
                 }
-                // Nese asnje kurs nuk ka departmentId, trego te gjitha (shmang listen bosh)
             }
 
-            populateCourses(filteredCourses);
+            // Filter by selected type (Seminar vs Laborator vs Praktikë)
+            if (selectedType) {
+                courses = courses.filter(c => {
+                    if (c.roleTypes && c.roleTypes.length > 0) {
+                        if (selectedType.includes('LAB')) return c.roleTypes.some(r => r.toUpperCase().includes('LAB'));
+                        if (selectedType.includes('SEM')) return c.roleTypes.some(r => r.toUpperCase().includes('SEM'));
+                        if (selectedType.includes('PRAKTIK')) return c.roleTypes.some(r => r.toUpperCase().includes('PRAKTIK'));
+                    }
+                    const hasMatchingClass = (pedagogOptionsData.classes || []).some(cl => {
+                        const matchesCourse = (cl.courseId && cl.courseId === c.id) || (cl.courseIds && cl.courseIds.includes(c.id));
+                        if (!matchesCourse) return false;
+                        if (!cl.roleType) return false;
+                        const r = cl.roleType.toUpperCase();
+                        if (selectedType.includes('LAB')) return r.includes('LAB');
+                        if (selectedType.includes('SEM')) return r.includes('SEM');
+                        if (selectedType.includes('PRAKTIK')) return r.includes('PRAKTIK');
+                        return true;
+                    });
+                    return hasMatchingClass;
+                });
+            }
+
+            populateCourses(courses);
         }
 
         function populateCourses(courseList) {
@@ -536,18 +547,41 @@
             selectLenda.innerHTML = '';
             let listToUse = (courseList && courseList.length > 0)
                 ? courseList
-                : (pedagogOptionsData && pedagogOptionsData.courses ? pedagogOptionsData.courses : []);
+                : [];
 
             if (!listToUse || listToUse.length === 0) {
-                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lende te caktuara</option>';
+                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lëndë për këtë tip ore</option>';
                 populateClasses([]);
                 return;
             }
 
-            listToUse.forEach((c, idx) => {
+            const seenNames = new Set();
+            const uniqueCourses = [];
+
+            listToUse.forEach(c => {
+                const normName = (c.name || '').trim().toLowerCase();
+                if (!seenNames.has(normName)) {
+                    seenNames.add(normName);
+                    uniqueCourses.push({
+                        ...c,
+                        allCourseIds: c.id ? [c.id] : []
+                    });
+                } else {
+                    const existing = uniqueCourses.find(item => (item.name || '').trim().toLowerCase() === normName);
+                    if (existing && c.id && !existing.allCourseIds.includes(c.id)) {
+                        existing.allCourseIds.push(c.id);
+                    }
+                }
+            });
+
+            // Sort courses alphabetically
+            uniqueCourses.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'sq', { numeric: true, sensitivity: 'base' }));
+
+            uniqueCourses.forEach((c, idx) => {
                 const opt = document.createElement('option');
                 opt.value = c.name;
                 opt.dataset.courseId = c.id || '';
+                opt.dataset.allCourseIds = (c.allCourseIds || [c.id]).join(',');
                 opt.dataset.studyYear = c.studyYear || '';
                 opt.dataset.deptId = c.departmentId || '';
                 opt.textContent = c.name;
@@ -557,6 +591,7 @@
 
             selectLenda.onchange = function () {
                 filterClassesBySelectedCourse();
+                harversoKerkimin(new Event('submit'));
             };
 
             filterClassesBySelectedCourse();
@@ -573,27 +608,36 @@
             const selectedOption = selectLenda && selectLenda.selectedIndex >= 0 ? selectLenda.options[selectLenda.selectedIndex] : null;
 
             const courseId = selectedOption && selectedOption.dataset && selectedOption.dataset.courseId ? parseInt(selectedOption.dataset.courseId) : null;
+            const allCourseIds = (selectedOption && selectedOption.dataset && selectedOption.dataset.allCourseIds)
+                ? selectedOption.dataset.allCourseIds.split(',').map(x => parseInt(x)).filter(Boolean)
+                : (courseId ? [courseId] : []);
+
             const selectedType = selectTipi && selectTipi.value ? selectTipi.value.toUpperCase() : '';
 
+            // Strict roleType match - returns true only if the class role matches the selected type
+            const typeMatchesRole = (clRole, selType) => {
+                if (!selType) return true;
+                if (!clRole) return false;
+                const r = clRole.toUpperCase();
+                if (selType.includes('LAB')) return r.includes('LAB');
+                if (selType.includes('SEM')) return r.includes('SEM');
+                if (selType.includes('PRAKTIK')) return r.includes('PRAKTIK');
+                return true;
+            };
+
             let filtered = (pedagogOptionsData.classes || []).filter(cl => {
-                if (courseId) {
-                    const matchesCourse = (cl.courseId && cl.courseId === courseId) || (cl.courseIds && cl.courseIds.includes(courseId));
+                if (allCourseIds.length > 0) {
+                    const matchesCourse = (cl.courseId && allCourseIds.includes(cl.courseId)) ||
+                                          (cl.courseIds && cl.courseIds.some(id => allCourseIds.includes(id)));
                     if (!matchesCourse) return false;
                 }
-
-                if (selectedType) {
-                    if (selectedType.includes('LAB') && cl.roleType && !cl.roleType.includes('LAB')) return false;
-                    if (selectedType.includes('SEM') && cl.roleType && !cl.roleType.includes('SEM')) return false;
-                }
+                if (!typeMatchesRole(cl.roleType, selectedType)) return false;
                 return true;
             });
 
-            if (filtered.length === 0 && pedagogOptionsData.classes && pedagogOptionsData.classes.length > 0) {
-                filtered = pedagogOptionsData.classes;
-            }
-
             populateClasses(filtered);
         }
+
 
         function populateClasses(classList) {
             const selectKlasa = document.getElementById('selectKlasa');
@@ -609,22 +653,50 @@
                 return;
             }
 
-            const added = new Set();
-            let hasSelected = false;
-            listToUse.forEach((cl, idx) => {
-                if (!added.has(cl.name)) {
-                    added.add(cl.name);
-                    const opt = document.createElement('option');
-                    opt.value = cl.name;
-                    opt.dataset.classId = cl.id || '';
-                    opt.textContent = cl.name;
-                    if (!hasSelected) {
-                        opt.selected = true;
-                        hasSelected = true;
+            // Deduplicate classes by normalized name and group their classIds
+            const uniqueClasses = [];
+            listToUse.forEach(cl => {
+                const normName = (cl.name || '').trim();
+                if (!normName) return;
+                const existing = uniqueClasses.find(x => (x.name || '').trim().toLowerCase() === normName.toLowerCase());
+                if (!existing) {
+                    uniqueClasses.push({
+                        id: cl.id,
+                        name: normName,
+                        allClassIds: cl.id ? [cl.id] : (cl.allClassIds ? [...cl.allClassIds] : [])
+                    });
+                } else {
+                    if (cl.id && !existing.allClassIds.includes(cl.id)) {
+                        existing.allClassIds.push(cl.id);
                     }
-                    selectKlasa.appendChild(opt);
+                    if (cl.allClassIds) {
+                        cl.allClassIds.forEach(id => {
+                            if (!existing.allClassIds.includes(id)) existing.allClassIds.push(id);
+                        });
+                    }
                 }
             });
+
+            // Sort alphabetically in natural order (e.g. Grupi A, Grupi B, Grupi C, Grupi D)
+            uniqueClasses.sort((a, b) => a.name.localeCompare(b.name, 'sq', { numeric: true, sensitivity: 'base' }));
+
+            let hasSelected = false;
+            uniqueClasses.forEach((cl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = cl.name;
+                opt.dataset.classId = cl.id || '';
+                opt.dataset.allClassIds = (cl.allClassIds || [cl.id]).join(',');
+                opt.textContent = cl.name;
+                if (!hasSelected) {
+                    opt.selected = true;
+                    hasSelected = true;
+                }
+                selectKlasa.appendChild(opt);
+            });
+
+            selectKlasa.onchange = function () {
+                harversoKerkimin(new Event('submit'));
+            };
         }
 
         // 2. KERKIMI & NGARKIMI I TE DHENAVE TE REGJISTRIT
@@ -644,9 +716,19 @@
             const courseId = selectedCourseOpt && selectedCourseOpt.dataset ? selectedCourseOpt.dataset.courseId : null;
             const courseName = selectedCourseOpt ? selectedCourseOpt.value : "Lenda";
             const classId = selectedClassOpt && selectedClassOpt.dataset ? selectedClassOpt.dataset.classId : null;
+            const allClassIds = selectedClassOpt && selectedClassOpt.dataset ? selectedClassOpt.dataset.allClassIds : null;
             const className = selectedClassOpt ? selectedClassOpt.value : "Grupi";
             const academicYear = selectViti ? selectViti.value : "2025-2026";
-            const roleType = selectTipi ? selectTipi.value : "Seminar";
+            const displayRoleType = selectTipi ? selectTipi.value : "Seminar";
+            // Map display name to backend roleType string
+            const roleTypeMap = {
+                'Seminar': 'SEMINAR',
+                'Laborator': 'LABORATOR',
+                'Detyra Kursi': 'DETYRE_KURSI',
+                'Praktikë': 'PRAKTIKE',
+                'Praktike': 'PRAKTIKE'
+            };
+            const roleType = roleTypeMap[displayRoleType] || displayRoleType.toUpperCase();
             const deptName = selectDept ? selectDept.value : "";
 
             // Perditeso Header-at
@@ -658,37 +740,61 @@
                 statsHeaderP.innerHTML = `<strong>Dega/Departamenti:</strong> ${deptName || 'FTI'} &nbsp;|&nbsp; <strong>Viti:</strong> ${academicYear} &nbsp;|&nbsp; <strong>Grupi:</strong> ${className} &nbsp;|&nbsp; <strong>Lenda:</strong> ${courseName} (${roleType})`;
             }
 
-            // Nese eshte Laborator, fshihet tab-i i Regjistrit dhe mbeten vetem Tema dhe Mungesat
-            const isLaborator = roleType && roleType.toLowerCase().includes('laborator');
+            // Menaxhimi i tab-eve sipas rolit: Per Laborator shfaqen VETEM Tema dhe Mungesat
+            const isLab = (roleType === 'LABORATOR' || displayRoleType === 'Laborator');
             const tabRegItem = document.getElementById('navItemRregjistri');
             const paneReg = document.getElementById('rregjistri-pane');
-            const temaTabBtn = document.getElementById('tema-tab');
-            const regTabBtn = document.getElementById('rregjistri-tab');
+            const tabProvimiItem = document.getElementById('navItemProvimi');
+            const paneProvimi = document.getElementById('provimi-pane');
 
-            if (isLaborator) {
+            if (isLab) {
+                // Fshihen tab-et e Regjistrit dhe Provimit per laborator
                 if (tabRegItem) tabRegItem.classList.add('d-none');
-                if (paneReg) paneReg.classList.add('d-none');
-                if (regTabBtn && regTabBtn.classList.contains('active') && temaTabBtn) {
-                    bootstrap.Tab.getOrCreateInstance(temaTabBtn).show();
+                if (paneReg) {
+                    paneReg.classList.add('d-none');
+                    paneReg.classList.remove('show', 'active');
+                }
+                if (tabProvimiItem) tabProvimiItem.classList.add('d-none');
+                if (paneProvimi) {
+                    paneProvimi.classList.add('d-none');
+                    paneProvimi.classList.remove('show', 'active');
+                }
+
+                // Nese ishte aktiv Regjistri ose Provimi, kalo automatikisht te Tema
+                const activeBtn = document.querySelector('#pedagogTabs .connected-tab-btn.active');
+                if (activeBtn && (activeBtn.id === 'rregjistri-tab' || activeBtn.id === 'provimi-tab')) {
+                    const temaBtn = document.getElementById('tema-tab');
+                    const temaPane = document.getElementById('tema-pane');
+                    if (temaBtn) {
+                        document.querySelectorAll('#pedagogTabs .connected-tab-btn').forEach(b => b.classList.remove('active'));
+                        temaBtn.classList.add('active');
+                    }
+                    if (temaPane) {
+                        document.querySelectorAll('#pedagogTabsContent .tab-pane').forEach(p => p.classList.remove('show', 'active'));
+                        temaPane.classList.add('show', 'active');
+                    }
                 }
             } else {
                 if (tabRegItem) tabRegItem.classList.remove('d-none');
                 if (paneReg) paneReg.classList.remove('d-none');
+                if (tabProvimiItem) tabProvimiItem.classList.remove('d-none');
+                if (paneProvimi) paneProvimi.classList.remove('d-none');
             }
 
-            // Ngarko Temat, Regjistrin, Mungesat dhe Provimin
+            // Ngarko Temat, Regjistrin (per mungesat), dhe Provimin (vetem nese nuk eshte laborator)
             await Promise.all([
                 ngarkoTemat(courseId),
-                ngarkoRegjistrin(courseId, classId, academicYear, roleType),
-                ngarkoExamAttendance(courseId, classId)
+                ngarkoRegjistrin(courseId, classId, academicYear, roleType, allClassIds),
+                !isLab ? ngarkoExamAttendance(courseId, classId) : Promise.resolve()
             ]);
         }
 
-        async function ngarkoRegjistrin(courseId, classId, academicYear, roleType) {
+        async function ngarkoRegjistrin(courseId, classId, academicYear, roleType, classIds) {
             let url = '/api/pedagog/register';
             const params = [];
             if (courseId) params.push('courseId=' + courseId);
             if (classId) params.push('classId=' + classId);
+            if (classIds) params.push('classIds=' + encodeURIComponent(classIds));
             if (academicYear) params.push('academicYear=' + encodeURIComponent(academicYear));
             if (roleType) params.push('roleType=' + encodeURIComponent(roleType));
             if (params.length > 0) url += '?' + params.join('&');
@@ -1576,7 +1682,7 @@
         }
     </script>
 
-<div class="modal fade" id="modalTema" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalTema" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">

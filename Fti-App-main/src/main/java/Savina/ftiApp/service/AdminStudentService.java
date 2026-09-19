@@ -157,13 +157,33 @@ public class AdminStudentService {
         if (classes == null && program != null) {
             final Program targetProgram = program;
             Integer viti = req.getVitStudimit() != null ? req.getVitStudimit() : 1;
-            String emriClass = req.getGrupi() != null ? req.getGrupi() : "";
-            classes = classesRepo.findFirstByProgramAndVitStudimit(targetProgram, viti)
-                    .orElseGet(() -> classesRepo.save(Classes.builder()
-                    .program(targetProgram)
-                    .vitStudimit(viti)
-                    .emriClass(emriClass)
-                    .build()));
+            String emriClass = req.getGrupi() != null && !req.getGrupi().isBlank() ? req.getGrupi().trim() : "Grupi A";
+            
+            List<Classes> classList = classesRepo.findByProgram_ProgramIdAndVitStudimit(targetProgram.getProgramId(), viti);
+            classes = classList.stream()
+                    .filter(c -> c.getEmriClass() != null && (
+                            c.getEmriClass().equalsIgnoreCase(emriClass)
+                            || c.getEmriClass().toLowerCase().contains(emriClass.toLowerCase())
+                            || emriClass.toLowerCase().contains(c.getEmriClass().toLowerCase())
+                            || (emriClass.toUpperCase().contains("A") && c.getEmriClass().toUpperCase().contains("A"))
+                            || (emriClass.toUpperCase().contains("B") && c.getEmriClass().toUpperCase().contains("B"))
+                            || (emriClass.toUpperCase().contains("C") && c.getEmriClass().toUpperCase().contains("C"))
+                            || (emriClass.toUpperCase().contains("D") && c.getEmriClass().toUpperCase().contains("D"))
+                    ))
+                    .findFirst()
+                    .orElse(null);
+
+            if (classes == null) {
+                if (!classList.isEmpty()) {
+                    classes = classList.get(0);
+                } else {
+                    classes = classesRepo.save(Classes.builder()
+                            .program(targetProgram)
+                            .vitStudimit(viti)
+                            .emriClass(emriClass)
+                            .build());
+                }
+            }
         }
 
         StudentPreEnrollment pe = StudentPreEnrollment.builder()
@@ -254,13 +274,33 @@ public class AdminStudentService {
         if (classes == null && program != null) {
             final Program targetProgram = program;
             Integer viti = req.getVitStudimit() != null ? req.getVitStudimit() : 1;
-            String emriClass = req.getGrupi() != null ? req.getGrupi() : "";
-            classes = classesRepo.findFirstByProgramAndVitStudimit(targetProgram, viti)
-                    .orElseGet(() -> classesRepo.save(Classes.builder()
-                    .program(targetProgram)
-                    .vitStudimit(viti)
-                    .emriClass(emriClass)
-                    .build()));
+            String emriClass = req.getGrupi() != null && !req.getGrupi().isBlank() ? req.getGrupi().trim() : "Grupi A";
+            
+            List<Classes> classList = classesRepo.findByProgram_ProgramIdAndVitStudimit(targetProgram.getProgramId(), viti);
+            classes = classList.stream()
+                    .filter(c -> c.getEmriClass() != null && (
+                            c.getEmriClass().equalsIgnoreCase(emriClass)
+                            || c.getEmriClass().toLowerCase().contains(emriClass.toLowerCase())
+                            || emriClass.toLowerCase().contains(c.getEmriClass().toLowerCase())
+                            || (emriClass.toUpperCase().contains("A") && c.getEmriClass().toUpperCase().contains("A"))
+                            || (emriClass.toUpperCase().contains("B") && c.getEmriClass().toUpperCase().contains("B"))
+                            || (emriClass.toUpperCase().contains("C") && c.getEmriClass().toUpperCase().contains("C"))
+                            || (emriClass.toUpperCase().contains("D") && c.getEmriClass().toUpperCase().contains("D"))
+                    ))
+                    .findFirst()
+                    .orElse(null);
+
+            if (classes == null) {
+                if (!classList.isEmpty()) {
+                    classes = classList.get(0);
+                } else {
+                    classes = classesRepo.save(Classes.builder()
+                            .program(targetProgram)
+                            .vitStudimit(viti)
+                            .emriClass(emriClass)
+                            .build());
+                }
+            }
         }
 
         if ("VERIFIKUAR".equalsIgnoreCase(status)) {

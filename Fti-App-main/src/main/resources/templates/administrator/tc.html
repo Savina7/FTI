@@ -219,19 +219,32 @@
                     <div class="card-body p-3">
                         <form id="filterFormTc" onsubmit="return false;">
                             <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label small fw-semibold text-muted">Dega </label>
                                     <select id="tableFilterProg" class="form-select form-select-sm">
                                         <option value="">Te gjitha deget</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <label class="form-label small fw-semibold text-muted">Viti</label>
                                     <select id="tableFilterViti" class="form-select form-select-sm">
                                         <option value="">Gjithe vitet</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 d-flex gap-2">
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold text-muted">Semestri</label>
+                                    <select id="tableFilterSemestri" class="form-select form-select-sm">
+                                        <option value="1" selected>Semestri 1</option>
+                                        <option value="2">Semestri 2</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-semibold text-muted">Viti Akademik</label>
+                                    <select id="tableFilterVitiAkademik" class="form-select form-select-sm">
+                                        <option value="2025-2026" selected>2025-2026</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 d-flex gap-2">
                                     <button type="button" id="btnFiltroTable"
                                         class="btn btn-dark btn-sm flex-fill fw-semibold">
                                         Kerko
@@ -288,6 +301,14 @@
 
                             <div id="modalTcStep1">
 
+                                <div class="mb-2" id="groupVitiAkademik">
+                                    <label class="form-label small fw-semibold text-dark mb-1"
+                                        style="font-size: 0.74rem;">Viti Akademik</label>
+                                    <select class="form-select form-select-sm py-0"
+                                        style="height: 28px; font-size: 0.76rem;" id="selectVitiAkademik" required>
+                                    </select>
+                                </div>
+
                                 <div class="mb-2" id="groupDepartamenti">
                                     <label class="form-label small fw-semibold text-dark mb-1"
                                         style="font-size: 0.74rem;">Departamenti</label>
@@ -320,6 +341,16 @@
                                     <select class="form-select form-select-sm py-0"
                                         style="height: 28px; font-size: 0.76rem;" id="selectViti" required>
                                         <option value=""></option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-2" id="groupSemestri">
+                                    <label class="form-label small fw-semibold text-dark mb-1"
+                                        style="font-size: 0.74rem;">Semestri</label>
+                                    <select class="form-select form-select-sm py-0"
+                                        style="height: 28px; font-size: 0.76rem;" id="selectSemestri">
+                                        <option value="1" selected>Semestri 1</option>
+                                        <option value="2">Semestri 2</option>
                                     </select>
                                 </div>
 
@@ -542,6 +573,8 @@
                 let allAllocationsData = [];
                 let currentClasses = [];
                 let currentEditingCourseId = null;
+                let currentActiveAcademicYear = "2025-2026";
+                let availableAcademicYears = ["2025-2026"];
 
                 $(document).ready(function () {
                     $.fn.dataTable.ext.pager.single_number = function (page, pages) {
@@ -559,6 +592,8 @@
                     $('#btnRefreshTable').on('click', function () {
                         $('#tableFilterProg').val('');
                         $('#tableFilterViti').val('');
+                        $('#tableFilterSemestri').val('1');
+                        $('#tableFilterVitiAkademik').val(currentActiveAcademicYear);
                         if (tableTeaching) tableTeaching.draw();
                     });
 
@@ -606,6 +641,18 @@
 
                 async function loadDatabaseData() {
                     try {
+                        // 0. Load Active & Available Academic Years
+                        try {
+                            const resYear = await fetch('/api/admin/academic-year/current', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
+                            if (resYear.ok) {
+                                const yearData = await resYear.json();
+                                if (yearData.currentAcademicYear) currentActiveAcademicYear = yearData.currentAcademicYear;
+                                if (yearData.availableYears && yearData.availableYears.length > 0) availableAcademicYears = yearData.availableYears;
+                            }
+                        } catch (_) { }
+
+                        populateAcademicYearDropdowns();
+
                         // 1. Load Departments from DB API
                         const resDept = await fetch('/api/admin/courses/departments', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
                         if (resDept.ok) {
@@ -645,20 +692,43 @@
                     }
                 }
 
+                function populateAcademicYearDropdowns() {
+                    const filterSelect = $('#tableFilterVitiAkademik');
+                    filterSelect.empty();
+                    availableAcademicYears.forEach(y => {
+                        const sel = (y === currentActiveAcademicYear) ? 'selected' : '';
+                        filterSelect.append(`<option value="${y}" ${sel}>${y}</option>`);
+                    });
+                    if (currentActiveAcademicYear) {
+                        filterSelect.val(currentActiveAcademicYear);
+                    }
+
+                    const modalSelect = $('#selectVitiAkademik');
+                    modalSelect.empty();
+                    availableAcademicYears.forEach(y => {
+                        const sel = (y === currentActiveAcademicYear) ? 'selected' : '';
+                        modalSelect.append(`<option value="${y}" ${sel}>${y}</option>`);
+                    });
+                }
+
                 function setupTableDataFilter() {
                     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                         if (!settings || settings.nTable.id !== 'tabelaTeaching') return true;
 
                         const selProgId = $('#tableFilterProg').val();
                         const selViti = $('#tableFilterViti').val();
+                        const selSemestri = $('#tableFilterSemestri').val();
+                        const selAcadYear = $('#tableFilterVitiAkademik').val();
 
-                        if (!selProgId && !selViti) return true;
+                        if (!selProgId && !selViti && !selSemestri && !selAcadYear) return true;
 
                         if (!allAllocationsData || !allAllocationsData[dataIndex]) return true;
                         const item = allAllocationsData[dataIndex];
 
                         if (selProgId && String(item.programId) !== String(selProgId)) return false;
                         if (selViti && String(item.studyYear) !== String(selViti)) return false;
+                        if (selSemestri && String(item.semester).trim() !== String(selSemestri).trim()) return false;
+                        if (selAcadYear && item.academicYear && String(item.academicYear).trim() !== String(selAcadYear).trim()) return false;
 
                         return true;
                     });
@@ -1024,6 +1094,10 @@
                     $('#selectNiveli').val('');
                     $('#selectProgrami').val('');
                     $('#selectViti').val('');
+                    $('#selectSemestri').val('1');
+
+                    populateAcademicYearDropdowns();
+                    $('#selectVitiAkademik').val(currentActiveAcademicYear);
 
                     populateDepartmentDropdown();
                     populateNiveliDropdown();
@@ -1044,6 +1118,8 @@
                 async function goToModalStep2(preselectedCourseId = null) {
                     const progId = $('#selectProgrami').val();
                     const viti = $('#selectViti').val();
+                    const semestri = $('#selectSemestri').val();
+                    const acadYear = $('#selectVitiAkademik').val() || currentActiveAcademicYear;
 
                     if (!progId || !viti) {
                         alert("Ju lutem zgjidhni Nivelin, Degen dhe Vitin para se te vazhdoni.");
@@ -1054,9 +1130,13 @@
                     await loadClassesForCurrentSelection(progId, viti);
 
                     const progName = $('#selectProgrami option:selected').text();
-                    $('#step2SummaryBadge').text(`${progName} • Viti ${viti}`);
+                    const semText = semestri ? ` • Semestri ${semestri}` : '';
+                    $('#step2SummaryBadge').text(`${progName} • Viti ${viti}${semText} • ${acadYear}`);
 
                     let courses = allCourses.filter(c => String(c.programId) === String(progId) && String(c.studyYear) === String(viti));
+                    if (semestri) {
+                        courses = courses.filter(c => String(c.semester) === String(semestri));
+                    }
 
                     renderModalCoursesSidebar(courses, preselectedCourseId);
 
@@ -1202,11 +1282,11 @@
                     $('#inputWeeklyOreCourseWork').val('1');
                     $('#inputWeeklyOrePractice').val('2');
 
-                    $('#lblOreLeksion').html(`Orë javore leksion <span class="text-muted fw-normal">(${totL}h gjithsej)</span>`);
-                    $('#lblOreSeminar').html(`Orë javore seminar <span class="text-muted fw-normal">(${totS}h gjithsej)</span>`);
-                    $('#lblOreLab').html(`Orë javore laborator <span class="text-muted fw-normal">(${totLb}h gjithsej)</span>`);
-                    $('#lblOreCourseWork').html(`Orë javore detyrë kursi <span class="text-muted fw-normal">(${totCw}h gjithsej)</span>`);
-                    $('#lblOrePractice').html(`Orë javore praktikë <span class="text-muted fw-normal">(${totPr}h gjithsej)</span>`);
+                    $('#lblOreLeksion').html(`Orë javore leksion`);
+                    $('#lblOreSeminar').html(`Orë javore seminar`);
+                    $('#lblOreLab').html(`Orë javore laborator`);
+                    $('#lblOreCourseWork').html(`Orë javore detyrë kursi`);
+                    $('#lblOrePractice').html(`Orë javore praktikë`);
 
                     $('#selectLeksionProf').val('');
                     $('#seminarContainer').empty();
@@ -1275,13 +1355,18 @@
                     try {
                         const targetCourse = allCourses.find(c => String(c.courseId) === String(courseId));
                         let sem = '1';
+                        let existingAcadYear = currentActiveAcademicYear;
                         try {
                             const res = await fetch(`/api/admin/teaching-courses/${courseId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('jwtToken') || '') } });
                             if (res.ok) {
                                 const data = await res.json();
                                 if (data && data.semester) sem = data.semester;
+                                if (data && data.academicYear) existingAcadYear = data.academicYear;
                             }
                         } catch (_) { }
+
+                        populateAcademicYearDropdowns();
+                        if (existingAcadYear) $('#selectVitiAkademik').val(existingAcadYear);
 
                         const deptId = targetCourse ? targetCourse.departmentId : null;
                         const progId = targetCourse ? targetCourse.programId : null;
@@ -1299,6 +1384,8 @@
 
                         populateVitiDropdown();
                         if (studyYear) $('#selectViti').val(studyYear);
+
+                        if (sem) $('#selectSemestri').val(sem);
 
                         await goToModalStep2(courseId);
                         modalTeaching.show();
@@ -1627,8 +1714,11 @@
                     const weeklyCw = $('#inputWeeklyOreCourseWork').val() !== '' ? parseFloat($('#inputWeeklyOreCourseWork').val()) : null;
                     const weeklyPr = $('#inputWeeklyOrePractice').val() !== '' ? parseFloat($('#inputWeeklyOrePractice').val()) : null;
 
+                    const acadYear = $('#selectVitiAkademik').val() || currentActiveAcademicYear;
+
                     const payload = {
                         courseId: courseId,
+                        academicYear: acadYear,
                         weeklyLectureHours: weeklyL,
                         weeklySeminarHours: weeklyS,
                         weeklyLabHours: weeklyLb,

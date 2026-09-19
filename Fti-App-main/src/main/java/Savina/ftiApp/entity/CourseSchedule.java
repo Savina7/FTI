@@ -33,11 +33,13 @@ public class CourseSchedule {
     @Column(name = "END_TIME", length = 10, nullable = false)
     private String endTime;
 
-    @Column(name = "ACADEMIC_YEAR", length = 9)
-    private String academicYear;
-
     @ToString.Exclude @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOM_ID")
     private Room room;
+
+    public String getAcademicYear() {
+        return (teachingCourse != null && teachingCourse.getAcademicYear() != null)
+                ? teachingCourse.getAcademicYear() : null;
+    }
 }

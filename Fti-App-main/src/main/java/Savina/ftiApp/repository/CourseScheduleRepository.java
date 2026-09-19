@@ -12,14 +12,14 @@ import java.util.List;
 @Repository
 public interface CourseScheduleRepository extends JpaRepository<CourseSchedule, Integer> {
 
-    @Query("SELECT DISTINCT cs.academicYear FROM CourseSchedule cs WHERE cs.academicYear IS NOT NULL AND cs.academicYear <> ''")
+    @Query("SELECT DISTINCT tc.academicYear FROM CourseSchedule cs JOIN cs.teachingCourse tc WHERE tc.academicYear IS NOT NULL AND tc.academicYear <> ''")
     List<String> findDistinctAcademicYears();
 
     List<CourseSchedule> findByRoom_RoomId(Integer roomId);
 
     @Query("SELECT cs FROM CourseSchedule cs " +
-           "WHERE cs.classes.program.programId = :programId " +
-           "AND (:studyYear IS NULL OR cs.classes.vitStudimit = :studyYear) " +
+           "WHERE (cs.classes.program.programId = :programId OR cs.teachingCourse.course.program.programId = :programId) " +
+           "AND (:studyYear IS NULL OR cs.classes.vitStudimit = :studyYear OR cs.teachingCourse.course.studyYear = :studyYear) " +
            "ORDER BY cs.dayOfWeek, cs.startTime")
     List<CourseSchedule> findByProgramAndStudyYear(@Param("programId") Integer programId,
                                                   @Param("studyYear") Integer studyYear);

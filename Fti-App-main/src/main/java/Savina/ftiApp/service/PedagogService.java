@@ -83,6 +83,7 @@ public class PedagogService {
     private final TopicRepository topicRepo;
     private final ProgramRepository programRepo;
     private final PedagogMapper pedagogMapper;
+    private final AcademicYearService academicYearService;
     private final ExamScheduleRepository examScheduleRepo;
     private final ExamAttendanceRepository examAttendanceRepo;
     private final FailedCourseRepository failedCourseRepo;
@@ -187,16 +188,12 @@ public class PedagogService {
                     professor.getProfessorId(), teachingCourses.size());
         }
 
-        List<String> academicYears = courseScheduleRepo.findDistinctAcademicYears();
+        List<String> academicYears = academicYearService.getAvailableAcademicYears();
         if (academicYears == null || academicYears.isEmpty()) {
-            int currentYear = LocalDate.now().getMonthValue() >= 9
-                    ? LocalDate.now().getYear()
-                    : LocalDate.now().getYear() - 1;
-            academicYears = Arrays.asList(
-                    (currentYear) + "-" + (currentYear + 1),
-                    (currentYear - 1) + "-" + currentYear,
-                    (currentYear + 1) + "-" + (currentYear + 2)
-            );
+            academicYears = teachingCourseRepo.findDistinctAcademicYears();
+        }
+        if (academicYears == null || academicYears.isEmpty()) {
+            academicYears = Collections.singletonList("2025-2026");
         }
 
         List<PedagogOptionsDto.DepartmentOptionDto> departmentOptions = new ArrayList<>();
@@ -213,6 +210,7 @@ public class PedagogService {
 
         Map<Integer, Set<String>> courseBranchesMap = new HashMap<>();
         Map<Integer, Set<Program>> courseProgramsMap = new HashMap<>();
+        Map<Integer, Set<String>> courseRolesMap = new HashMap<>();
 
         if (!teachingCourses.isEmpty()) {
             for (TeachingCourse tc : teachingCourses) {
@@ -229,9 +227,14 @@ public class PedagogService {
                     typesSet.add("Laborator");
                     hasRegistry = true;
                 }
+                if (role.contains("PRAKTIKE") || role.contains("PRAKTIK")) {
+                    typesSet.add("Praktikë");
+                    hasRegistry = true;
+                }
 
                 if (tc.getCourse() != null) {
                     Course c = tc.getCourse();
+                    courseRolesMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(role);
 
                     Department dept = (c.getProgram() != null) ? c.getProgram().getDepartment() : null;
                     if (dept == null && c.getDepartments() != null && !c.getDepartments().isEmpty()) {
@@ -259,22 +262,28 @@ public class PedagogService {
                         courseOptions.add(cDto);
                     }
 
-                    if (tc.getClasses() != null && !tc.getClasses().isEmpty()) {
-                        for (Classes cl : tc.getClasses()) {
-                            if (cl.getProgram() != null) {
-                                courseProgramsMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram());
-                                if (cl.getProgram().getSpecializimi() != null) {
-                                    courseBranchesMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram().getSpecializimi().trim());
-                                }
+                    List<Classes> targetClasses = (tc.getClasses() != null && !tc.getClasses().isEmpty())
+                            ? new ArrayList<>(tc.getClasses())
+                            : ((c.getProgram() != null)
+                                    ? (c.getStudyYear() != null
+                                            ? classesRepo.findByProgram_ProgramIdAndVitStudimit(c.getProgram().getProgramId(), c.getStudyYear())
+                                            : classesRepo.findByProgram_ProgramId(c.getProgram().getProgramId()))
+                                    : Collections.emptyList());
+
+                    for (Classes cl : targetClasses) {
+                        if (cl.getProgram() != null) {
+                            courseProgramsMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram());
+                            if (cl.getProgram().getSpecializimi() != null) {
+                                courseBranchesMap.computeIfAbsent(c.getCourseId(), k -> new LinkedHashSet<>()).add(cl.getProgram().getSpecializimi().trim());
                             }
-                            if (cl.getClassId() != null) {
-                                String classKey = cl.getClassId() + "_" + c.getCourseId() + "_" + role;
-                                if (!seenClassKeys.contains(classKey)) {
-                                    seenClassKeys.add(classKey);
-                                    PedagogOptionsDto.ClassOptionDto clDto = pedagogMapper.buildClassOption(cl, c.getCourseId());
-                                    clDto.setRoleType(role);
-                                    classOptions.add(clDto);
-                                }
+                        }
+                        if (cl.getClassId() != null) {
+                            String classKey = cl.getClassId() + "_" + c.getCourseId() + "_" + role;
+                            if (!seenClassKeys.contains(classKey)) {
+                                seenClassKeys.add(classKey);
+                                PedagogOptionsDto.ClassOptionDto clDto = pedagogMapper.buildClassOption(cl, c.getCourseId());
+                                clDto.setRoleType(role);
+                                classOptions.add(clDto);
                             }
                         }
                     }
@@ -290,6 +299,12 @@ public class PedagogService {
                     }
                 } else if (cDto.getProgramName() != null && !cDto.getProgramName().isBlank()) {
                     cDto.setBranches(List.of(cDto.getProgramName()));
+                }
+                Set<String> rls = courseRolesMap.get(cDto.getId());
+                if (rls != null && !rls.isEmpty()) {
+                    cDto.setRoleTypes(new ArrayList<>(rls));
+                } else {
+                    cDto.setRoleTypes(Collections.emptyList());
                 }
             }
         } else {
@@ -323,6 +338,10 @@ public class PedagogService {
             }
         }
 
+        if (classOptions != null && !classOptions.isEmpty()) {
+            classOptions.sort((a, b) -> (a.getName() != null ? a.getName() : "").compareToIgnoreCase(b.getName() != null ? b.getName() : ""));
+        }
+
         log.info("[getPedagogOptions] Perfundoi: Kurse={}, Tipa={}, Departamente={}, Klasa={}, isLektor={}, hasRegistry={}",
                 courseOptions.size(), typesList, departmentOptions.size(), classOptions.size(), isLektor, hasRegistry);
 
@@ -342,24 +361,53 @@ public class PedagogService {
 
     @Transactional(readOnly = true)
     public PedagogRegisterDto getRegisterData(Integer courseId, Integer classId, String academicYear, String roleType) {
+        return getRegisterData(courseId, classId, null, academicYear, roleType);
+    }
+
+    @Transactional(readOnly = true)
+    public PedagogRegisterDto getRegisterData(Integer courseId, Integer classId, String classIds, String academicYear, String roleType) {
         Course course = courseId != null ? courseRepo.findById(courseId).orElse(null) : null;
         Classes classes = classId != null ? classesRepo.findById(classId).orElse(null) : null;
 
-        List<Student> students = new ArrayList<>();
-        if (classId != null) {
-            students.addAll(studentRepo.findByClasses_ClassId(classId));
-        }
-        if (students.isEmpty() && course != null && course.getProgram() != null) {
-            students.addAll(studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId()));
-        }
-        if (students.isEmpty()) {
-            List<Student> all = studentRepo.findAll();
-            if (all.size() > 15) {
-                students.addAll(all.subList(0, 15));
-            } else {
-                students.addAll(all);
+        List<Student> rawStudents = new ArrayList<>();
+        List<Integer> parsedClassIds = new ArrayList<>();
+        if (classIds != null && !classIds.isBlank()) {
+            for (String part : classIds.split(",")) {
+                try {
+                    int cid = Integer.parseInt(part.trim());
+                    if (!parsedClassIds.contains(cid)) parsedClassIds.add(cid);
+                } catch (NumberFormatException ignored) {}
             }
         }
+        if (classId != null && !parsedClassIds.contains(classId)) {
+            parsedClassIds.add(classId);
+        }
+
+        if (!parsedClassIds.isEmpty()) {
+            rawStudents.addAll(studentRepo.findByClasses_ClassIdIn(parsedClassIds));
+        } else if (classId != null) {
+            rawStudents.addAll(studentRepo.findByClasses_ClassId(classId));
+        } else if (course != null && course.getProgram() != null) {
+            if (course.getStudyYear() != null) {
+                rawStudents.addAll(studentRepo.findByProgram_ProgramIdAndVitStudimit(course.getProgram().getProgramId(), course.getStudyYear()));
+            } else {
+                rawStudents.addAll(studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId()));
+            }
+        }
+
+        // Deduplicate students by studentId and sort alphabetically
+        Map<Integer, Student> uniqueStudentsMap = new LinkedHashMap<>();
+        for (Student s : rawStudents) {
+            if (s != null && s.getStudentId() != null) {
+                uniqueStudentsMap.putIfAbsent(s.getStudentId(), s);
+            }
+        }
+        List<Student> students = new ArrayList<>(uniqueStudentsMap.values());
+        students.sort((a, b) -> {
+            String nameA = (a.getUser() != null ? a.getUser().getEmri() + " " + a.getUser().getMbiemri() : "").trim();
+            String nameB = (b.getUser() != null ? b.getUser().getEmri() + " " + b.getUser().getMbiemri() : "").trim();
+            return nameA.compareToIgnoreCase(nameB);
+        });
 
         List<Topic> courseTopics = (courseId != null)
                 ? topicRepo.findByTeachingCourseCourseCourseIdOrderByWeekNumberAsc(courseId)
@@ -402,22 +450,12 @@ public class PedagogService {
             }
         }
 
-        Set<Integer> studentIds = students.stream()
-                .map(Student::getStudentId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
         Set<Integer> failedStudentIds = new HashSet<>();
-
         if (courseId != null) {
             List<FailedCourse> failedCourses = failedCourseRepo.findByTeachingCourse_Course_CourseId(courseId);
             for (FailedCourse fc : failedCourses) {
                 if (fc.getStudent() != null && fc.getStudent().getStudentId() != null) {
                     failedStudentIds.add(fc.getStudent().getStudentId());
-                    if (!studentIds.contains(fc.getStudent().getStudentId())) {
-                        studentIds.add(fc.getStudent().getStudentId());
-                        students.add(fc.getStudent());
-                    }
                 }
             }
 
@@ -428,10 +466,6 @@ public class PedagogService {
                             || "NP".equalsIgnoreCase(g.getStatus());
                     if (isFailed) {
                         failedStudentIds.add(g.getStudent().getStudentId());
-                        if (!studentIds.contains(g.getStudent().getStudentId())) {
-                            studentIds.add(g.getStudent().getStudentId());
-                            students.add(g.getStudent());
-                        }
                     }
                 }
             }
@@ -739,7 +773,9 @@ public class PedagogService {
         }
 
         if (course != null && course.getProgram() != null && course.getProgram().getProgramId() != null) {
-            List<Student> progStudents = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+            List<Student> progStudents = (course.getStudyYear() != null)
+                    ? studentRepo.findByProgram_ProgramIdAndVitStudimit(course.getProgram().getProgramId(), course.getStudyYear())
+                    : studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
             for (Student s : progStudents) {
                 if (s.getStudentId() != null) {
                     targetStudentsMap.put(s.getStudentId(), s);
@@ -752,7 +788,6 @@ public class PedagogService {
         for (Grade g : grades) {
             if (g.getStudent() != null && g.getStudent().getStudentId() != null) {
                 gradeByStudentId.put(g.getStudent().getStudentId(), g);
-                targetStudentsMap.putIfAbsent(g.getStudent().getStudentId(), g.getStudent());
             }
         }
 
@@ -762,7 +797,6 @@ public class PedagogService {
             for (FailedCourse fc : failedCourses) {
                 if (fc.getStudent() != null && fc.getStudent().getStudentId() != null) {
                     failedStudentIds.add(fc.getStudent().getStudentId());
-                    targetStudentsMap.putIfAbsent(fc.getStudent().getStudentId(), fc.getStudent());
                 }
             }
         }
@@ -1068,12 +1102,12 @@ public class PedagogService {
         List<Student> students = new ArrayList<>();
         if (classId != null) {
             students = studentRepo.findByClasses_ClassId(classId);
-        }
-        if (students.isEmpty() && course != null && course.getProgram() != null) {
-            students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
-        }
-        if (students.isEmpty()) {
-            students = studentRepo.findAll();
+        } else if (course != null && course.getProgram() != null) {
+            if (course.getStudyYear() != null) {
+                students = studentRepo.findByProgram_ProgramIdAndVitStudimit(course.getProgram().getProgramId(), course.getStudyYear());
+            } else {
+                students = studentRepo.findByProgram_ProgramId(course.getProgram().getProgramId());
+            }
         }
 
         Map<Integer, String> statusByStudent = new HashMap<>();

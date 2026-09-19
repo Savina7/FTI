@@ -90,8 +90,6 @@
 <div class="col-md-3">
                                     <select class="form-select form-select-sm" id="selectViti" required>
                                         <option value="2025-2026" selected>Viti 2025-2026</option>
-                                        <option value="2024-2025">Viti 2024-2025</option>
-                                        <option value="2026-2027">Viti 2026-2027</option>
                                     </select>
                                 </div>
 
@@ -334,7 +332,7 @@
             if (!pedagogOptionsData) {
                 pedagogOptionsData = {
                     professorName: localStorage.getItem('userName') || 'Profesor',
-                    academicYears: ["2025-2026", "2024-2025", "2026-2027"],
+                    academicYears: ["2025-2026"],
                     departments: [
                         { id: 1, name: "Departamenti i Inxhinierise Kompjuterike" },
                         { id: 2, name: "Departamenti i Elektronikes dhe Telekomunikacionit" }
@@ -393,7 +391,7 @@
             if (selectViti) {
                 const years = (pedagogOptionsData && pedagogOptionsData.academicYears && pedagogOptionsData.academicYears.length > 0)
                     ? pedagogOptionsData.academicYears
-                    : ["2025-2026", "2024-2025", "2026-2027"];
+                    : ["2025-2026"];
                 selectViti.innerHTML = '';
                 years.forEach((y, idx) => {
                     const opt = document.createElement('option');
@@ -432,27 +430,31 @@
             filterCoursesBySelectedDepartment();
         }
 
-        // 3. FILTRIMI I LENDEVE SIPAS DEPARTAMENTIT
+        // 3. FILTRIMI I LENDEVE SIPAS DEPARTAMENTIT (VETEM LENDET KU PROFESORI ESHTE LEKTOR)
         function filterCoursesBySelectedDepartment() {
             if (!pedagogOptionsData || !pedagogOptionsData.courses || pedagogOptionsData.courses.length === 0) {
                 populateCourses([]);
                 return;
             }
 
+            // Filtrojme vetem lendet ku profesori ka rol Leksioni (eshte Lektor i asaj lende)
+            const lektorCourses = pedagogOptionsData.courses.filter(c => {
+                if (!c.roleTypes || c.roleTypes.length === 0) return true;
+                return c.roleTypes.some(r => r.toUpperCase().includes('LEK') || r.toUpperCase().includes('LEKTOR'));
+            });
+
             const selectDept = document.getElementById('selectDepartamenti');
             const selectedOption = selectDept && selectDept.selectedIndex >= 0 ? selectDept.options[selectDept.selectedIndex] : null;
 
-            let filteredCourses = pedagogOptionsData.courses;
+            let filteredCourses = lektorCourses;
             if (selectedOption && selectedOption.dataset && selectedOption.dataset.deptId) {
                 const deptId = parseInt(selectedOption.dataset.deptId);
-                const matched = pedagogOptionsData.courses.filter(c => {
+                const matched = lektorCourses.filter(c => {
                     if (c.departmentId && c.departmentId === deptId) return true;
                     if (c.departmentIds && c.departmentIds.includes(deptId)) return true;
                     return false;
                 });
-                if (matched.length > 0) {
-                    filteredCourses = matched;
-                }
+                filteredCourses = matched;
             }
 
             populateCourses(filteredCourses);
@@ -463,12 +465,10 @@
             if (!selectLenda) return;
 
             selectLenda.innerHTML = '';
-            let listToUse = (courseList && courseList.length > 0)
-                ? courseList
-                : (pedagogOptionsData && pedagogOptionsData.courses ? pedagogOptionsData.courses : []);
+            let listToUse = (courseList !== undefined && courseList !== null) ? courseList : [];
 
             if (!listToUse || listToUse.length === 0) {
-                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lende te caktuara</option>';
+                selectLenda.innerHTML = '<option value="" disabled selected>Nuk ka lende leksioni te caktuara</option>';
                 populateBranches([]);
                 return;
             }

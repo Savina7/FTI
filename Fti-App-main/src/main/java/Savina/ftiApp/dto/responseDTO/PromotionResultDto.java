@@ -21,6 +21,7 @@ public class PromotionResultDto {
     private int repeatingYear2;
     private int repeatingYear3;
     private String message;
+    private String newAcademicYear;
 
     @Builder.Default
     private List<StudentPromotionDetailDto> details = new ArrayList<>();

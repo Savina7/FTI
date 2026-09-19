@@ -22,6 +22,7 @@ public class TeachingAllocationDto {
     private String programName;
     private String programNivel;
     private String semester;
+    private String academicYear;
     private Integer durationWeeks;
     private Double totalHours;
     private Double lectureHours;

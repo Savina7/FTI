@@ -135,17 +135,24 @@
                     <div class="card-body p-3">
                         <form id="filterFormEvidenca" onsubmit="return false;">
                             <div class="row g-2 align-items-end">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label mb-1 fw-semibold text-muted"
                                         style="font-size: 0.78rem;">Departamenti</label>
                                     <select id="filterDepartamenti" class="form-select form-select-sm"
                                         style="font-size: 0.82rem; height: 33px;">
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label mb-1 fw-semibold text-muted"
                                         style="font-size: 0.78rem;">Pedagogu</label>
                                     <select id="filterPedagogu" class="form-select form-select-sm"
+                                        style="font-size: 0.82rem; height: 33px;">
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label mb-1 fw-semibold text-muted"
+                                        style="font-size: 0.78rem;">Viti Akademik</label>
+                                    <select id="filterVitiAkademik" class="form-select form-select-sm"
                                         style="font-size: 0.82rem; height: 33px;">
                                     </select>
                                 </div>
@@ -200,10 +207,12 @@
         let allProfessors = [];
         let allEvidenca = [];
         let selectedProf = null;
+        let currentActiveAcademicYear = "2025-2026";
+        let availableAcademicYears = ["2025-2026"];
 
         $(document).ready(function () {
+            loadAcademicYearConfig();
             loadRealProfessors();
-            loadEvidenca();
 
             $('#filterDepartamenti').on('change', function () {
                 populateProfessors();
@@ -211,6 +220,10 @@
             });
 
             $('#filterPedagogu').on('change', function () {
+                $('#resultSection').hide();
+            });
+
+            $('#filterVitiAkademik').on('change', function () {
                 $('#resultSection').hide();
             });
 
@@ -224,12 +237,33 @@
 
             $('#btnReset').on('click', function () {
                 $('#filterDepartamenti').prop('selectedIndex', 0);
+                $('#filterVitiAkademik').val(currentActiveAcademicYear);
                 $('#filterSemestri').val('1');
                 populateProfessors();
                 $('#resultSection').hide();
                 selectedProf = null;
             });
         });
+
+        async function loadAcademicYearConfig() {
+            try {
+                const token = localStorage.getItem('jwtToken') || '';
+                const authHeader = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const res = await fetch('/api/admin/academic-year/current', { headers: authHeader });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.currentAcademicYear) currentActiveAcademicYear = data.currentAcademicYear;
+                    if (data.availableYears && data.availableYears.length > 0) availableAcademicYears = data.availableYears;
+                }
+            } catch (_) { }
+
+            const ySelect = $('#filterVitiAkademik');
+            ySelect.empty();
+            availableAcademicYears.forEach(y => {
+                const sel = (y === currentActiveAcademicYear) ? 'selected' : '';
+                ySelect.append(`<option value="${y}" ${sel}>${y}</option>`);
+            });
+        }
 
         /* ---------- 1. NGARKIMI I TE GJITHE PEDAGOGEVE NGA DB + DEPARTAMENTET ---------- */
         async function loadRealProfessors() {
@@ -345,248 +379,6 @@
             return [...new Set(all)].join(', ');
         }
 
-        async function loadEvidenca() {
-            const parseGroups = (assignment) => {
-                if (!assignment) return { groups: [], count: 0, text: '' };
-                let grps = [];
-                if (Array.isArray(assignment.classNames) && assignment.classNames.length > 0) {
-                    grps = assignment.classNames.map(s => formatSingleGroup(s)).filter(Boolean);
-                } else if (assignment.classGroup) {
-                    grps = assignment.classGroup.split(',').map(s => formatSingleGroup(s)).filter(Boolean);
-                }
-                const count = grps.length > 0 ? grps.length : 1;
-                const text = grps.length > 0 ? grps.join(', ') : (formatSingleGroup(assignment.classGroup) || 'A');
-                return { groups: grps, count, text };
-            };
-
-            try {
-                const token = localStorage.getItem('jwtToken') || '';
-                const authHeader = token ? { 'Authorization': 'Bearer ' + token } : {};
-                const res = await fetch('/api/admin/teaching-courses', { headers: authHeader });
-                if (!res.ok) return;
-                const allocations = await res.json();
-                if (!Array.isArray(allocations)) return;
-                allEvidenca = [];
-
-                allocations.forEach(alloc => {
-                    if (!alloc) return;
-                    const courseId = alloc.courseId;
-                    const courseEmri = alloc.courseEmri;
-                    const programEmri = alloc.programName || '';
-                    const semester = String(alloc.semester || '1').trim();
-                    const kredite = alloc.courseKredite || 6;
-                    const studyYear = alloc.studyYear;
-                    const krediteLeksion = alloc.krediteLeksion;
-                    const krediteSeminar = alloc.krediteSeminar;
-                    const krediteLaborator = alloc.krediteLaborator;
-                    const krediteDetyreKursi = alloc.krediteDetyreKursi;
-                    const kreditePraktike = alloc.kreditePraktike;
-
-                    // Check Lecture
-                    if (alloc.lectureProfessor && alloc.lectureProfessor.professorId) {
-                        const pId = alloc.lectureProfessor.professorId;
-                        let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
-                        if (!existing) {
-                            existing = {
-                                professorId: pId,
-                                courseId,
-                                courseEmri,
-                                programEmri,
-                                semester,
-                                kredite,
-                                krediteLeksion,
-                                krediteSeminar,
-                                krediteLaborator,
-                                krediteDetyreKursi,
-                                kreditePraktike,
-                                studyYear,
-                                oreLeksion: 0,
-                                oreSeminar: 0,
-                                oreLaborator: 0,
-                                oreDetyreKursi: 0,
-                                orePraktike: 0,
-                                grupiLeksion: '',
-                                grupiSeminar: '',
-                                grupiLaborator: '',
-                                grupiDetyreKursi: '',
-                                grupiPraktike: ''
-                            };
-                            allEvidenca.push(existing);
-                        }
-                        const parsedL = parseGroups(alloc.lectureProfessor);
-                        const baseLecHours = alloc.lectureHours != null ? alloc.lectureHours : (alloc.totalHours || 30);
-                        existing.oreLeksion = (existing.oreLeksion || 0) + baseLecHours;
-                        existing.grupiLeksion = 'Të gjithë';
-                    }
-
-                    // Check Seminar
-                    if (Array.isArray(alloc.seminarProfessors)) {
-                        alloc.seminarProfessors.forEach(sp => {
-                            if (!sp || !sp.professorId) return;
-                            const pId = sp.professorId;
-                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
-                            if (!existing) {
-                                existing = {
-                                    professorId: pId,
-                                    courseId,
-                                    courseEmri,
-                                    programEmri,
-                                    semester,
-                                    kredite,
-                                    krediteLeksion,
-                                    krediteSeminar,
-                                    krediteLaborator,
-                                    krediteDetyreKursi,
-                                    kreditePraktike,
-                                    studyYear,
-                                    oreLeksion: 0,
-                                    oreSeminar: 0,
-                                    oreLaborator: 0,
-                                    oreDetyreKursi: 0,
-                                    orePraktike: 0,
-                                    grupiLeksion: '',
-                                    grupiSeminar: '',
-                                    grupiLaborator: '',
-                                    grupiDetyreKursi: '',
-                                    grupiPraktike: ''
-                                };
-                                allEvidenca.push(existing);
-                            }
-                            const parsedS = parseGroups(sp);
-                            const baseSemHours = alloc.seminarHours != null ? alloc.seminarHours : (alloc.totalHours || 30);
-                            const totalSem = baseSemHours * parsedS.count;
-                            existing.oreSeminar = (existing.oreSeminar || 0) + totalSem;
-                            existing.grupiSeminar = existing.grupiSeminar ? mergeGroups(existing.grupiSeminar, parsedS.text) : parsedS.text;
-                        });
-                    }
-
-                    // Check Lab
-                    if (Array.isArray(alloc.labProfessors)) {
-                        alloc.labProfessors.forEach(lp => {
-                            if (!lp || !lp.professorId) return;
-                            const pId = lp.professorId;
-                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
-                            if (!existing) {
-                                existing = {
-                                    professorId: pId,
-                                    courseId,
-                                    courseEmri,
-                                    programEmri,
-                                    semester,
-                                    kredite,
-                                    krediteLeksion,
-                                    krediteSeminar,
-                                    krediteLaborator,
-                                    krediteDetyreKursi,
-                                    kreditePraktike,
-                                    studyYear,
-                                    oreLeksion: 0,
-                                    oreSeminar: 0,
-                                    oreLaborator: 0,
-                                    oreDetyreKursi: 0,
-                                    orePraktike: 0,
-                                    grupiLeksion: '',
-                                    grupiSeminar: '',
-                                    grupiLaborator: '',
-                                    grupiDetyreKursi: '',
-                                    grupiPraktike: ''
-                                };
-                                allEvidenca.push(existing);
-                            }
-                            const parsedLab = parseGroups(lp);
-                            const baseLabHours = alloc.labHours != null ? alloc.labHours : 15;
-                            const totalLab = baseLabHours * parsedLab.count;
-                            existing.oreLaborator = (existing.oreLaborator || 0) + totalLab;
-                            existing.grupiLaborator = existing.grupiLaborator ? mergeGroups(existing.grupiLaborator, parsedLab.text) : parsedLab.text;
-                        });
-                    }
-
-                    // Check CourseWork / Detyra Kursi
-                    const cwList = alloc.courseWorkProfessors || alloc.detyreKursiProfessors;
-                    if (Array.isArray(cwList)) {
-                        cwList.forEach(cwp => {
-                            if (!cwp || !cwp.professorId) return;
-                            const pId = cwp.professorId;
-                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
-                            if (!existing) {
-                                existing = {
-                                    professorId: pId,
-                                    courseId,
-                                    courseEmri,
-                                    programEmri,
-                                    semester,
-                                    kredite,
-                                    krediteLeksion,
-                                    krediteSeminar,
-                                    krediteLaborator,
-                                    krediteDetyreKursi,
-                                    kreditePraktike,
-                                    studyYear,
-                                    oreLeksion: 0,
-                                    oreSeminar: 0,
-                                    oreLaborator: 0,
-                                    oreDetyreKursi: 0,
-                                    orePraktike: 0,
-                                    grupiLeksion: '',
-                                    grupiSeminar: '',
-                                    grupiLaborator: '',
-                                    grupiDetyreKursi: '',
-                                    grupiPraktike: ''
-                                };
-                                allEvidenca.push(existing);
-                            }
-                            const parsedCw = parseGroups(cwp);
-                            const baseCwHours = alloc.courseWorkHours != null ? alloc.courseWorkHours : 5;
-                            const totalCw = baseCwHours * parsedCw.count;
-                            existing.oreDetyreKursi = (existing.oreDetyreKursi || 0) + totalCw;
-                            existing.grupiDetyreKursi = existing.grupiDetyreKursi ? mergeGroups(existing.grupiDetyreKursi, parsedCw.text) : parsedCw.text;
-                        });
-                    }
-
-                    // Check Practice
-                    if (Array.isArray(alloc.practiceProfessors)) {
-                        alloc.practiceProfessors.forEach(pp => {
-                            if (!pp || !pp.professorId) return;
-                            const pId = pp.professorId;
-                            let existing = allEvidenca.find(e => e.professorId === pId && e.courseId === courseId);
-                            if (!existing) {
-                                existing = {
-                                    professorId: pId,
-                                    courseId,
-                                    courseEmri,
-                                    programEmri,
-                                    semester,
-                                    kredite,
-                                    krediteLeksion,
-                                    krediteSeminar,
-                                    krediteLaborator,
-                                    krediteDetyreKursi,
-                                    kreditePraktike,
-                                    studyYear,
-                                    oreLeksion: 0,
-                                    oreSeminar: 0,
-                                    oreLaborator: 0,
-                                    oreDetyreKursi: 0,
-                                    orePraktike: 0,
-                                    grupiLeksion: '',
-                                    grupiSeminar: '',
-                                    grupiLaborator: '',
-                                    grupiDetyreKursi: '',
-                                    grupiPraktike: ''
-                                };
-                                allEvidenca.push(existing);
-                            }
-                            const parsedPr = parseGroups(pp);
-                            const basePrHours = alloc.practiceHours != null ? alloc.practiceHours : 10;
-                            const totalPr = basePrHours * parsedPr.count;
-                            existing.orePraktike = (existing.orePraktike || 0) + totalPr;
-                            existing.grupiPraktike = existing.grupiPraktike ? mergeGroups(existing.grupiPraktike, parsedPr.text) : parsedPr.text;
-                        });
-                    }
-                });
-            } catch (e) { console.error('Error loading evidenca:', e); }
-        }
-
         /* ---------- 5. HANDLE KERKO ---------- */
         function handleKerko() {
             const selProfId = $('#filterPedagogu').val();
@@ -644,57 +436,30 @@
 
             const selSemester = $('#filterSemestri').val() || '1';
             const romanSemester = (selSemester === '2' || selSemester === 'II') ? 'II' : 'I';
+            const selAcadYear = $('#filterVitiAkademik').val() || currentActiveAcademicYear;
 
-            const profEv = allEvidenca.filter(e => e.professorId === selectedProf.id && matchesSemester(e.semester, selSemester));
+            const token = localStorage.getItem('jwtToken') || '';
+            const authHeader = token ? { 'Authorization': 'Bearer ' + token } : {};
 
-            // Group by course
-            const byCourse = {};
-            profEv.forEach(e => {
-                if (!byCourse[e.courseId]) {
-                    byCourse[e.courseId] = { ...e };
-                } else {
-                    if (e.oreLeksion) {
-                        byCourse[e.courseId].oreLeksion = (byCourse[e.courseId].oreLeksion || 0) + e.oreLeksion;
-                        byCourse[e.courseId].grupiLeksion = mergeGroups(byCourse[e.courseId].grupiLeksion, e.grupiLeksion);
-                    }
-                    if (e.oreSeminar) {
-                        byCourse[e.courseId].oreSeminar = (byCourse[e.courseId].oreSeminar || 0) + e.oreSeminar;
-                        byCourse[e.courseId].grupiSeminar = mergeGroups(byCourse[e.courseId].grupiSeminar, e.grupiSeminar);
-                    }
-                    if (e.oreLaborator) {
-                        byCourse[e.courseId].oreLaborator = (byCourse[e.courseId].oreLaborator || 0) + e.oreLaborator;
-                        byCourse[e.courseId].grupiLaborator = mergeGroups(byCourse[e.courseId].grupiLaborator, e.grupiLaborator);
-                    }
-                    if (e.oreDetyreKursi) {
-                        byCourse[e.courseId].oreDetyreKursi = (byCourse[e.courseId].oreDetyreKursi || 0) + e.oreDetyreKursi;
-                        byCourse[e.courseId].grupiDetyreKursi = mergeGroups(byCourse[e.courseId].grupiDetyreKursi, e.grupiDetyreKursi);
-                    }
-                    if (e.orePraktike) {
-                        byCourse[e.courseId].orePraktike = (byCourse[e.courseId].orePraktike || 0) + e.orePraktike;
-                        byCourse[e.courseId].grupiPraktike = mergeGroups(byCourse[e.courseId].grupiPraktike, e.grupiPraktike);
-                    }
+            let courses = [];
+            try {
+                const res = await fetch(`/api/admin/teaching-courses/evidenca?professorId=${selectedProf.id}&semester=${encodeURIComponent(selSemester)}&academicYear=${encodeURIComponent(selAcadYear)}`, { headers: authHeader });
+                if (res.ok) {
+                    courses = await res.json();
                 }
-            });
-
-            let courses = Object.values(byCourse);
-            if (courses.length === 0) {
-                courses = [{
-                    courseId: 0,
-                    courseEmri: `Pa lëndë të alokuara për Semestrin ${romanSemester}`,
-                    programEmri: '—',
-                    kredite: 0,
-                    oreLeksion: 0,
-                    oreSeminar: 0,
-                    oreLaborator: 0,
-                    oreDetyreKursi: 0,
-                    orePraktike: 0
-                }];
+            } catch (err) {
+                console.error('[Evidenca] Gabim marrje te dhenash nga API:', err);
             }
 
-            // Convert /favicon.svg and /images/ftiidoclogo.png into PNG data URIs for Word
+            if (!courses || courses.length === 0) {
+                alert(`Pedagogu "${profFullName}" nuk ka lëndë mësimore të alokuara për Semestrin ${romanSemester} në vitin akademik ${selAcadYear}.`);
+                return;
+            }
+
+            // Convert /favicon.svg and /images/ftiidoclogo.png into PNG data URIs with white background for Word
             const uptLogoPngData = await svgToPngBase64('/favicon.svg', 70, 70);
             const ftiLogoPngData = await svgToPngBase64('/images/ftiidoclogo.png', 140, 55);
-            const wordContent = buildWordDoc(profFullName, deptName, courses, ftiLogoPngData, uptLogoPngData, romanSemester);
+            const wordContent = buildWordDoc(profFullName, deptName, courses, ftiLogoPngData, uptLogoPngData, romanSemester, selAcadYear);
 
             // Download directly as Microsoft Word .doc file with UTF-8 BOM
             const blob = new Blob(['\ufeff' + wordContent], {
@@ -718,9 +483,11 @@
                     img.crossOrigin = 'Anonymous';
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        canvas.width = width || img.naturalWidth || 60;
-                        canvas.height = height || img.naturalHeight || 60;
+                        canvas.width = width || img.naturalWidth || 70;
+                        canvas.height = height || img.naturalHeight || 70;
                         const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         resolve(canvas.toDataURL('image/png'));
                     };
@@ -743,8 +510,8 @@
         }
 
         /* ---------- BUILD OFFICIAL MICROSOFT WORD DOCUMENT (HORIZONTAL / LANDSCAPE) ---------- */
-        function buildWordDoc(profName, deptName, courses, ftiLogoData, uptLogoData, customSemester) {
-            const vitiAk = getCurrentAcademicYear();
+        function buildWordDoc(profName, deptName, courses, ftiLogoData, uptLogoData, customSemester, customAcademicYear) {
+            const vitiAk = customAcademicYear || currentActiveAcademicYear || getCurrentAcademicYear();
             const now = new Date();
             const dd = String(now.getDate()).padStart(2, '0');
             const mm = String(now.getMonth() + 1).padStart(2, '0');

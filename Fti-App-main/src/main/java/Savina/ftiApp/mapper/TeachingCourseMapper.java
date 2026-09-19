@@ -5,6 +5,8 @@ import Savina.ftiApp.entity.Classes;
 import Savina.ftiApp.entity.Course;
 import Savina.ftiApp.entity.Professor;
 import Savina.ftiApp.entity.TeachingCourse;
+import Savina.ftiApp.service.AcademicYearService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -12,7 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class TeachingCourseMapper {
+
+    private final AcademicYearService academicYearService;
 
     public TeachingAllocationDto mapCourseToEmptyDto(Course c) {
         if (c == null) return null;
@@ -51,6 +56,7 @@ public class TeachingCourseMapper {
         int defaultWeeks = isMaster ? 12 : 14;
         int durationWeeks = c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks;
         dto.setSemester(c.getSemester() != null ? c.getSemester() : "1");
+        dto.setAcademicYear(academicYearService.getCurrentAcademicYear());
         dto.setDurationWeeks(durationWeeks);
 
         double kL = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);
@@ -217,6 +223,7 @@ public class TeachingCourseMapper {
         int defaultWeeks = isMaster ? 12 : 14;
         int durationWeeks = c.getDurationWeeks() != null ? c.getDurationWeeks() : defaultWeeks;
         dto.setSemester(c.getSemester() != null ? c.getSemester() : "1");
+        dto.setAcademicYear(first.getAcademicYear() != null && !first.getAcademicYear().isBlank() ? first.getAcademicYear() : academicYearService.getCurrentAcademicYear());
         dto.setDurationWeeks(durationWeeks);
         
         double kL = c.getKrediteLeksion() != null ? c.getKrediteLeksion().doubleValue() : (c.getKredite() != null && c.getKredite() >= 6 ? 3.0 : 2.0);

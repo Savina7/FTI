@@ -43,8 +43,9 @@ public class AdminScheduleController {
     @GetMapping("/courses")
     public ResponseEntity<List<Map<String, Object>>> getCourses(
             @RequestParam(required = false) Integer programId,
-            @RequestParam(required = false) Integer studyYear) {
-        return ResponseEntity.ok(adminScheduleService.getCourses(programId, studyYear));
+            @RequestParam(required = false) Integer studyYear,
+            @RequestParam(required = false) String semester) {
+        return ResponseEntity.ok(adminScheduleService.getCourses(programId, studyYear, semester));
     }
 
     @GetMapping("/course-types")
